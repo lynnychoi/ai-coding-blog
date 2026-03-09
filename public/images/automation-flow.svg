@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" font-family="monospace" font-size="13">
+  <!-- Background -->
+  <rect width="720" height="200" fill="#fafafa" rx="12"/>
+
+  <!-- Box 1: Dev Log -->
+  <rect x="30" y="70" width="140" height="60" fill="#fff" stroke="#e5e7eb" stroke-width="1.5" rx="8"/>
+  <text x="100" y="97" text-anchor="middle" fill="#374151" font-weight="bold" font-size="12">dev-log.md</text>
+  <text x="100" y="115" text-anchor="middle" fill="#9ca3af" font-size="11">오늘 한 일 메모</text>
+
+  <!-- Arrow 1 -->
+  <line x1="172" y1="100" x2="218" y2="100" stroke="#d1d5db" stroke-width="1.5"/>
+  <polygon points="218,95 228,100 218,105" fill="#d1d5db"/>
+
+  <!-- Box 2: Claude -->
+  <rect x="230" y="60" width="140" height="80" fill="#1e1b4b" stroke="none" rx="8"/>
+  <text x="300" y="92" text-anchor="middle" fill="#a5b4fc" font-size="11">Claude API</text>
+  <text x="300" y="110" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12">claude-opus-4-6</text>
+  <text x="300" y="128" text-anchor="middle" fill="#6366f1" font-size="10">generate:all</text>
+
+  <!-- Arrow 2 top -->
+  <line x1="372" y1="80" x2="418" y2="60" stroke="#d1d5db" stroke-width="1.5"/>
+  <polygon points="414,55 424,60 416,68" fill="#d1d5db"/>
+
+  <!-- Arrow 2 bottom -->
+  <line x1="372" y1="120" x2="418" y2="140" stroke="#d1d5db" stroke-width="1.5"/>
+  <polygon points="414,132 424,140 416,148" fill="#d1d5db"/>
+
+  <!-- Box 3 top: Blog Post -->
+  <rect x="430" y="30" width="140" height="55" fill="#fff" stroke="#e5e7eb" stroke-width="1.5" rx="8"/>
+  <text x="500" y="53" text-anchor="middle" fill="#374151" font-weight="bold" font-size="12">Blog Post</text>
+  <text x="500" y="71" text-anchor="middle" fill="#9ca3af" font-size="11">content/posts/*.md</text>
+
+  <!-- Box 3 bottom: Twitter -->
+  <rect x="430" y="115" width="140" height="55" fill="#fff" stroke="#e5e7eb" stroke-width="1.5" rx="8"/>
+  <text x="500" y="138" text-anchor="middle" fill="#374151" font-weight="bold" font-size="12">Twitter Thread</text>
+  <text x="500" y="156" text-anchor="middle" fill="#9ca3af" font-size="11">stdout 출력</text>
+
+  <!-- Arrow 3 -->
+  <line x1="572" y1="57" x2="618" y2="57" stroke="#d1d5db" stroke-width="1.5"/>
+  <polygon points="618,52 628,57 618,62" fill="#d1d5db"/>
+
+  <!-- Box 4: Blog -->
+  <rect x="630" y="30" width="60" height="55" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5" rx="8"/>
+  <text x="660" y="53" text-anchor="middle" fill="#065f46" font-weight="bold" font-size="11">Blog</text>
+  <text x="660" y="71" text-anchor="middle" fill="#059669" font-size="10">localhost</text>
+</svg>

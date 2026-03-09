@@ -1,0 +1,33 @@
+{
+  "name": "ai-coding-blog",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "generate:post": "npx ts-node scripts/generatePost.ts",
+    "generate:tweet": "npx ts-node scripts/generateTweet.ts",
+    "generate:all": "npm run generate:post && npm run generate:tweet"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.55.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
