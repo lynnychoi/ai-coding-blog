@@ -89,15 +89,16 @@ export default function Home() {
               {post.tags.length > 0 && (
                 <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
                   {post.tags.map((tag) => (
-                    <span key={tag} style={{
+                    <a key={tag} href={`/tags/${tag}`} onClick={(e) => e.stopPropagation()} style={{
                       fontSize: "0.7rem", fontWeight: 600,
                       padding: "0.15rem 0.5rem", borderRadius: "999px",
                       color: tagColor(tag),
                       background: tagColor(tag) + "18",
                       border: `1px solid ${tagColor(tag)}30`,
+                      textDecoration: "none"
                     }}>
                       {tag}
-                    </span>
+                    </a>
                   ))}
                 </div>
               )}

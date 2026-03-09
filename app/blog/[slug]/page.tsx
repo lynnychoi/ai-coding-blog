@@ -34,15 +34,16 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
         <span style={{ fontSize: "0.78rem", color: "var(--text-faint)" }}>{post.date}</span>
         {post.tags.map((tag) => (
-          <span key={tag} style={{
+          <a key={tag} href={`/tags/${tag}`} style={{
             fontSize: "0.7rem", fontWeight: 600,
             padding: "0.15rem 0.5rem", borderRadius: "999px",
             color: tagColor(tag),
             background: tagColor(tag) + "18",
             border: `1px solid ${tagColor(tag)}30`,
+            textDecoration: "none"
           }}>
             {tag}
-          </span>
+          </a>
         ))}
       </div>
 
