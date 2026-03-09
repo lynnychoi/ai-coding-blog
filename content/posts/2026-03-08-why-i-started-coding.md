@@ -1,5 +1,6 @@
 ---
 date: 2026-03-08
+datetime: 2026-03-08T09:00
 tags: [시작, 기획자, claude-code, 개발입문]
 type: dev
 ---

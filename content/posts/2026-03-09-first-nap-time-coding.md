@@ -1,6 +1,7 @@
 ---
 title: "아이가 잠든 새벽, 처음으로 뭔가 됐다"
 date: 2026-03-09
+datetime: 2026-03-09T22:00
 type: writing
 category: diary
 ---

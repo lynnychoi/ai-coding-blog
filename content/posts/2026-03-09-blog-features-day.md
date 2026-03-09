@@ -1,6 +1,7 @@
 ---
 title: "댓글, 태그 필터, 읽기 시간 — 하루 만에 블로그 기능 다 붙인 날"
 date: 2026-03-09
+datetime: 2026-03-09T10:00
 tags: ["next.js", "claude-api", "vercel", "setup"]
 type: dev
 ---

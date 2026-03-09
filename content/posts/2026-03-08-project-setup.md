@@ -1,5 +1,6 @@
 ---
 date: 2026-03-08
+datetime: 2026-03-08T14:00
 tags: [setup, next.js, claude-api, automation]
 type: dev
 ---

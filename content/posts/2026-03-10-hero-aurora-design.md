@@ -1,5 +1,6 @@
 ---
 date: 2026-03-10
+datetime: 2026-03-10T15:00
 tags: [css, animation, design, next.js, framer-motion]
 type: dev
 ---

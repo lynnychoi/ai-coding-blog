@@ -10,6 +10,7 @@ export type WritingCategory = "diary" | "essay" | "note";
 export interface PostMeta {
   slug: string;
   date: string;
+  datetime: string;
   title: string;
   tags: string[];
   readingTime: number;
@@ -64,9 +65,12 @@ export function getAllPosts(): PostMeta[] {
         ? data.date.toISOString().substring(0, 10)
         : String(data.date || slug.substring(0, 10));
 
+      const datetime = data.datetime ? String(data.datetime) : date;
+
       return {
         slug,
         date,
+        datetime,
         title,
         tags: data.tags || [],
         readingTime: getReadingTime(content),
@@ -75,7 +79,7 @@ export function getAllPosts(): PostMeta[] {
         excerpt: getExcerpt(content),
       };
     })
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => b.datetime.localeCompare(a.datetime));
 }
 
 export function getPost(slug: string): Post | null {
@@ -92,9 +96,12 @@ export function getPost(slug: string): Post | null {
     ? data.date.toISOString().substring(0, 10)
     : String(data.date || slug.substring(0, 10));
 
+  const datetime = data.datetime ? String(data.datetime) : date;
+
   return {
     slug,
     date,
+    datetime,
     title,
     tags: data.tags || [],
     readingTime: getReadingTime(content),

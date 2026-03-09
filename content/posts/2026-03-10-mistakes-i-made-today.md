@@ -1,5 +1,6 @@
 ---
 date: 2026-03-10
+datetime: 2026-03-10T22:00
 tags: [실수, css, debug, next.js, 배운것]
 type: dev
 ---
