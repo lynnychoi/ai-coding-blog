@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PageTransition from "./components/PageTransition";
+import ScrollTop from "./components/ScrollTop";
+import StickyHeader from "./components/StickyHeader";
 
 export const metadata: Metadata = {
   title: "Lynn.ai — 기획자의 코딩 기록",
@@ -10,20 +13,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body>
+        <StickyHeader />
         <div className="site-wrapper">
-          <header className="site-header">
-            <a href="/" className="logo">
-              <span className="logo-name">Lynn</span>
-              <span className="logo-dot">.ai</span>
-            </a>
-            <nav className="site-nav">
-              <a href="/" className="nav-link">Blog</a>
-              <a href="/tags" className="nav-link">Tags</a>
-              <a href="/about" className="nav-link">About</a>
-            </nav>
-          </header>
-
-          <main className="site-main">{children}</main>
+          <main className="site-main">
+            <ScrollTop />
+            <PageTransition>{children}</PageTransition>
+          </main>
 
           <footer style={{
             borderTop: "1px solid var(--border)",

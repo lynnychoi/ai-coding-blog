@@ -1,6 +1,7 @@
 ---
 date: 2026-03-08
 tags: [setup, next.js, claude-api, automation]
+type: dev
 ---
 
 # 개발 로그를 쓰면 블로그가 자동으로 올라오게 만들었다

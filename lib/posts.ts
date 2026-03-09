@@ -4,12 +4,36 @@ import matter from "gray-matter";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
+export type PostType = "dev" | "writing";
+export type WritingCategory = "diary" | "essay" | "note";
+
 export interface PostMeta {
   slug: string;
   date: string;
   title: string;
   tags: string[];
   readingTime: number;
+  type: PostType;
+  category?: WritingCategory;
+  excerpt?: string;
+}
+
+export function getExcerpt(content: string): string {
+  const lines = content.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("---")) continue;
+    // 마크다운 문법 제거
+    const clean = trimmed
+      .replace(/!\[.*?\]\(.*?\)/g, "")  // 이미지
+      .replace(/\[.*?\]\(.*?\)/g, "")   // 링크
+      .replace(/\*\*/g, "")
+      .replace(/\*/g, "")
+      .replace(/`/g, "")
+      .trim();
+    if (clean.length > 10) return clean;
+  }
+  return "";
 }
 
 export interface Post extends PostMeta {
@@ -46,6 +70,9 @@ export function getAllPosts(): PostMeta[] {
         title,
         tags: data.tags || [],
         readingTime: getReadingTime(content),
+        type: (data.type === "writing" ? "writing" : "dev") as PostType,
+        category: data.category,
+        excerpt: getExcerpt(content),
       };
     })
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -71,6 +98,8 @@ export function getPost(slug: string): Post | null {
     title,
     tags: data.tags || [],
     readingTime: getReadingTime(content),
+    type: (data.type === "writing" ? "writing" : "dev") as PostType,
+    category: data.category,
     content,
   };
 }
