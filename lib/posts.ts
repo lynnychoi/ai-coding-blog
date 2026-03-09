@@ -9,10 +9,16 @@ export interface PostMeta {
   date: string;
   title: string;
   tags: string[];
+  readingTime: number;
 }
 
 export interface Post extends PostMeta {
   content: string;
+}
+
+export function getReadingTime(content: string): number {
+  const words = content.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
 }
 
 export function getAllPosts(): PostMeta[] {
@@ -39,6 +45,7 @@ export function getAllPosts(): PostMeta[] {
         date,
         title,
         tags: data.tags || [],
+        readingTime: getReadingTime(content),
       };
     })
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -63,6 +70,7 @@ export function getPost(slug: string): Post | null {
     date,
     title,
     tags: data.tags || [],
+    readingTime: getReadingTime(content),
     content,
   };
 }

@@ -1,4 +1,6 @@
 import { getAllPosts } from "../lib/posts";
+import { currentItems } from "../content/currently";
+import PostList from "./components/PostList";
 
 const TAG_COLORS: Record<string, string> = {
   "setup":      "#fbbf24",
@@ -15,10 +17,12 @@ function tagColor(tag: string) {
 
 export default function Home() {
   const posts = getAllPosts();
+  const featured = posts[0] ?? null;
+  const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));
 
   return (
     <div>
-      {/* Hero — 홈에서만 */}
+      {/* Hero */}
       <section className="hero">
         <div style={{
           position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
@@ -64,7 +68,6 @@ export default function Home() {
         </svg>
       </section>
 
-      {/* Post list */}
       {posts.length === 0 ? (
         <div style={{
           textAlign: "center", padding: "3rem 1rem",
@@ -79,44 +82,117 @@ export default function Home() {
           }}>npm run generate:post</code>
         </div>
       ) : (
-        <div className="post-grid">
-          {posts.map((post) => (
-            <div key={post.slug} className="post-card">
-              <div style={{
-                position: "absolute", top: 0, left: 0, right: 0, height: 2,
-                background: "linear-gradient(90deg, #a78bfa, #60a5fa)"
-              }} />
-              {post.tags.length > 0 && (
-                <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-                  {post.tags.map((tag) => (
-                    <a key={tag} href={`/tags/${tag}`} style={{
-                      fontSize: "0.7rem", fontWeight: 600,
-                      padding: "0.15rem 0.5rem", borderRadius: "999px",
-                      color: tagColor(tag),
-                      background: tagColor(tag) + "18",
-                      border: `1px solid ${tagColor(tag)}30`,
-                      textDecoration: "none"
-                    }}>
-                      {tag}
-                    </a>
-                  ))}
+        <>
+          {/* Stats bar */}
+          <div style={{
+            display: "flex", gap: "1.5rem", marginBottom: "2.5rem",
+            fontSize: "0.8rem", color: "var(--text-faint)"
+          }}>
+            <span>
+              <span style={{ color: "var(--accent-purple)", fontWeight: 700, fontSize: "1rem" }}>
+                {posts.length}
+              </span>
+              &nbsp;개의 글
+            </span>
+            <span>
+              <span style={{ color: "var(--accent-blue)", fontWeight: 700, fontSize: "1rem" }}>
+                {allTags.length}
+              </span>
+              &nbsp;개의 태그
+            </span>
+          </div>
+
+          {/* Featured post */}
+          {featured && (
+            <div style={{ marginBottom: "2.5rem" }}>
+              <p style={{
+                fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em",
+                color: "var(--accent-yellow)", textTransform: "uppercase",
+                marginBottom: "0.75rem"
+              }}>
+                ✦ 최신 글
+              </p>
+              <a href={`/blog/${featured.slug}`} style={{ textDecoration: "none", display: "block" }}>
+                <div style={{
+                  background: "var(--bg-card)", border: "1px solid var(--border)",
+                  borderRadius: "14px", padding: "1.5rem 1.75rem",
+                  position: "relative", overflow: "hidden",
+                  transition: "border-color 0.15s, background 0.15s"
+                }}
+                  className="featured-card"
+                >
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: 3,
+                    background: "linear-gradient(90deg, #fbbf24, #f472b6, #a78bfa)"
+                  }} />
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.875rem" }}>
+                    {featured.tags.map((tag) => (
+                      <span key={tag} style={{
+                        fontSize: "0.7rem", fontWeight: 600,
+                        padding: "0.15rem 0.5rem", borderRadius: "999px",
+                        color: tagColor(tag),
+                        background: tagColor(tag) + "18",
+                        border: `1px solid ${tagColor(tag)}30`,
+                      }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <h2 style={{
+                    fontSize: "1.15rem", fontWeight: 700, color: "var(--text)",
+                    lineHeight: 1.4, letterSpacing: "-0.02em", marginBottom: "0.75rem"
+                  }}>
+                    {featured.title}
+                  </h2>
+                  <div style={{ display: "flex", gap: "0.75rem", fontSize: "0.75rem", color: "var(--text-faint)" }}>
+                    <span>{featured.date}</span>
+                    <span>·</span>
+                    <span>{featured.readingTime}분 읽기</span>
+                  </div>
                 </div>
-              )}
-              <a href={`/blog/${post.slug}`} style={{ textDecoration: "none" }}>
-                <h2 style={{
-                  margin: 0, fontSize: "0.95rem", fontWeight: 600,
-                  color: "var(--text)", lineHeight: 1.45,
-                  letterSpacing: "-0.01em", marginBottom: "0.75rem"
-                }}>
-                  {post.title}
-                </h2>
               </a>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-faint)" }}>
-                {post.date}
-              </div>
             </div>
-          ))}
-        </div>
+          )}
+
+          {/* Currently working on */}
+          <div style={{ marginBottom: "2.5rem" }}>
+            <p style={{
+              fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em",
+              color: "var(--accent-blue)", textTransform: "uppercase",
+              marginBottom: "0.875rem"
+            }}>
+              ⟳ 요즘 하고 있는 것들
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {currentItems.map((item, i) => (
+                <div key={i} style={{
+                  display: "flex", alignItems: "flex-start", gap: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  background: "var(--bg-card)", border: "1px solid var(--border)",
+                  borderRadius: "10px", fontSize: "0.85rem"
+                }}>
+                  <span style={{ fontSize: "1rem" }}>{item.emoji}</span>
+                  <div>
+                    <span style={{ color: "var(--text)", fontWeight: 600 }}>{item.title}</span>
+                    <span style={{ color: "var(--text-faint)", marginLeft: "0.5rem" }}>{item.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* All posts with tag filter */}
+          <div>
+            <p style={{
+              fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em",
+              color: "var(--text-faint)", textTransform: "uppercase",
+              marginBottom: "1rem"
+            }}>
+              모든 글
+            </p>
+            <PostList posts={posts} />
+          </div>
+        </>
       )}
     </div>
   );

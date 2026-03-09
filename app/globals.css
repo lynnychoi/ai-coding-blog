@@ -107,6 +107,12 @@ body {
   background: var(--bg-card-hover);
 }
 
+/* Featured card */
+.featured-card:hover {
+  border-color: #334155;
+  background: var(--bg-card-hover);
+}
+
 /* Back link */
 .back-link {
   display: inline-flex;

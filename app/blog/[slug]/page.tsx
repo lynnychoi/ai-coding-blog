@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import Comments from "../../components/Comments";
 
 const TAG_COLORS: Record<string, string> = {
   "setup":      "#fbbf24",
@@ -120,6 +121,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <div style={{ marginTop: "3.5rem", paddingTop: "1.25rem", borderTop: "1px solid var(--border)" }}>
         <a href="/" className="back-link" style={{ marginTop: 0, marginBottom: 0 }}>← 글 목록으로</a>
       </div>
+
+      <Comments slug={slug} />
     </div>
   );
 }
