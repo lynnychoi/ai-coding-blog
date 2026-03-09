@@ -5,7 +5,7 @@ export interface CurrentItem {
 }
 
 export const currentItems: CurrentItem[] = [
-  { emoji: "🔨", title: "이 블로그 만드는 중", desc: "기능 추가, UI 다듬기, 자동화 연결" },
+  { emoji: "🎨", title: "블로그 UI 리디자인", desc: "rauno + Linear 레퍼런스로 전면 개편 중" },
+  { emoji: "💬", title: "댓글 기능 완성", desc: "GitHub Issues 기반, 오늘 배포 완료" },
   { emoji: "🤖", title: "Claude API 연동", desc: "dev log → 블로그 포스트 자동화" },
-  { emoji: "📐", title: "디자인 시스템 공부", desc: "코드로 직접 구현하는 경험 중" },
 ];
