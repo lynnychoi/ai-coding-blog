@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 interface Comment {
-  id: string;
+  id: number;
   name: string;
   content: string;
   createdAt: string;
