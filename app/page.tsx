@@ -81,7 +81,7 @@ export default function Home() {
       ) : (
         <div className="post-grid">
           {posts.map((post) => (
-            <a key={post.slug} href={`/blog/${post.slug}`} className="post-card">
+            <div key={post.slug} className="post-card">
               <div style={{
                 position: "absolute", top: 0, left: 0, right: 0, height: 2,
                 background: "linear-gradient(90deg, #a78bfa, #60a5fa)"
@@ -89,7 +89,7 @@ export default function Home() {
               {post.tags.length > 0 && (
                 <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
                   {post.tags.map((tag) => (
-                    <a key={tag} href={`/tags/${tag}`} onClick={(e) => e.stopPropagation()} style={{
+                    <a key={tag} href={`/tags/${tag}`} style={{
                       fontSize: "0.7rem", fontWeight: 600,
                       padding: "0.15rem 0.5rem", borderRadius: "999px",
                       color: tagColor(tag),
@@ -102,17 +102,19 @@ export default function Home() {
                   ))}
                 </div>
               )}
-              <h2 style={{
-                margin: 0, fontSize: "0.95rem", fontWeight: 600,
-                color: "var(--text)", lineHeight: 1.45,
-                letterSpacing: "-0.01em", marginBottom: "0.75rem"
-              }}>
-                {post.title}
-              </h2>
+              <a href={`/blog/${post.slug}`} style={{ textDecoration: "none" }}>
+                <h2 style={{
+                  margin: 0, fontSize: "0.95rem", fontWeight: 600,
+                  color: "var(--text)", lineHeight: 1.45,
+                  letterSpacing: "-0.01em", marginBottom: "0.75rem"
+                }}>
+                  {post.title}
+                </h2>
+              </a>
               <div style={{ fontSize: "0.75rem", color: "var(--text-faint)" }}>
                 {post.date}
               </div>
-            </a>
+            </div>
           ))}
         </div>
       )}
