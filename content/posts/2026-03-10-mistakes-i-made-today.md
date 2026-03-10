@@ -50,6 +50,8 @@ lsof -ti:3000 | xargs kill -9
 
 **고친 방법:** CSS "full-bleed" 기법. 히어로 섹션만 컨테이너 밖으로 꺼내서 화면 전체 너비를 차지하게 했다.
 
+![해결 후 — 모바일에서도 블롭이 꽉 차게](/images/blog/hero-mobile.png)
+
 ```css
 .hero {
   width: 100vw;            /* 화면 전체 너비 */
@@ -84,6 +86,8 @@ lsof -ti:3000 | xargs kill -9
 ![흰색 어디감](https://media.giphy.com/media/3ohhwMRUdrABMPWqOs/giphy.gif)
 
 **고친 방법:** 중간에 경유 색을 하나 더 추가해서 흰색이 40% 지점에서 이미 시작하게 했다.
+
+![완성된 타이틀 그라데이션](/images/blog/hero-title-gradient.png)
 
 ```css
 /* 전: 끝에서야 흰색 */
