@@ -72,7 +72,7 @@
 ```
 {
   "slug": "영어-슬러그-여기에",
-  "markdown": "---\ntitle: \"제목\"\ndate: YYYY-MM-DD\ndatetime: YYYY-MM-DDTHH:MM\ntags: [태그1, 태그2]\ntype: dev\n---\n\n# 제목\n\n본문..."
+  "markdown": "---\ntitle: \"제목\"\ndate: YYYY-MM-DD\ndatetime: YYYY-MM-DDTHH:MM\ntags: [태그1, 태그2]\ntype: dev\nnotes: \"원본 메모나 키워드를 한 줄로 요약\"\n---\n\n# 제목\n\n본문..."
 }
 ```
 

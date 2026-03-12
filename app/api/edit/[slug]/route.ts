@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { getGitHubFile, commitToGitHub } from "../../../../lib/github";
+import { getExpectedToken, AUTH_COOKIE } from "../../../../lib/auth";
 
 const client = new Anthropic();
 
@@ -27,9 +28,13 @@ export async function PUT(
   const { slug } = await params;
   const formData = await req.formData();
 
-  const password = formData.get("password") as string;
-  if (password !== process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: "비밀번호 틀렸어" }, { status: 401 });
+  const password = formData.get("password") as string | null;
+  const cookie = req.cookies.get(AUTH_COOKIE)?.value;
+  const expectedToken = await getExpectedToken();
+  const isValidCookie = cookie === expectedToken;
+  const isValidPassword = password === process.env.ADMIN_SECRET;
+  if (!isValidCookie && !isValidPassword) {
+    return NextResponse.json({ error: "인증 실패" }, { status: 401 });
   }
 
   const instructions = formData.get("instructions") as string;
@@ -57,7 +62,7 @@ export async function PUT(
   if (!current) return NextResponse.json({ error: "없는 글이야" }, { status: 404 });
 
   // Read rules
-  const rulesPath = path.join(process.cwd(), "prompts/blog-writing-rules.md");
+  const rulesPath = path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES.md");
   const rules = fs.readFileSync(rulesPath, "utf-8");
 
   const imageContext =

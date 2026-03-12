@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { commitToGitHub } from "../../../lib/github";
+import { getExpectedToken, AUTH_COOKIE } from "../../../lib/auth";
 
 const client = new Anthropic();
 
@@ -17,12 +18,17 @@ function todayDatetime(): string {
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
 
-  const password = formData.get("password") as string;
-  if (password !== process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: "비밀번호 틀렸어" }, { status: 401 });
+  const password = formData.get("password") as string | null;
+  const cookie = req.cookies.get(AUTH_COOKIE)?.value;
+  const expectedToken = await getExpectedToken();
+  const isValidCookie = cookie === expectedToken;
+  const isValidPassword = password === process.env.ADMIN_SECRET;
+  if (!isValidCookie && !isValidPassword) {
+    return NextResponse.json({ error: "인증 실패" }, { status: 401 });
   }
 
   const notes = formData.get("notes") as string;
+  const prompt = (formData.get("prompt") as string) || "";
   const tags = formData.get("tags") as string || "";
   const type = (formData.get("type") as string) || "dev";
 
@@ -49,7 +55,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Read rules
-  const rulesPath = path.join(process.cwd(), "prompts/blog-writing-rules.md");
+  const rulesPath = path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES.md");
   const rules = fs.readFileSync(rulesPath, "utf-8");
 
   // Build prompt
@@ -58,21 +64,21 @@ export async function POST(req: NextRequest) {
       ? `\n\n## 업로드된 이미지\n${images.map((img, i) => `${i + 1}. 경로: ${img.path}\n   설명: ${img.description}`).join("\n")}`
       : "";
 
-  const prompt = `오늘 날짜: ${today()} (datetime용: ${todayDatetime()})
+  const promptText = `오늘 날짜: ${today()} (datetime용: ${todayDatetime()})
 태그: ${tags}
 타입: ${type}
 
-## 메모 / 키워드
+## 재료 / 원본 메모 (frontmatter의 notes 필드에 그대로 저장해줘)
 ${notes}
 ${imageContext}
-
-위 메모를 바탕으로 블로그 글을 작성해줘.`;
+${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
+위 재료를 바탕으로 블로그 글을 작성해줘. frontmatter의 notes 필드에는 위 원본 메모를 그대로 넣어줘.`;
 
   const response = await client.messages.create({
     model: "claude-opus-4-6",
     max_tokens: 4096,
     system: rules,
-    messages: [{ role: "user", content: prompt }],
+    messages: [{ role: "user", content: promptText }],
   });
 
   const rawText = response.content[0].type === "text" ? response.content[0].text : "";
