@@ -19,14 +19,14 @@ export default function AdminPage() {
       {/* 헤더 */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: "#a8f0d8" }}>Admin</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: "#a8f0d8" }}>🍳 Kitchen</div>
           <div style={{ fontSize: 12, color: "#555", marginTop: 2 }}>글 {posts.length}개</div>
         </div>
         <LogoutButton />
       </div>
 
       {/* 새 글 쓰기 버튼 */}
-      <Link href="/admin/write" style={{
+      <Link href="/cooking/write" style={{
         display: "block",
         textAlign: "center",
         padding: "14px",
@@ -81,7 +81,7 @@ function Section({ title, posts }: { title: string; posts: ReturnType<typeof get
             }}>
               보기
             </Link>
-            <Link href={`/admin/edit/${post.slug}`} style={{
+            <Link href={`/cooking/edit/${post.slug}`} style={{
               padding: "6px 12px", borderRadius: 6,
               background: "#1e1e38", color: "#c4b8f8",
               fontSize: 12, textDecoration: "none",

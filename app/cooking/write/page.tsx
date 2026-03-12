@@ -81,7 +81,7 @@ export default function AdminWritePage() {
     return (
       <div style={S.page}>
         <div style={S.top}>
-          <Link href="/admin" style={S.back}>← 대시보드</Link>
+          <Link href="/cooking" style={S.back}>← 대시보드</Link>
           <span style={S.topTitle}>새 글 쓰기</span>
         </div>
         <div style={{ textAlign: "center", padding: "60px 20px" }}>
@@ -91,8 +91,8 @@ export default function AdminWritePage() {
             블로그에서 보기
           </Link>
           <div style={{ marginTop: 14, display: "flex", gap: 16, justifyContent: "center" }}>
-            <Link href="/admin/write" style={{ color: "#c4b8f8", fontSize: 13 }}>+ 또 쓰기</Link>
-            <Link href="/admin" style={{ color: "#555", fontSize: 13 }}>← 대시보드</Link>
+            <Link href="/cooking/write" style={{ color: "#c4b8f8", fontSize: 13 }}>+ 또 쓰기</Link>
+            <Link href="/cooking" style={{ color: "#555", fontSize: 13 }}>← 대시보드</Link>
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function AdminWritePage() {
     <div style={S.page}>
       {/* 상단 바 */}
       <div style={S.top}>
-        <Link href="/admin" style={S.back}>← 대시보드</Link>
+        <Link href="/cooking" style={S.back}>← 대시보드</Link>
         <span style={S.topTitle}>새 글 쓰기</span>
       </div>
 

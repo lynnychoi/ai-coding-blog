@@ -62,12 +62,8 @@ const DARK = {
   },
 };
 
-// Rebuild full markdown from fields + body
 function buildMarkdown(fields: Fields, body: string): string {
-  const tags = fields.tags
-    .split(",")
-    .map(t => t.trim())
-    .filter(Boolean);
+  const tags = fields.tags.split(",").map(t => t.trim()).filter(Boolean);
   const tagsStr = tags.length ? `[${tags.map(t => `"${t}"`).join(", ")}]` : "[]";
   const notesLine = fields.notes.trim() ? `notes: "${fields.notes.replace(/"/g, '\\"')}"\n` : "";
   const fm = `---\ntitle: "${fields.title}"\ndate: ${fields.date}\ndatetime: ${fields.datetime}\ntags: ${tagsStr}\ntype: ${fields.type}\n${notesLine}---`;
@@ -80,84 +76,56 @@ export default function ComprehensiveEditPage() {
   const router = useRouter();
   const slug = params.slug as string;
 
-  // Frontmatter fields (editable separately)
   const [fields, setFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "" });
   const [originalFields, setOriginalFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "" });
-
-  // Body only (without frontmatter + title h1)
   const [body, setBody] = useState("");
   const [originalBody, setOriginalBody] = useState("");
-
-  // Full assembled markdown (for preview / AI / save)
   const [markdown, setMarkdown] = useState("");
   const [originalMarkdown, setOriginalMarkdown] = useState("");
-
   const [loading, setLoading] = useState(true);
-
-  // Editor mode
   const [editorMode, setEditorMode] = useState<EditorMode>("edit");
-
-  // Notes section expanded
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [notesEditMode, setNotesEditMode] = useState(false);
-
-  // Active tab
   const [tab, setTab] = useState<ActiveTab>("ai");
-
-  // AI tab
   const [instructions, setInstructions] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
   const [aiImages, setAiImages] = useState<ImageEntry[]>([]);
   const aiFileRef = useRef<HTMLInputElement>(null);
-
-  // Giphy tab
   const [gifQuery, setGifQuery] = useState("");
   const [gifs, setGifs] = useState<GifResult[]>([]);
   const [gifLoading, setGifLoading] = useState(false);
-
-  // Image tab
   const [imageEntries, setImageEntries] = useState<ImageEntry[]>([]);
   const imgFileRef = useRef<HTMLInputElement>(null);
-
-  // Save
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState("");
-
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Keep markdown in sync with fields + body
   useEffect(() => {
     if (!loading) setMarkdown(buildMarkdown(fields, body));
   }, [fields, body, loading]);
 
-  // Load post
   useEffect(() => {
     fetch(`/api/admin/posts/${slug}`)
       .then(r => r.json())
       .then((d: { markdown?: string; fields?: Fields; body?: string }) => {
-        if (!d.markdown) { router.push("/admin"); return; }
+        if (!d.markdown) { router.push("/cooking"); return; }
         const f = d.fields ?? { title: "", date: "", datetime: "", tags: "", type: "dev", notes: "" };
         const b = d.body ?? "";
-        setFields(f);
-        setOriginalFields(f);
-        setBody(b);
-        setOriginalBody(b);
-        setMarkdown(d.markdown);
-        setOriginalMarkdown(d.markdown);
+        setFields(f); setOriginalFields(f);
+        setBody(b); setOriginalBody(b);
+        setMarkdown(d.markdown); setOriginalMarkdown(d.markdown);
       })
-      .catch(() => router.push("/admin"))
+      .catch(() => router.push("/cooking"))
       .finally(() => setLoading(false));
   }, [slug, router]);
 
-  // Load trending GIFs on mount
   useEffect(() => {
     fetch("/api/admin/giphy")
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setGifs(d as GifResult[]); });
   }, []);
 
-  // Insert text at cursor in body textarea
   const insertAtCursor = useCallback((text: string) => {
     const ta = textareaRef.current;
     if (!ta) { setBody(prev => prev + "\n" + text); return; }
@@ -175,7 +143,6 @@ export default function ComprehensiveEditPage() {
 
   const updateField = (key: keyof Fields, val: string) => setFields(prev => ({ ...prev, [key]: val }));
 
-  // Giphy search
   const searchGifs = async () => {
     setGifLoading(true);
     const url = gifQuery.trim() ? `/api/admin/giphy?q=${encodeURIComponent(gifQuery)}` : "/api/admin/giphy";
@@ -185,7 +152,6 @@ export default function ComprehensiveEditPage() {
     setGifLoading(false);
   };
 
-  // AI edit — passes full assembled markdown
   const handleAiEdit = async () => {
     if (!instructions.trim()) return;
     setAiLoading(true);
@@ -205,10 +171,8 @@ export default function ComprehensiveEditPage() {
       const data = await res.json() as { markdown?: string; error?: string };
       if (!res.ok || data.error) { setAiError(data.error || "오류 발생"); }
       else if (data.markdown) {
-        // Sync the full markdown back — user sees the whole thing updated
         setMarkdown(data.markdown);
-        setOriginalMarkdown(prev => prev); // keep original for diff
-        // Reflect back into body (strip frontmatter)
+        setOriginalMarkdown(prev => prev);
         const bodyMatch = data.markdown.match(/^---[\s\S]*?---\n(# .+\n)?([\s\S]*)$/);
         if (bodyMatch) setBody(bodyMatch[2]?.trim() ?? "");
         setInstructions("");
@@ -250,7 +214,6 @@ export default function ComprehensiveEditPage() {
     insertAtCursor(`![${entry.desc || safeName}](${webPath})`);
   };
 
-  // Save — always save the assembled markdown
   const handleSave = async () => {
     setSaveStatus("saving");
     setSaveError("");
@@ -265,9 +228,7 @@ export default function ComprehensiveEditPage() {
       if (!res.ok) { setSaveStatus("error"); setSaveError(data.error || "저장 실패"); }
       else {
         setSaveStatus("saved");
-        setOriginalFields(fields);
-        setOriginalBody(body);
-        setOriginalMarkdown(toSave);
+        setOriginalFields(fields); setOriginalBody(body); setOriginalMarkdown(toSave);
         setTimeout(() => setSaveStatus("idle"), 3000);
       }
     } catch {
@@ -276,9 +237,7 @@ export default function ComprehensiveEditPage() {
     }
   };
 
-  const hasChanges =
-    JSON.stringify(fields) !== JSON.stringify(originalFields) || body !== originalBody;
-
+  const hasChanges = JSON.stringify(fields) !== JSON.stringify(originalFields) || body !== originalBody;
   const previewMarkdown = buildMarkdown(fields, body);
 
   if (loading) {
@@ -287,9 +246,8 @@ export default function ComprehensiveEditPage() {
 
   return (
     <div style={DARK.page}>
-      {/* Top bar */}
       <div style={DARK.top}>
-        <Link href="/admin" style={DARK.back}>← 대시보드</Link>
+        <Link href="/cooking" style={DARK.back}>← 대시보드</Link>
         <span style={DARK.slug}>{slug}</span>
         <button style={DARK.saveBtn(hasChanges ? saveStatus : "idle")} onClick={handleSave} disabled={saveStatus === "saving" || !hasChanges}>
           {saveStatus === "saving" ? "저장 중..." : saveStatus === "saved" ? "저장됨 ✓" : saveStatus === "error" ? "오류" : hasChanges ? "저장하기" : "변경없음"}
@@ -298,7 +256,6 @@ export default function ComprehensiveEditPage() {
 
       {saveError && <div style={{ ...DARK.errorBox, margin: "8px 16px" }}>{saveError}</div>}
 
-      {/* ── 메타 필드 ── */}
       <div style={DARK.section}>
         <label style={DARK.label}>제목</label>
         <input style={{ ...DARK.input, marginBottom: 12, fontSize: 17, fontWeight: 600 }}
@@ -323,13 +280,9 @@ export default function ComprehensiveEditPage() {
           value={fields.tags} onChange={e => updateField("tags", e.target.value)} placeholder="next.js, css, 실수" />
       </div>
 
-      {/* ── 원본 메모 (소스) ── */}
       <div style={DARK.section}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-          <button
-            onClick={() => setNotesExpanded(p => !p)}
-            style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: 0 }}
-          >
+          <button onClick={() => setNotesExpanded(p => !p)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: 0 }}>
             <span style={{ fontSize: 11, color: "#555", textTransform: "uppercase", letterSpacing: 1 }}>원본 메모 / 소스</span>
             <span style={{ color: "#555", fontSize: 12 }}>{notesExpanded ? "▲" : "▼"}</span>
           </button>
@@ -339,15 +292,11 @@ export default function ComprehensiveEditPage() {
             </button>
           )}
         </div>
-
         {notesExpanded && (
           notesEditMode ? (
-            <textarea
-              value={fields.notes}
-              onChange={e => updateField("notes", e.target.value)}
+            <textarea value={fields.notes} onChange={e => updateField("notes", e.target.value)}
               style={{ ...DARK.textarea, minHeight: 120, fontFamily: "inherit" }}
-              placeholder={"- 오늘 히어로 섹션 만들었음\n- 오로라 블롭 3개\n- 모바일에서 안 보이는 버그 고침"}
-            />
+              placeholder={"- 오늘 히어로 섹션 만들었음\n- 오로라 블롭 3개"} />
           ) : (
             <div style={DARK.notesBox}>
               {fields.notes.trim() || <span style={{ color: "#3a3a5e", fontStyle: "italic" }}>저장된 메모 없음. 편집 버튼으로 추가할 수 있어.</span>}
@@ -356,31 +305,17 @@ export default function ComprehensiveEditPage() {
         )}
       </div>
 
-      {/* ── 마크다운 편집기 ── */}
       <div style={DARK.section}>
         <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
           <button style={DARK.modeBtn(editorMode === "edit")} onClick={() => setEditorMode("edit")}>✏️ 편집</button>
           <button style={DARK.modeBtn(editorMode === "preview")} onClick={() => setEditorMode("preview")}>👁 미리보기</button>
         </div>
-
         {editorMode === "edit" ? (
           <>
-            <textarea
-              ref={textareaRef}
-              value={body}
-              onChange={e => setBody(e.target.value)}
-              style={{ ...DARK.textarea, minHeight: 320 }}
-              spellCheck={false}
-              placeholder="본문을 여기에 작성해줘..."
-            />
+            <textarea ref={textareaRef} value={body} onChange={e => setBody(e.target.value)}
+              style={{ ...DARK.textarea, minHeight: 320 }} spellCheck={false} placeholder="본문을 여기에 작성해줘..." />
             <div style={{ marginTop: 6, display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-              {[
-                ["## 소제목", "## "],
-                ["**굵게**", "**굵게**"],
-                ["~~취소~~", "~~취소~~"],
-                ["> 인용", "> "],
-                ["---", "---"],
-              ].map(([label, val]) => (
+              {[["## 소제목", "## "], ["**굵게**", "**굵게**"], ["~~취소~~", "~~취소~~"], ["> 인용", "> "], ["---", "---"]].map(([label, val]) => (
                 <button key={label} style={DARK.smallBtn} onClick={() => insertAtCursor(val)}>{label}</button>
               ))}
             </div>
@@ -413,7 +348,6 @@ export default function ComprehensiveEditPage() {
         )}
       </div>
 
-      {/* Tab bar */}
       <div style={DARK.tabBar}>
         {(["ai", "giphy", "image"] as ActiveTab[]).map(t => (
           <button key={t} style={DARK.tab(tab === t)} onClick={() => setTab(t)}>
@@ -422,16 +356,12 @@ export default function ComprehensiveEditPage() {
         ))}
       </div>
 
-      {/* AI tab */}
       {tab === "ai" && (
         <div style={DARK.panel}>
           <label style={DARK.label}>수정 지시</label>
-          <textarea
-            value={instructions}
-            onChange={e => setInstructions(e.target.value)}
+          <textarea value={instructions} onChange={e => setInstructions(e.target.value)}
             style={{ ...DARK.textarea, minHeight: 100 }}
-            placeholder={"- 마지막에 레슨런 섹션 추가\n- 제목 더 임팩트 있게\n- 세 번째 단락 더 구체적으로"}
-          />
+            placeholder={"- 마지막에 레슨런 섹션 추가\n- 제목 더 임팩트 있게"} />
           <div style={{ marginTop: 10 }}>
             {aiImages.map((img, i) => (
               <div key={i} style={{ ...DARK.row, alignItems: "center", background: "#13131e", borderRadius: 8, padding: "8px 10px", marginBottom: 6 }}>
@@ -447,19 +377,14 @@ export default function ComprehensiveEditPage() {
             <input ref={aiFileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handleAiImage} />
           </div>
           {aiError && <div style={DARK.errorBox}>{aiError}</div>}
-          <button
-            style={{ ...DARK.primaryBtn, width: "100%", marginTop: 12, opacity: aiLoading || !instructions.trim() ? 0.5 : 1 }}
-            onClick={handleAiEdit} disabled={aiLoading || !instructions.trim()}
-          >
+          <button style={{ ...DARK.primaryBtn, width: "100%", marginTop: 12, opacity: aiLoading || !instructions.trim() ? 0.5 : 1 }}
+            onClick={handleAiEdit} disabled={aiLoading || !instructions.trim()}>
             {aiLoading ? "Claude가 수정 중... ✍️" : "AI로 수정하기 →"}
           </button>
-          {!aiLoading && hasChanges && (
-            <div style={DARK.successBox}>수정됐어! 위에서 확인하고 저장하기 눌러줘.</div>
-          )}
+          {!aiLoading && hasChanges && <div style={DARK.successBox}>수정됐어! 위에서 확인하고 저장하기 눌러줘.</div>}
         </div>
       )}
 
-      {/* Giphy tab */}
       {tab === "giphy" && (
         <div style={DARK.panel}>
           <div style={{ ...DARK.row, alignItems: "center" }}>
@@ -481,7 +406,6 @@ export default function ComprehensiveEditPage() {
         </div>
       )}
 
-      {/* Image tab */}
       {tab === "image" && (
         <div style={DARK.panel}>
           {imageEntries.map((img, i) => (
@@ -503,7 +427,6 @@ export default function ComprehensiveEditPage() {
         </div>
       )}
 
-      {/* suppress unused var */}
       <div style={{ display: "none" }}>{previewMarkdown}{markdown}{originalMarkdown}</div>
     </div>
   );

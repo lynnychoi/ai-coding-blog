@@ -3,6 +3,7 @@ import "./globals.css";
 import PageTransition from "./components/PageTransition";
 import ScrollTop from "./components/ScrollTop";
 import StickyHeader from "./components/StickyHeader";
+import FooterSecret from "./components/FooterSecret";
 
 export const metadata: Metadata = {
   title: "Lynn.ai — 기획자의 코딩 기록",
@@ -29,9 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             flexWrap: "wrap",
             gap: "0.5rem",
           }}>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-3)", fontFamily: "'Fira Code', monospace" }}>
-              © 2026 Lynn Choi
-            </span>
+            <FooterSecret />
             <span style={{ fontSize: "0.72rem", color: "var(--text-3)", fontFamily: "'Fira Code', monospace" }}>
               dev log → AI → blog post
             </span>

@@ -20,10 +20,11 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
+      const data = await res.json() as { error?: string };
       if (res.ok) {
-        router.push("/admin");
+        router.push("/cooking");
       } else {
-        setError("비밀번호 틀렸어");
+        setError(data.error || "비밀번호 틀렸어");
       }
     } catch {
       setError("오류 발생");
@@ -43,9 +44,9 @@ export default function AdminLoginPage() {
       <div style={{ width: "100%", maxWidth: 360 }}>
         <div style={{ marginBottom: 32, textAlign: "center" }}>
           <div style={{ fontSize: 24, color: "#e8e8f0", fontWeight: 600, marginBottom: 6 }}>
-            Admin
+            🍳
           </div>
-          <div style={{ fontSize: 13, color: "#555" }}>lynn&apos;s blog</div>
+          <div style={{ fontSize: 13, color: "#555" }}>lynn&apos;s kitchen</div>
         </div>
 
         <div style={{ position: "relative", marginBottom: 12 }}>
