@@ -33,33 +33,44 @@
 
 ---
 
+## 지금 당장 할 일 (기존 프로젝트 활성화)
+
+steppay-tools, wallet-couple, claude-guide 각 프로젝트 `.env`에 추가:
+
+```
+BLOG_URL=https://lynn-ai-blog.vercel.app
+BLOG_SECRET=블로그_어드민_비밀번호
+```
+
+`BLOG_SECRET`은 블로그 로그인 비밀번호랑 같은 값. 이것만 하면 업로드 스크립트 쓸 수 있음.
+
+---
+
 ## 새 프로젝트 추가할 때
 
-새 프로젝트가 생겼을 때 딱 한 번만 하면 됨.
-
-### 1. 새 프로젝트에 scratch-notes 폴더 만들기
+새 프로젝트가 생겼을 때 딱 한 번만 하면 됨. (새프로젝트이름 → 실제 폴더명으로 바꿔서)
 
 ```bash
+# 1. scratch-notes 폴더 + 가이드 복사
 mkdir -p ~/Desktop/Code2026/새프로젝트이름/scratch-notes
-```
-
-### 2. HOW-TO-WRITE.md 복사
-
-```bash
 cp ~/Desktop/Code2026/ai-coding-blog/scratch-notes/HOW-TO-WRITE.md \
-   ~/Desktop/Code2026/새프로젝트이름/scratch-notes/HOW-TO-WRITE.md
-```
+   ~/Desktop/Code2026/새프로젝트이름/scratch-notes/
 
-### 3. 블로그에 심볼릭 링크 연결
-
-```bash
+# 2. 블로그에 심볼릭 링크 연결
 ln -s ~/Desktop/Code2026/새프로젝트이름/scratch-notes \
       ~/Desktop/Code2026/ai-coding-blog/scratch-notes/새프로젝트이름
+
+# 3. 업로드 스크립트 복사
+mkdir -p ~/Desktop/Code2026/새프로젝트이름/scripts
+cp ~/Desktop/Code2026/steppay-tools/scripts/upload-note.ts \
+   ~/Desktop/Code2026/새프로젝트이름/scripts/
+
+# 4. .env에 추가
+echo "BLOG_URL=https://lynn-ai-blog.vercel.app" >> ~/Desktop/Code2026/새프로젝트이름/.env
+echo "BLOG_SECRET=블로그_어드민_비밀번호" >> ~/Desktop/Code2026/새프로젝트이름/.env
 ```
 
-### 4. 새 프로젝트 CLAUDE.md에 안내 추가
-
-해당 프로젝트 CLAUDE.md 아무 곳에 이 섹션 추가:
+그리고 해당 프로젝트 CLAUDE.md에 이 섹션 복붙:
 
 ```markdown
 ## 블로그 재료 기록 (scratch-notes)
@@ -70,6 +81,13 @@ Lynn의 블로그(ai-coding-blog)의 원재료가 됨.
 - **파일명:** `YYYY-MM-DDTHH:MM:SS-키워드.md`
 - **형식:** `scratch-notes/HOW-TO-WRITE.md` 참고
 - **언제:** 흥미로운 버그, 새로 배운 것, 설계 결정, 삽질한 것이 있을 때
+
+### 블로그에 올리기 (로컬이 아닐 때)
+
+```bash
+npx ts-node scripts/upload-note.ts scratch-notes/파일명.md
+```
+또는 Lynn이 "이 노트 블로그에 올려줘"라고 하면 Claude Code가 위 명령 실행.
 ```
 
 ---
@@ -182,8 +200,11 @@ ln -s ~/Desktop/Code2026/claude-guide/scratch-notes \
 
 ## 문제 해결
 
-**"scratch-notes에서 불러오기"를 눌러도 목록이 비어있음**
-→ 로컬 서버(`npm run dev`)가 실행 중인지 확인. 배포 환경(Vercel)에선 동작 안 함.
+**"scratch-notes에서 불러오기"를 눌러도 목록이 비어있음 (Vercel)**
+→ 노트가 블로그 repo에 올라가 있어야 함. 각 프로젝트에서 `npx ts-node scripts/upload-note.ts scratch-notes/파일명.md` 실행.
+
+**"scratch-notes에서 불러오기"를 눌러도 목록이 비어있음 (로컬)**
+→ `npm run dev` 실행 중인지 확인. scratch-notes 폴더에 .md 파일이 있는지 확인.
 
 **심볼릭 링크가 깨져 있음 (링크는 있는데 빈 폴더로 보임)**
 → 원본 프로젝트 경로가 바뀐 것. 링크 지우고 다시 만들기:
