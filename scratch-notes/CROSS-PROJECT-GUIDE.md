@@ -110,25 +110,36 @@ ls ~/Desktop/Code2026/ai-coding-blog/scratch-notes/steppay-tools/
 
 ## 블로그 글로 만들 때
 
-### 방법 1: /cooking/write 에서 불러오기 (추천)
+### 방법 1: /cooking/write 에서 불러오기 (어디서나 가능)
 
-1. 블로그 로컬 서버 켜기: `npm run dev` (ai-coding-blog 폴더에서)
-2. 브라우저에서 `localhost:3000/cooking/write` 접속
-3. **재료** 섹션 위의 **"📋 scratch-notes에서 불러오기"** 버튼 클릭
-4. 프로젝트별로 기록 목록이 뜸
-5. 원하는 기록 클릭 → 재료 칸에 자동으로 들어옴
-6. Claude에게 지시사항 추가 (선택) → 제출
+1. 브라우저에서 `/cooking/write` 접속
+2. **재료** 섹션 위의 **"📋 scratch-notes에서 불러오기"** 버튼 클릭
+3. 프로젝트별로 기록 목록이 뜸
+4. 원하는 기록 클릭 → 재료 칸에 자동으로 들어옴
+5. Claude에게 지시사항 추가 (선택) → 제출
 
-> **주의:** 이 불러오기 기능은 **로컬 실행 중일 때만** 작동함.
-> Vercel 배포 환경에선 로컬 파일을 읽을 수 없음.
-> 배포 환경에서는 방법 2 사용.
+> **로컬 실행 중:** 심볼릭 링크로 연결된 파일을 파일시스템에서 직접 읽음
+> **Vercel 배포 환경:** GitHub API로 블로그 repo의 `scratch-notes/` 폴더를 읽음
+> → Vercel에서 보이려면 노트가 블로그 repo에 올라가 있어야 함 (방법 A 또는 B)
 
-### 방법 2: 직접 복붙
+#### Vercel에서 보이게 하기
 
-1. scratch-notes 파일 열기
-2. 내용 전체 복사
-3. `/cooking/write` 재료 칸에 붙여넣기
-4. 제출
+**방법 A: 다른 프로젝트에서 업로드 스크립트 실행**
+
+각 프로젝트 `.env`에 한 번만 추가:
+```
+BLOG_URL=https://lynn-ai-blog.vercel.app
+BLOG_SECRET=블로그_어드민_비밀번호
+```
+
+노트 올릴 때:
+```bash
+npx ts-node scripts/upload-note.ts scratch-notes/2026-03-15T14:30:00-파일명.md
+```
+또는 Claude Code에게: **"이 노트 블로그에 올려줘"**
+
+**방법 B: 직접 복붙**
+scratch-notes 파일 내용을 복사해서 `/cooking/write` 재료 칸에 붙여넣기.
 
 ---
 
