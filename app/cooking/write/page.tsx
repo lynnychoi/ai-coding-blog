@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 type ImageEntry = { file: File; desc: string; preview: string };
 type Status = "idle" | "loading" | "done" | "error";
+type NoteItem = { project: string; filename: string; path: string; date: string };
 
 const S: Record<string, React.CSSProperties> = {
   page:     { minHeight: "100vh", background: "#0a0a0f", color: "#e8e8f0", padding: "0 0 80px" },
@@ -43,6 +44,38 @@ export default function AdminWritePage() {
   const [resultSlug, setResultSlug] = useState("");
   const [errorMsg, setErrorMsg]     = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 노트 불러오기
+  const [noteList, setNoteList]       = useState<NoteItem[]>([]);
+  const [showNotePanel, setShowNotePanel] = useState(false);
+  const [loadingNotes, setLoadingNotes]   = useState(false);
+
+  const fetchNoteList = async () => {
+    setLoadingNotes(true);
+    try {
+      const res = await fetch("/api/admin/scratch-notes");
+      const data = await res.json() as { notes?: NoteItem[]; error?: string };
+      setNoteList(data.notes ?? []);
+    } catch {
+      setNoteList([]);
+    }
+    setLoadingNotes(false);
+  };
+
+  const handleLoadNote = async (notePath: string) => {
+    try {
+      const res = await fetch(`/api/admin/scratch-notes?file=${encodeURIComponent(notePath)}`);
+      const data = await res.json() as { content?: string };
+      if (data.content) {
+        setNotes((prev) => prev ? prev + "\n\n---\n\n" + data.content : data.content);
+        setShowNotePanel(false);
+      }
+    } catch { /* silent */ }
+  };
+
+  useEffect(() => {
+    if (showNotePanel && noteList.length === 0) fetchNoteList();
+  }, [showNotePanel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     Array.from(e.target.files || []).forEach((file) =>
@@ -111,6 +144,52 @@ export default function AdminWritePage() {
       <div style={S.section}>
         <label style={S.label}>재료</label>
         <span style={S.labelSub}>오늘 뭐 했어? 키워드, 메모, 순서 상관없이 ✦ 저장돼서 나중에 편집 페이지에서 볼 수 있어</span>
+
+        {/* 노트 불러오기 토글 */}
+        <div style={{ marginBottom: 8 }}>
+          <button
+            onClick={() => setShowNotePanel((v) => !v)}
+            style={{ ...S.smallBtn, fontSize: 11, color: "#6060a0", borderColor: "#2a2a4a" }}
+          >
+            {showNotePanel ? "▲ 닫기" : "📋 scratch-notes에서 불러오기"}
+          </button>
+        </div>
+
+        {/* 노트 목록 패널 */}
+        {showNotePanel && (
+          <div style={{ background: "#0e0e1a", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px", marginBottom: 10 }}>
+            {loadingNotes ? (
+              <div style={{ color: "#555", fontSize: 12, textAlign: "center", padding: "12px 0" }}>불러오는 중...</div>
+            ) : noteList.length === 0 ? (
+              <div style={{ color: "#555", fontSize: 12, textAlign: "center", padding: "12px 0" }}>
+                scratch-notes에 파일이 없어 (로컬 실행 중일 때만 보여)
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 240, overflowY: "auto" }}>
+                {noteList.map((note) => (
+                  <button
+                    key={note.path}
+                    onClick={() => handleLoadNote(note.path)}
+                    style={{
+                      background: "transparent", border: "1px solid #2a2a3e", borderRadius: 6,
+                      padding: "7px 10px", textAlign: "left", cursor: "pointer",
+                      display: "flex", gap: 8, alignItems: "center",
+                    }}
+                  >
+                    <span style={{ fontSize: 10, color: "#4a4a7a", background: "#1a1a2e", borderRadius: 4, padding: "2px 6px", flexShrink: 0 }}>
+                      {note.project}
+                    </span>
+                    <span style={{ fontSize: 12, color: "#9090c0", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {note.filename.replace(/\.md$/, "")}
+                    </span>
+                    <span style={{ fontSize: 10, color: "#3a3a5a", flexShrink: 0 }}>{note.date}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
