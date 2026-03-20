@@ -26,6 +26,28 @@ export async function getGitHubFile(
   };
 }
 
+export async function commitImageToGitHub(filePath: string, base64Content: string): Promise<void> {
+  const body: Record<string, string> = {
+    message: `add image: ${filePath}`,
+    content: base64Content,
+    branch: BRANCH,
+  };
+
+  const checkRes = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}?ref=${BRANCH}`,
+    { headers: headers() }
+  );
+  if (checkRes.ok) {
+    const existing = await checkRes.json() as { sha: string };
+    body.sha = existing.sha;
+  }
+
+  await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
+    { method: "PUT", headers: headers(), body: JSON.stringify(body) }
+  );
+}
+
 export async function commitToGitHub(
   filePath: string,
   content: string,

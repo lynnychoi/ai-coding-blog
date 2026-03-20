@@ -2,33 +2,22 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { COLORS, COMMON } from "../styles";
+import type { ImageEntry, Status, NoteItem } from "../types";
 
-type ImageEntry = { file: File; desc: string; preview: string };
-type Status = "idle" | "loading" | "done" | "error";
-type NoteItem = { project: string; filename: string; path: string; date: string };
-
-const S: Record<string, React.CSSProperties> = {
-  page:     { minHeight: "100vh", background: "#0a0a0f", color: "#e8e8f0", padding: "0 0 80px" },
-  top:      { position: "sticky", top: 0, zIndex: 30, background: "#0a0a0f", borderBottom: "1px solid #1a1a2e", padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 },
-  back:     { fontSize: 13, color: "#555", textDecoration: "none" },
-  topTitle: { fontSize: 14, fontWeight: 600, color: "#e8e8f0", flex: 1 },
-  section:  { padding: "14px 16px", borderBottom: "1px solid #1a1a2e" },
-  label:    { fontSize: 11, color: "#555", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: 1 } as React.CSSProperties,
-  labelSub: { fontSize: 11, color: "#3a3a5a", marginBottom: 8, display: "block" },
-  input:    { width: "100%", background: "#13131e", border: "1px solid #2a2a3e", borderRadius: 8, color: "#e8e8f0", fontSize: 15, padding: "10px 12px", outline: "none", boxSizing: "border-box" } as React.CSSProperties,
-  textarea: { width: "100%", background: "#13131e", border: "1px solid #2a2a3e", borderRadius: 8, color: "#e8e8f0", fontSize: 14, padding: "12px", outline: "none", resize: "vertical", lineHeight: 1.7, boxSizing: "border-box" } as React.CSSProperties,
-  promptTA: { width: "100%", background: "#0e0e1a", border: "1px dashed #2a2a4a", borderRadius: 8, color: "#9090c0", fontSize: 14, padding: "12px", outline: "none", resize: "vertical", lineHeight: 1.7, boxSizing: "border-box" } as React.CSSProperties,
-  imageRow: { display: "flex", gap: 10, alignItems: "center", background: "#13131e", borderRadius: 8, padding: "10px 12px", marginBottom: 8 },
-  smallBtn: { padding: "7px 14px", borderRadius: 8, border: "1.5px solid #2a2a3e", background: "transparent", color: "#888", fontSize: 12, cursor: "pointer" },
-  errorBox: { background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.3)", borderRadius: 8, padding: "10px 12px", color: "#ff8080", fontSize: 13, margin: "0 16px 12px" },
+const S = {
+  ...COMMON,
+  topTitle: { fontSize: 14, fontWeight: 600, color: COLORS.text, flex: 1 } as React.CSSProperties,
+  labelSub: { fontSize: 11, color: "#3a3a5a", marginBottom: 8, display: "block" } as React.CSSProperties,
+  errorBox: { ...COMMON.errorBox, margin: "0 16px 12px" },
 };
 
 function submitBtnStyle(status: Status): React.CSSProperties {
   return {
     width: "calc(100% - 32px)", margin: "16px 16px 0", display: "block",
     padding: "15px 0", borderRadius: 12,
-    background: status === "loading" ? "#2a2a3e" : "#c4b8f8",
-    color: status === "loading" ? "#888" : "#0a0a0f",
+    background: status === "loading" ? COLORS.borderCard : COLORS.primary,
+    color: status === "loading" ? "#888" : COLORS.bg,
     fontSize: 16, fontWeight: 700, border: "none",
     cursor: status === "loading" ? "not-allowed" : "pointer",
   };

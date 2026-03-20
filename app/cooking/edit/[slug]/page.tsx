@@ -5,59 +5,37 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-type GifResult = { id: string; title: string; preview: string; url: string };
-type ImageEntry = { file: File; desc: string; preview: string };
-type ActiveTab = "ai" | "giphy" | "image";
-type EditorMode = "edit" | "preview";
-type SaveStatus = "idle" | "saving" | "saved" | "error";
-
-type Fields = {
-  title: string;
-  date: string;
-  datetime: string;
-  tags: string;
-  type: string;
-  notes: string;
-};
+import { COLORS, COMMON } from "../../styles";
+import type { GifResult, ImageEntry, ActiveTab, EditorMode, SaveStatus, Fields } from "../../types";
 
 const DARK = {
-  page: { minHeight: "100vh", background: "#0a0a0f", color: "#e8e8f0", padding: "0 0 80px" } as React.CSSProperties,
-  top: { position: "sticky" as const, top: 0, zIndex: 30, background: "#0a0a0f", borderBottom: "1px solid #1a1a2e", padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 },
-  back: { fontSize: 13, color: "#555", textDecoration: "none" },
+  ...COMMON,
+  textarea: { ...COMMON.textarea, fontFamily: "monospace" },
   slug: { fontSize: 13, color: "#4a4a6a", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const },
   saveBtn: (s: SaveStatus) => ({
     padding: "8px 18px", borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13, cursor: s === "saving" ? "not-allowed" as const : "pointer" as const,
-    background: s === "saved" ? "#22c55e" : s === "error" ? "#ef4444" : s === "saving" ? "#2a2a3e" : "#c4b8f8",
-    color: s === "saving" ? "#888" : "#0a0a0f",
+    background: s === "saved" ? COLORS.success : s === "error" ? COLORS.error : s === "saving" ? COLORS.borderCard : COLORS.primary,
+    color: s === "saving" ? "#888" : COLORS.bg,
   }),
-  section: { padding: "14px 16px", borderBottom: "1px solid #1a1a2e" },
-  label: { fontSize: 11, color: "#555", marginBottom: 4, display: "block", textTransform: "uppercase" as const, letterSpacing: 1 },
-  input: { width: "100%", background: "#13131e", border: "1px solid #2a2a3e", borderRadius: 8, color: "#e8e8f0", fontSize: 15, padding: "10px 12px", outline: "none", boxSizing: "border-box" as const },
-  textarea: { width: "100%", background: "#13131e", border: "1px solid #2a2a3e", borderRadius: 8, color: "#e8e8f0", fontSize: 13, padding: "12px", outline: "none", resize: "vertical" as const, lineHeight: 1.7, boxSizing: "border-box" as const, fontFamily: "monospace" },
-  tabBar: { display: "flex", borderBottom: "1px solid #1a1a2e", background: "#0a0a0f" },
-  tab: (active: boolean) => ({ flex: 1, padding: "12px 0", background: "transparent", border: "none", color: active ? "#c4b8f8" : "#555", fontSize: 14, fontWeight: active ? 700 : 400, cursor: "pointer", borderBottom: active ? "2px solid #c4b8f8" : "2px solid transparent" }),
+  tabBar: { display: "flex", borderBottom: `1px solid ${COLORS.border}`, background: COLORS.bg },
+  tab: (active: boolean) => ({ flex: 1, padding: "12px 0", background: "transparent", border: "none", color: active ? COLORS.primary : COLORS.textMuted, fontSize: 14, fontWeight: active ? 700 : 400, cursor: "pointer", borderBottom: active ? `2px solid ${COLORS.primary}` : "2px solid transparent" }),
   panel: { padding: "14px 16px" },
-  smallBtn: { padding: "7px 14px", borderRadius: 8, border: "1.5px solid #2a2a3e", background: "transparent", color: "#888", fontSize: 12, cursor: "pointer" },
-  primaryBtn: { padding: "10px 20px", borderRadius: 8, border: "none", background: "#c4b8f8", color: "#0a0a0f", fontSize: 14, fontWeight: 700, cursor: "pointer" },
   gifGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, marginTop: 10 },
   gifThumb: { width: "100%", aspectRatio: "1", objectFit: "cover" as const, borderRadius: 6, cursor: "pointer" },
-  inlineInput: { background: "#13131e", border: "1px solid #2a2a3e", borderRadius: 6, color: "#e8e8f0", fontSize: 13, padding: "6px 10px", outline: "none" },
+  inlineInput: { background: COLORS.bgCard, border: `1px solid ${COLORS.borderCard}`, borderRadius: 6, color: COLORS.text, fontSize: 13, padding: "6px 10px", outline: "none" },
   row: { display: "flex", gap: 10, marginBottom: 10 },
-  errorBox: { background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.3)", borderRadius: 8, padding: "10px 12px", color: "#ff8080", fontSize: 13, marginTop: 8 },
-  successBox: { background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 8, padding: "10px 12px", color: "#4ade80", fontSize: 13, marginTop: 8 },
   modeBtn: (active: boolean) => ({
     flex: 1, padding: "7px 0", background: active ? "#1e1e30" : "transparent",
-    border: active ? "1px solid #3a3a5e" : "1px solid #1a1a2e", borderRadius: 6,
-    color: active ? "#c4b8f8" : "#555", fontSize: 13, fontWeight: active ? 600 : 400, cursor: "pointer",
+    border: active ? "1px solid #3a3a5e" : `1px solid ${COLORS.border}`, borderRadius: 6,
+    color: active ? COLORS.primary : COLORS.textMuted, fontSize: 13, fontWeight: active ? 600 : 400, cursor: "pointer",
   }),
   preview: {
-    minHeight: 320, background: "#13131e", border: "1px solid #2a2a3e", borderRadius: 8,
-    padding: "16px", color: "#e8e8f0", fontSize: 15, lineHeight: 1.8,
+    minHeight: 320, background: COLORS.bgCard, border: `1px solid ${COLORS.borderCard}`, borderRadius: 8,
+    padding: "16px", color: COLORS.text, fontSize: 15, lineHeight: 1.8,
   } as React.CSSProperties,
   notesBox: {
-    background: "#0e0e1a", border: "1px solid #2a2a4a", borderRadius: 8,
-    padding: "12px 14px", fontSize: 13, lineHeight: 1.7, color: "#9090c0",
+    background: COLORS.bgPrompt, border: `1px solid ${COLORS.borderPrompt}`, borderRadius: 8,
+    padding: "12px 14px", fontSize: 13, lineHeight: 1.7, color: COLORS.textPrompt,
     whiteSpace: "pre-wrap" as const, minHeight: 60,
   },
 };

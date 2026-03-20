@@ -2,18 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
-import { commitToGitHub } from "../../../lib/github";
+import { commitToGitHub, commitImageToGitHub } from "../../../lib/github";
 import { getExpectedToken, AUTH_COOKIE } from "../../../lib/auth";
+import { today, todayDatetime, parseClaudeJson } from "../../../lib/utils";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-function today(): string {
-  return new Date().toISOString().substring(0, 10);
-}
-
-function todayDatetime(): string {
-  return new Date().toISOString().substring(0, 16).replace("T", "T");
-}
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -91,8 +84,7 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
   let slug: string;
   let markdown: string;
   try {
-    const clean = rawText.replace(/^```json\s*/m, "").replace(/^```\s*/m, "").replace(/```$/m, "").trim();
-    const parsed = JSON.parse(clean);
+    const parsed = parseClaudeJson<{ slug: string; markdown: string }>(rawText);
     slug = parsed.slug;
     markdown = parsed.markdown;
   } catch {
@@ -121,44 +113,3 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
   return NextResponse.json({ slug: `${date}-${slug}` });
 }
 
-// Image commit uses raw base64 directly
-async function commitImageToGitHub(filePath: string, base64Content: string) {
-  const OWNER = "lynnychoi";
-  const REPO = "ai-coding-blog";
-
-  const checkRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}?ref=main`,
-    {
-      headers: {
-        Authorization: `token ${process.env.GH_TOKEN}`,
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "ai-coding-blog",
-      },
-      cache: "no-store",
-    }
-  );
-
-  const body: Record<string, string> = {
-    message: `add image: ${filePath}`,
-    content: base64Content,
-    branch: "main",
-  };
-  if (checkRes.ok) {
-    const existing = await checkRes.json();
-    body.sha = existing.sha;
-  }
-
-  await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${process.env.GH_TOKEN}`,
-        "Content-Type": "application/json",
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "ai-coding-blog",
-      },
-      body: JSON.stringify(body),
-    }
-  );
-}

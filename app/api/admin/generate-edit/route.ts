@@ -3,53 +3,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { getExpectedToken, AUTH_COOKIE } from "../../../../lib/auth";
-import { commitToGitHub } from "../../../../lib/github";
+import { commitToGitHub, commitImageToGitHub } from "../../../../lib/github";
+import { today, parseClaudeJson } from "../../../../lib/utils";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-function today() {
-  return new Date().toISOString().substring(0, 10);
-}
-
-async function commitImageToGitHub(filePath: string, base64Content: string) {
-  const OWNER = "lynnychoi";
-  const REPO = "ai-coding-blog";
-
-  const checkRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}?ref=main`,
-    {
-      headers: {
-        Authorization: `token ${process.env.GH_TOKEN}`,
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "ai-coding-blog",
-      },
-    }
-  );
-
-  const body: Record<string, string> = {
-    message: `add image: ${filePath}`,
-    content: base64Content,
-    branch: "main",
-  };
-  if (checkRes.ok) {
-    const existing = await checkRes.json() as { sha: string };
-    body.sha = existing.sha;
-  }
-
-  await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${process.env.GH_TOKEN}`,
-        "Content-Type": "application/json",
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "ai-coding-blog",
-      },
-      body: JSON.stringify(body),
-    }
-  );
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -121,8 +78,7 @@ ${currentMarkdown}
 
   let markdown: string;
   try {
-    const clean = rawText.replace(/^```json\s*/m, "").replace(/^```\s*/m, "").replace(/```$/m, "").trim();
-    const parsed = JSON.parse(clean) as { markdown: string };
+    const parsed = parseClaudeJson<{ markdown: string }>(rawText);
     markdown = parsed.markdown;
   } catch {
     return NextResponse.json({ error: "Claude 응답 파싱 실패", raw: rawText }, { status: 500 });
