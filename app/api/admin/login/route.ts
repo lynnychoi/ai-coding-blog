@@ -5,7 +5,7 @@ import { getGitHubFile, commitToGitHub } from "../../../../lib/github";
 // In-memory rate limiting (resets on cold start / redeploy)
 const attempts = new Map<string, { count: number; since: number }>();
 const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 10 * 60 * 1000; // 10분
+const LOCKOUT_MS = 2 * 60 * 1000; // 2분
 
 function maskPassword(pw: string): string {
   if (!pw) return "(빈 값)";
