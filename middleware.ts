@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { computeToken, AUTH_COOKIE } from "./lib/auth";
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // 옛날 /admin 경로 → 404 (redirect 하면 새 경로가 노출됨)

@@ -69,6 +69,6 @@ Lynn이 원칙 추가/수정을 요청하면:
 
 ## 주의사항
 
-- `middleware.ts` 이름 deprecated (Next.js 16에서 `proxy.ts`로 바꿔야 함) — 아직 미수정
+- 미들웨어 파일: `middleware.ts` (이전 `proxy.ts`에서 수정됨)
 - gray-matter 날짜 파싱: `instanceof Date ? .toISOString().substring(0,10) : String(data.date)`
 - Giphy API는 서버사이드 프록시(`app/api/admin/giphy/route.ts`)로만 호출 — 클라이언트 노출 금지
