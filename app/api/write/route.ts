@@ -31,10 +31,11 @@ export async function POST(req: NextRequest) {
   const prompt = (formData.get("prompt") as string) || "";
   const tags = formData.get("tags") as string || "";
   const type = (formData.get("type") as string) || "dev";
+  const date = (formData.get("date") as string) || today();
 
   // Upload images to GitHub and collect paths + descriptions
   const images: { path: string; description: string }[] = [];
-  const datePrefix = today();
+  const datePrefix = date;
 
   for (let i = 0; ; i++) {
     const file = formData.get(`image_${i}_file`) as File | null;
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
       ? `\n\n## 업로드된 이미지\n${images.map((img, i) => `${i + 1}. 경로: ${img.path}\n   설명: ${img.description}`).join("\n")}`
       : "";
 
-  const promptText = `오늘 날짜: ${today()} (datetime용: ${todayDatetime()})
+  const promptText = `오늘 날짜: ${date} (datetime용: ${date}T00:00)
 태그: ${tags}
 타입: ${type}
 
@@ -98,10 +99,10 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
     return NextResponse.json({ error: "Claude 응답 파싱 실패", raw: rawText }, { status: 500 });
   }
 
-  const filename = `content/posts/${today()}-${slug}.md`;
+  const filename = `content/posts/${date}-${slug}.md`;
   await commitToGitHub(filename, markdown, `add: ${slug}`);
 
-  return NextResponse.json({ slug: `${today()}-${slug}` });
+  return NextResponse.json({ slug: `${date}-${slug}` });
 }
 
 // Image commit uses raw base64 directly

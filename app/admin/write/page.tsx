@@ -10,6 +10,7 @@ export default function AdminWritePage() {
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState("");
   const [type, setType] = useState<"dev" | "writing">("dev");
+  const [date, setDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [images, setImages] = useState<ImageEntry[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [resultSlug, setResultSlug] = useState("");
@@ -32,6 +33,7 @@ export default function AdminWritePage() {
     fd.append("notes", notes);
     fd.append("tags", tags);
     fd.append("type", type);
+    fd.append("date", date);
     fd.append("_admin", "1"); // cookie auth 사용 표시
     images.forEach((img, i) => {
       fd.append(`image_${i}_file`, img.file);
@@ -88,6 +90,11 @@ export default function AdminWritePage() {
         <label style={s.label}>오늘 뭐 했어? 키워드나 메모로 적어줘</label>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} style={s.textarea}
           placeholder={"- 히어로 섹션 만들었음\n- 오로라 블롭 3개\n- 모바일에서 안 보이는 버그 고침"} />
+      </div>
+
+      <div style={s.section}>
+        <label style={s.label}>날짜</label>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...s.input, colorScheme: "dark" }} />
       </div>
 
       <div style={s.section}>
