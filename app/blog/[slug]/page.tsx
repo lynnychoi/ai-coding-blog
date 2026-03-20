@@ -6,6 +6,7 @@ import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 import Comments from "../../components/Comments";
 import ReadingProgress from "../../components/ReadingProgress";
+import AdminBar from "../../components/AdminBar";
 
 export async function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
@@ -79,6 +80,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </div>
 
       <Comments slug={slug} />
+      <AdminBar slug={slug} />
     </div>
   );
 }

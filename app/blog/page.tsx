@@ -1,5 +1,6 @@
 import { getAllPosts } from "../../lib/posts";
 import PostList from "../components/PostList";
+import AdminBar from "../components/AdminBar";
 
 export default function BlogPage() {
   const posts = getAllPosts().filter((p) => p.type === "dev");
@@ -54,6 +55,7 @@ export default function BlogPage() {
           </div>
         </>
       )}
+      <AdminBar />
     </div>
   );
 }

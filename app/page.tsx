@@ -3,6 +3,7 @@ import { currentItems } from "../content/currently";
 import PostList from "./components/PostList";
 import HeroAurora from "./components/HeroAurora";
 import HeroContent from "./components/HeroContent";
+import AdminBar from "./components/AdminBar";
 import FadeIn from "./components/FadeIn";
 
 export default function Home() {
@@ -86,6 +87,7 @@ export default function Home() {
 
         </>
       )}
+      <AdminBar />
     </div>
   );
 }
