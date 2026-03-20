@@ -45,6 +45,7 @@ export default function ComprehensiveEditPage() {
   const [markdown, setMarkdown] = useState("");
   const [originalMarkdown, setOriginalMarkdown] = useState("");
   const [loading, setLoading] = useState(true);
+  const [postDate, setPostDate] = useState("");
 
   // Active tab
   const [tab, setTab] = useState<ActiveTab>("ai");
@@ -76,12 +77,21 @@ export default function ComprehensiveEditPage() {
     fetch(`/api/admin/posts/${slug}`)
       .then(r => r.json())
       .then(d => {
-        if (d.markdown) { setMarkdown(d.markdown); setOriginalMarkdown(d.markdown); }
-        else router.push("/admin");
+        if (d.markdown) {
+          setMarkdown(d.markdown);
+          setOriginalMarkdown(d.markdown);
+          const match = d.markdown.match(/^date:\s*(\d{4}-\d{2}-\d{2})/m);
+          if (match) setPostDate(match[1]);
+        } else router.push("/admin");
       })
       .catch(() => router.push("/admin"))
       .finally(() => setLoading(false));
   }, [slug, router]);
+
+  const handleDateChange = (newDate: string) => {
+    setPostDate(newDate);
+    setMarkdown(prev => prev.replace(/^(date:\s*)\S+/m, `$1${newDate}`));
+  };
 
   // Load trending GIFs on mount
   useEffect(() => {
@@ -231,6 +241,19 @@ export default function ComprehensiveEditPage() {
       </div>
 
       {saveError && <div style={{ ...DARK.errorBox, margin: "8px 16px" }}>{saveError}</div>}
+
+      {/* Date picker */}
+      {postDate && (
+        <div style={DARK.section}>
+          <label style={DARK.label}>날짜</label>
+          <input
+            type="date"
+            value={postDate}
+            onChange={e => handleDateChange(e.target.value)}
+            style={{ ...DARK.input, colorScheme: "dark" }}
+          />
+        </div>
+      )}
 
       {/* Markdown editor */}
       <div style={DARK.section}>
