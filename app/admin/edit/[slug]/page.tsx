@@ -46,6 +46,7 @@ export default function ComprehensiveEditPage() {
   const [originalMarkdown, setOriginalMarkdown] = useState("");
   const [loading, setLoading] = useState(true);
   const [postDate, setPostDate] = useState("");
+  const [postTitle, setPostTitle] = useState("");
 
   // Active tab
   const [tab, setTab] = useState<ActiveTab>("ai");
@@ -80,8 +81,10 @@ export default function ComprehensiveEditPage() {
         if (d.markdown) {
           setMarkdown(d.markdown);
           setOriginalMarkdown(d.markdown);
-          const match = d.markdown.match(/^date:\s*(\d{4}-\d{2}-\d{2})/m);
-          if (match) setPostDate(match[1]);
+          const dateMatch = d.markdown.match(/^date:\s*(\d{4}-\d{2}-\d{2})/m);
+          if (dateMatch) setPostDate(dateMatch[1]);
+          const titleMatch = d.markdown.match(/^title:\s*(.+)$/m);
+          if (titleMatch) setPostTitle(titleMatch[1].trim().replace(/^["']|["']$/g, ""));
         } else router.push("/admin");
       })
       .catch(() => router.push("/admin"))
@@ -91,6 +94,11 @@ export default function ComprehensiveEditPage() {
   const handleDateChange = (newDate: string) => {
     setPostDate(newDate);
     setMarkdown(prev => prev.replace(/^(date:\s*)\S+/m, `$1${newDate}`));
+  };
+
+  const handleTitleChange = (newTitle: string) => {
+    setPostTitle(newTitle);
+    setMarkdown(prev => prev.replace(/^(title:\s*).*$/m, `$1"${newTitle}"`));
   };
 
   // Load trending GIFs on mount
@@ -242,16 +250,31 @@ export default function ComprehensiveEditPage() {
 
       {saveError && <div style={{ ...DARK.errorBox, margin: "8px 16px" }}>{saveError}</div>}
 
-      {/* Date picker */}
-      {postDate && (
+      {/* Title + Date */}
+      {(postTitle || postDate) && (
         <div style={DARK.section}>
-          <label style={DARK.label}>날짜</label>
-          <input
-            type="date"
-            value={postDate}
-            onChange={e => handleDateChange(e.target.value)}
-            style={{ ...DARK.input, colorScheme: "dark" }}
-          />
+          {postTitle !== undefined && (
+            <div style={{ marginBottom: postDate ? 12 : 0 }}>
+              <label style={DARK.label}>제목</label>
+              <input
+                type="text"
+                value={postTitle}
+                onChange={e => handleTitleChange(e.target.value)}
+                style={DARK.input}
+              />
+            </div>
+          )}
+          {postDate && (
+            <div>
+              <label style={DARK.label}>날짜</label>
+              <input
+                type="date"
+                value={postDate}
+                onChange={e => handleDateChange(e.target.value)}
+                style={{ ...DARK.input, colorScheme: "dark" }}
+              />
+            </div>
+          )}
         </div>
       )}
 
