@@ -23,7 +23,8 @@ export default function AdminLoginPage() {
       if (res.ok) {
         router.push("/admin");
       } else {
-        setError("비밀번호 틀렸어");
+        const data = await res.json();
+        setError(data.error || "비밀번호 틀렸어");
       }
     } catch {
       setError("오류 발생");
