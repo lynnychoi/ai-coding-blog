@@ -56,7 +56,11 @@ export async function POST(req: NextRequest) {
 
   // Read rules
   const rulesPath = path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES.md");
-  const rules = fs.readFileSync(rulesPath, "utf-8");
+  let rules = fs.readFileSync(rulesPath, "utf-8");
+  const extPath = type === "writing"
+    ? path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-WRITING.md")
+    : path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-DEV.md");
+  if (fs.existsSync(extPath)) rules += "\n\n" + fs.readFileSync(extPath, "utf-8");
 
   // Build prompt
   const imageContext =

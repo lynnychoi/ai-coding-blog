@@ -81,7 +81,13 @@ export async function POST(req: NextRequest) {
   }
 
   const rulesPath = path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES.md");
-  const rules = fs.readFileSync(rulesPath, "utf-8");
+  let rules = fs.readFileSync(rulesPath, "utf-8");
+  const typeMatch = currentMarkdown.match(/^type:\s*(\S+)/m);
+  const postType = typeMatch?.[1] ?? "dev";
+  const extPath = postType === "writing"
+    ? path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-WRITING.md")
+    : path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-DEV.md");
+  if (fs.existsSync(extPath)) rules += "\n\n" + fs.readFileSync(extPath, "utf-8");
 
   const imageContext =
     images.length > 0
