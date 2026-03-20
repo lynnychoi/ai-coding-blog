@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
+import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { getGitHubFile, commitToGitHub } from "../../../../lib/github";
 import { getExpectedToken, AUTH_COOKIE } from "../../../../lib/auth";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 function today(): string {
   return new Date().toISOString().substring(0, 10);
@@ -88,13 +88,13 @@ ${current.content}
 수정된 전체 마크다운을 아래 JSON 형식으로만 응답해줘:
 {"markdown": "수정된 전체 마크다운 내용"}`;
 
-  const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [{ role: "system", content: rules }, { role: "user", content: prompt }],
+  const response = await anthropic.messages.create({
+    model: "claude-opus-4-6",
     max_tokens: 8192,
-    response_format: { type: "json_object" },
+    system: rules,
+    messages: [{ role: "user", content: prompt }],
   });
-  const rawText = completion.choices[0]?.message?.content || "";
+  const rawText = response.content[0].type === "text" ? response.content[0].text : "";
 
   let markdown: string;
   try {

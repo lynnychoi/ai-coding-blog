@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
+import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { getExpectedToken, AUTH_COOKIE } from "../../../../lib/auth";
 import { commitToGitHub } from "../../../../lib/github";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 function today() {
   return new Date().toISOString().substring(0, 10);
@@ -108,15 +108,15 @@ ${currentMarkdown}
 
   let rawText: string;
   try {
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "system", content: rules }, { role: "user", content: prompt }],
+    const response = await anthropic.messages.create({
+      model: "claude-opus-4-6",
       max_tokens: 8192,
-      response_format: { type: "json_object" },
+      system: rules,
+      messages: [{ role: "user", content: prompt }],
     });
-    rawText = completion.choices[0]?.message?.content || "";
+    rawText = response.content[0].type === "text" ? response.content[0].text : "";
   } catch (e) {
-    return NextResponse.json({ error: `Gemini API 오류: ${String(e)}` }, { status: 500 });
+    return NextResponse.json({ error: `Claude API 오류: ${String(e)}` }, { status: 500 });
   }
 
   let markdown: string;
