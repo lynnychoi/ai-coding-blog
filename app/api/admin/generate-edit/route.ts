@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import fs from "fs";
 import path from "path";
 import { getExpectedToken, AUTH_COOKIE } from "../../../../lib/auth";
 import { commitToGitHub } from "../../../../lib/github";
 
-const client = new Anthropic();
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 function today() {
   return new Date().toISOString().substring(0, 10);
@@ -52,6 +52,7 @@ async function commitImageToGitHub(filePath: string, base64Content: string) {
 }
 
 export async function POST(req: NextRequest) {
+  try {
   const expected = await getExpectedToken();
   const cookie = req.cookies.get(AUTH_COOKIE)?.value;
   if (cookie !== expected) {
@@ -99,14 +100,18 @@ ${currentMarkdown}
 수정된 전체 마크다운을 아래 JSON 형식으로만 응답해줘:
 {"markdown": "수정된 전체 마크다운 내용"}`;
 
-  const response = await client.messages.create({
-    model: "claude-opus-4-6",
-    max_tokens: 4096,
-    system: rules,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const rawText = response.content[0].type === "text" ? response.content[0].text : "";
+  let rawText: string;
+  try {
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "system", content: rules }, { role: "user", content: prompt }],
+      max_tokens: 8192,
+      response_format: { type: "json_object" },
+    });
+    rawText = completion.choices[0]?.message?.content || "";
+  } catch (e) {
+    return NextResponse.json({ error: `Gemini API 오류: ${String(e)}` }, { status: 500 });
+  }
 
   let markdown: string;
   try {
@@ -123,4 +128,8 @@ ${currentMarkdown}
   }
 
   return NextResponse.json({ markdown, committed: false });
+  } catch (e) {
+    console.error("[generate-edit] unhandled error:", e);
+    return NextResponse.json({ error: `서버 오류: ${String(e)}` }, { status: 500 });
+  }
 }

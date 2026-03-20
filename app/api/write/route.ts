@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import fs from "fs";
 import path from "path";
 import { commitToGitHub } from "../../../lib/github";
 import { getExpectedToken, AUTH_COOKIE } from "../../../lib/auth";
 
-const client = new Anthropic();
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 function today(): string {
   return new Date().toISOString().substring(0, 10);
@@ -74,14 +74,13 @@ ${imageContext}
 ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
 위 재료를 바탕으로 블로그 글을 작성해줘. frontmatter의 notes 필드에는 위 원본 메모를 그대로 넣어줘.`;
 
-  const response = await client.messages.create({
-    model: "claude-opus-4-6",
-    max_tokens: 4096,
-    system: rules,
-    messages: [{ role: "user", content: promptText }],
+  const completion = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [{ role: "system", content: rules }, { role: "user", content: promptText }],
+    max_tokens: 8192,
+    response_format: { type: "json_object" },
   });
-
-  const rawText = response.content[0].type === "text" ? response.content[0].text : "";
+  const rawText = completion.choices[0]?.message?.content || "";
 
   // Parse JSON response
   let slug: string;
