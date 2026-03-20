@@ -29,6 +29,23 @@ async function logAttempt(ip: string, userAgent: string, password: string) {
   await commitToGitHub(logPath, content, `🔐 failed login attempt from ${ip}`);
 }
 
+export async function GET(req: NextRequest) {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown";
+
+  const now = Date.now();
+  const record = attempts.get(ip);
+
+  if (record && record.count >= MAX_ATTEMPTS && now - record.since < LOCKOUT_MS) {
+    const remainingMs = LOCKOUT_MS - (now - record.since);
+    return NextResponse.json({ locked: true, remainingMs });
+  }
+
+  return NextResponse.json({ locked: false });
+}
+
 export async function POST(req: NextRequest) {
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
