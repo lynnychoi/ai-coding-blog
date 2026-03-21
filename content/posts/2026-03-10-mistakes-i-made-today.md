@@ -4,6 +4,7 @@ date: 2026-03-10
 datetime: 2026-03-10T22:00
 tags: ["실수", "css", "debug", "next.js", "배운것"]
 type: dev
+status: unpublished
 ---
 # 모바일과 데스크탑에서 모두 동작하게 하기
 
