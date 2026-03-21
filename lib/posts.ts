@@ -7,6 +7,8 @@ const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 export type PostType = "dev" | "writing";
 export type WritingCategory = "diary" | "essay" | "note";
 
+export type PostStatus = "published" | "unpublished";
+
 export interface PostMeta {
   slug: string;
   date: string;
@@ -15,6 +17,7 @@ export interface PostMeta {
   tags: string[];
   readingTime: number;
   type: PostType;
+  status: PostStatus;
   category?: WritingCategory;
   excerpt?: string;
 }
@@ -75,11 +78,16 @@ export function getAllPosts(): PostMeta[] {
         tags: data.tags || [],
         readingTime: getReadingTime(content),
         type: (data.type === "writing" ? "writing" : "dev") as PostType,
+        status: (data.status === "unpublished" ? "unpublished" : "published") as PostStatus,
         category: data.category,
         excerpt: getExcerpt(content),
       };
     })
     .sort((a, b) => b.datetime.localeCompare(a.datetime));
+}
+
+export function getPublishedPosts(): PostMeta[] {
+  return getAllPosts().filter((p) => p.status === "published");
 }
 
 export function getPost(slug: string): Post | null {
@@ -107,6 +115,7 @@ export function getPost(slug: string): Post | null {
     readingTime: getReadingTime(content),
     type: (data.type === "writing" ? "writing" : "dev") as PostType,
     category: data.category,
+    status: (data.status === "unpublished" ? "unpublished" : "published") as PostStatus,
     content,
   };
 }

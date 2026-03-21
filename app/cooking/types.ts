@@ -12,4 +12,5 @@ export type Fields = {
   tags: string;
   type: string;
   notes: string;
+  status: "published" | "unpublished";
 };

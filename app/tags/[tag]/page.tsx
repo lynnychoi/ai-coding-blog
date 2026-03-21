@@ -1,15 +1,15 @@
-import { getAllPosts } from "../../../lib/posts";
+import { getPublishedPosts } from "../../../lib/posts";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
-  const posts = getAllPosts();
+  const posts = getPublishedPosts();
   const tags = new Set(posts.flatMap((p) => p.tags));
   return Array.from(tags).map((tag) => ({ tag }));
 }
 
 export default async function TagPage({ params }: { params: Promise<{ tag: string }> }) {
   const { tag } = await params;
-  const posts = getAllPosts().filter((p) => p.tags.includes(tag));
+  const posts = getPublishedPosts().filter((p) => p.tags.includes(tag));
   if (posts.length === 0) notFound();
 
   return (

@@ -1,9 +1,9 @@
-import { getAllPosts } from "../../lib/posts";
+import { getPublishedPosts } from "../../lib/posts";
 import PostList from "../components/PostList";
 import AdminBar from "../components/AdminBar";
 
 export default function BlogPage() {
-  const posts = getAllPosts().filter((p) => p.type === "dev");
+  const posts = getPublishedPosts().filter((p) => p.type === "dev");
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>

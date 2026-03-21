@@ -1,4 +1,4 @@
-import { getPost, getAllPosts } from "../../../lib/posts";
+import { getPost, getPublishedPosts } from "../../../lib/posts";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -9,13 +9,13 @@ import ReadingProgress from "../../components/ReadingProgress";
 import AdminBar from "../../components/AdminBar";
 
 export async function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+  return getPublishedPosts().map((post) => ({ slug: post.slug }));
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = getPost(slug);
-  if (!post) notFound();
+  if (!post || post.status === "unpublished") notFound();
 
   const isWriting = post.type === "writing";
 

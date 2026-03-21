@@ -26,6 +26,7 @@ Next.js + GitHub 마크다운 파일 기반. 글 관리는 `/cooking` (Cooking S
 | scratch-notes 작성/확인 | `scratch-notes/HOW-TO-WRITE.md` 참고 |
 | git push 전 | `prompts/operations/push.md` 읽고 체크리스트 따를 것 |
 | 파일/코드 수정 전 | `prompts/operations/file-verification.md` 읽을 것 |
+| UI 관련 코드 수정 후 로컬 테스트 | `prompts/operations/visual-test.md` 읽고 스크린샷 찍어서 직접 확인할 것 |
 
 ### 파일 설명
 
@@ -33,6 +34,7 @@ Next.js + GitHub 마크다운 파일 기반. 글 관리는 `/cooking` (Cooking S
 - **`prompts/LYNN-BLOG-PRINCIPLES-DEV.md`** — dev 타입 확장. 삽질 중심 구조, 기술 용어 처리 방식, 코드 블록 기준.
 - **`prompts/LYNN-BLOG-PRINCIPLES-WRITING.md`** — writing 타입 확장. 에세이/감상 글. 더 감성적인 톤, 결론 없어도 됨, 소재별 특성.
 - **`prompts/archive/`** — 과거 원칙 문서 보관. 참고용.
+- **`prompts/operations/visual-test.md`** — Playwright 스크린샷 테스트 가이드. UI 수정 후 항상 실행.
 - **`scratch-notes/`** — 작업 세션 기록. 블로그 글의 원재료.
 
 ---

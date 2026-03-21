@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
   const tags = formData.get("tags") as string || "";
   const type = (formData.get("type") as string) || "dev";
   const date = (formData.get("date") as string) || today();
+  const status = (formData.get("status") as string) === "unpublished" ? "unpublished" : "published";
 
   // Upload images to GitHub and collect paths + descriptions
   const images: { path: string; description: string }[] = [];
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
   const promptText = `오늘 날짜: ${date} (datetime용: ${date}T00:00)
 태그: ${tags}
 타입: ${type}
+공개여부: ${status}
 
 ## 재료 / 원본 메모 (frontmatter의 notes 필드에 그대로 저장해줘)
 ${notes}
@@ -93,6 +95,12 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
 
   const filename = `content/posts/${date}-${slug}.md`;
   await commitToGitHub(filename, markdown, `add: ${slug}`);
+
+  // dev 환경에서는 로컬 파일도 저장 (대시보드 필터 즉시 반영)
+  if (process.env.NODE_ENV === "development") {
+    const localPath = path.join(process.cwd(), "content", "posts", `${date}-${slug}.md`);
+    fs.writeFileSync(localPath, markdown, "utf-8");
+  }
 
   // generation-log 저장
   const logDir = path.join(process.cwd(), "logs/generation-log");

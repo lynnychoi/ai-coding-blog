@@ -1,7 +1,7 @@
-import { getAllPosts } from "../../lib/posts";
+import { getPublishedPosts } from "../../lib/posts";
 
 export default function TagsPage() {
-  const posts = getAllPosts();
+  const posts = getPublishedPosts();
 
   const tagMap: Record<string, number> = {};
   for (const post of posts) {

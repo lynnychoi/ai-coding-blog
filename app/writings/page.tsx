@@ -1,4 +1,4 @@
-import { getAllPosts } from "../../lib/posts";
+import { getPublishedPosts } from "../../lib/posts";
 
 const categoryLabel: Record<string, string> = {
   diary: "일기",
@@ -17,7 +17,7 @@ function formatDiaryDate(dateStr: string) {
 }
 
 export default function WritingsPage() {
-  const posts = getAllPosts().filter((p) => p.type === "writing");
+  const posts = getPublishedPosts().filter((p) => p.type === "writing");
 
   return (
     <div className="writings-page" style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>

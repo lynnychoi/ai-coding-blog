@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { COLORS, COMMON } from "../../styles";
 import type { GifResult, ImageEntry, ActiveTab, EditorMode, SaveStatus, Fields } from "../../types";
+import TypeStatusRow from "../../components/TypeStatusRow";
+import TagsInput from "../../components/TagsInput";
+import ImageUploadList from "../../components/ImageUploadList";
 
 const DARK = {
   ...COMMON,
@@ -44,7 +47,8 @@ function buildMarkdown(fields: Fields, body: string): string {
   const tags = fields.tags.split(",").map(t => t.trim()).filter(Boolean);
   const tagsStr = tags.length ? `[${tags.map(t => `"${t}"`).join(", ")}]` : "[]";
   const notesLine = fields.notes.trim() ? `notes: "${fields.notes.replace(/"/g, '\\"')}"\n` : "";
-  const fm = `---\ntitle: "${fields.title}"\ndate: ${fields.date}\ndatetime: ${fields.datetime}\ntags: ${tagsStr}\ntype: ${fields.type}\n${notesLine}---`;
+  const statusLine = fields.status === "unpublished" ? `status: unpublished\n` : "";
+  const fm = `---\ntitle: "${fields.title}"\ndate: ${fields.date}\ndatetime: ${fields.datetime}\ntags: ${tagsStr}\ntype: ${fields.type}\n${notesLine}${statusLine}---`;
   const titleLine = fields.title ? `\n# ${fields.title}\n` : "";
   return `${fm}${titleLine}\n${body}`;
 }
@@ -52,10 +56,12 @@ function buildMarkdown(fields: Fields, body: string): string {
 export default function ComprehensiveEditPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isNew = searchParams.get("new") === "1";
   const slug = params.slug as string;
 
-  const [fields, setFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "" });
-  const [originalFields, setOriginalFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "" });
+  const [fields, setFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published" });
+  const [originalFields, setOriginalFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published" });
   const [body, setBody] = useState("");
   const [originalBody, setOriginalBody] = useState("");
   const [markdown, setMarkdown] = useState("");
@@ -88,7 +94,7 @@ export default function ComprehensiveEditPage() {
       .then(r => r.json())
       .then((d: { markdown?: string; fields?: Fields; body?: string }) => {
         if (!d.markdown) { router.push("/cooking"); return; }
-        const f = d.fields ?? { title: "", date: "", datetime: "", tags: "", type: "dev", notes: "" };
+        const f = d.fields ?? { title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published" };
         const b = d.body ?? "";
         setFields(f); setOriginalFields(f);
         setBody(b); setOriginalBody(b);
@@ -232,6 +238,11 @@ export default function ComprehensiveEditPage() {
         </button>
       </div>
 
+      {isNew && (
+        <div style={{ margin: "8px 16px", padding: "10px 14px", background: "#1a2e1a", border: "1px solid #2a4a2a", borderRadius: 8, fontSize: 13, color: "#86efac" }}>
+          ✦ 초안이 생성됐어. 여기서 바로 수정하거나 AI한테 더 요청해봐. 만족하면 저장하기.
+        </div>
+      )}
       {saveError && <div style={{ ...DARK.errorBox, margin: "8px 16px" }}>{saveError}</div>}
 
       <div style={DARK.section}>
@@ -239,23 +250,17 @@ export default function ComprehensiveEditPage() {
         <input style={{ ...DARK.input, marginBottom: 12, fontSize: 17, fontWeight: 600 }}
           value={fields.title} onChange={e => updateField("title", e.target.value)} placeholder="제목" />
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-          <div style={{ flex: 1 }}>
-            <label style={DARK.label}>날짜</label>
-            <input type="date" style={DARK.input} value={fields.date} onChange={e => updateField("date", e.target.value)} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={DARK.label}>타입</label>
-            <select style={{ ...DARK.input, cursor: "pointer" }} value={fields.type} onChange={e => updateField("type", e.target.value)}>
-              <option value="dev">dev</option>
-              <option value="writing">writing</option>
-            </select>
-          </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={DARK.label}>날짜</label>
+          <input type="date" style={DARK.input} value={fields.date} onChange={e => updateField("date", e.target.value)} />
         </div>
 
-        <label style={DARK.label}>태그 (쉼표로 구분)</label>
-        <input style={{ ...DARK.input, marginBottom: 0 }}
-          value={fields.tags} onChange={e => updateField("tags", e.target.value)} placeholder="next.js, css, 실수" />
+        <TypeStatusRow
+          type={fields.type as "dev" | "writing"} onTypeChange={v => updateField("type", v)}
+          status={fields.status} onStatusChange={v => updateField("status", v)}
+        />
+
+        <TagsInput value={fields.tags} onChange={v => updateField("tags", v)} />
       </div>
 
       <div style={DARK.section}>
