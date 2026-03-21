@@ -48,28 +48,30 @@ Playwright 테스트를 돌리면 이런 일이 벌어진다:
 
 글 생성만 테스트한 게 아니다. 여러 페이지에서 공통으로 쓰이는 컴포넌트들도 확인했다.
 
-> **컴포넌트란?** 레고 블록 같은 거다. 댓글 영역, 태그 필터, 네비게이션 바 같은 걸 각각 블록으로 만들어두고 여기저기 조립해서 쓴다.
+> **컴포넌트란?** 레고 블록 같은 거다. 댓글 영역, 태그 필터, 네비게이션 바 같은 걸 각각 블록으로 만들어두고 여기저기 조립해서 쓴다. 한 쪽에서 수정하면, 나머지가 공통적으로 수정돼야 할 때 이렇게 컴포넌트를 만들어 쓰는 게 관리하기 편하다.
 
-공통 컴포넌트가 무서운 이유가 있다. 하나를 고치면 그걸 쓰는 모든 페이지에 영향이 간다. 네비게이션 바를 살짝 수정했는데 글 목록 페이지에서 레이아웃이 깨지는 식이다. ~~설마 이것까지 영향 가겠어?~~ 간다. 매번 간다.
+그런데 공통 컴포넌트가 문제가 될 때도 있다. 하나를 고치면 그걸 쓰는 모든 페이지에 영향이 간다. 네비게이션 바를 살짝 수정했는데 글 목록 페이지에서 레이아웃이 깨지는 식이다. ~~설마 이것까지 영향 가겠어?~~ 간다. 매번 간다.
 
-Playwright로 주요 페이지들을 한 바퀴 돌리면 이런 걸 잡아준다. 로봇이 각 페이지를 열어보고, 있어야 할 요소가 있는지, 클릭하면 반응하는지 확인한다.
+Playwright로 주요 페이지들을 한 바퀴 돌리면 이런 걸 잡아준다. 로봇이 각 페이지를 열어보고, 있어야 할 요소가 있는지, 클릭하면 반응하는지 확인한다. 문제가 있는지 보고 문제가 있으면 알아서 고치게 될 거다 이젠.
 
-![Work Working GIF by VeeFriends](https://media.giphy.com/media/LfSVIrmSEEBFhhxVq7/giphy.gif)
+![Penguin Fixing GIF by Pudgy Penguins](https://media.giphy.com/media/YBEIk8tFNheO9uLauf/giphy.gif)
 
 ---
 
-## 솔직히 말하면
+## 이제 검수는 내가 안 해도 된다.
 
 테스트 코드를 짜는 것 자체도 Claude한테 시켰다. "이 페이지에서 글을 쓰고 저장하면 편집 페이지로 넘어가는지 테스트해줘" 하고 말하면 Playwright 코드를 만들어준다.
 
-기획자 시절에는 QA 시트를 만들어서 팀원들한테 넘겼다. 이 버튼 누르면 이 페이지로 가야 한다, 이 입력값은 에러가 나야 한다, 이런 거. 지금은 그 QA 시트를 코드로 바꾼 셈이다. 근데 사람이 아니라 로봇이 실행한다.
+기획자 시절에는 QA 체크리스트를 만들어서 팀원들한테 넘겼다. 예를 들면 이 버튼 누르면 이 페이지로 가야 한다, 이 입력값은 입력하면 에러가 나야 한다, 이런 것들을 전달했다. 지금은 그 QA 체크리스트를 코드로 바꾼 셈이다. 근데 사람이 아니라 로봇이 실행한다.
+
+![Work Working GIF by VeeFriends](https://media.giphy.com/media/LfSVIrmSEEBFhhxVq7/giphy.gif)
 
 이게 되니까 마음이 좀 놓인다. 새 기능을 추가하고 테스트를 돌렸을 때 초록불이 뜨면, 적어도 기존에 만든 것들은 안 깨졌다는 뜻이니까.
 
-![Well Done Good Job GIF by maddyshine](https://media.giphy.com/media/eMls2jxuEtD3mQsKuw/giphy.gif)
+![Reassuring Jimmy Fallon GIF by The Tonight Show Starring Jimmy Fallon](https://media.giphy.com/media/e9hRgPKipZqgy8sYFP/giphy.gif)
 
 ---
 
-> 만드는 것보다 만든 걸 안 깨뜨리는 게 더 어렵다. 테스트는 그걸 로봇한테 맡기는 거다.
+> 만드는 것보다 만든 걸 안 깨뜨리는 게 더 어렵다. 오늘부터는 그걸 로봇한테 맡기는 거다.
 
 ![Working Trust Me GIF by VaynerSpeakers](https://media.giphy.com/media/cIovnRrfafDYQB8Fh4/giphy.gif)
