@@ -4,9 +4,10 @@ date: 2026-03-21
 datetime: 2026-03-21T00:00
 tags: []
 type: dev
-notes: "- Playwright로 글 생성 테스트\n- write→edit 리다이렉트 확인\n- 공통 컴포넌트 동작 확인"
+notes: "- Playwright로 글 생성 테스트
+- write→edit 리다이렉트 확인
+- 공통 컴포넌트 동작 확인"
 ---
-
 # 내가 만든 블로그를 로봇이 대신 테스트해준다
 
 블로그 기능이 하나둘 붙으면서 슬슬 불안해지기 시작했다.
@@ -14,6 +15,8 @@ notes: "- Playwright로 글 생성 테스트\n- write→edit 리다이렉트 확
 글 쓰기 페이지에서 저장 누르면 편집 페이지로 잘 넘어가나? 태그 필터는 아직도 되나? 댓글 컴포넌트 안 깨졌나? 새 기능 하나 추가할 때마다 이전에 만든 것들을 일일이 클릭해서 확인하는 게 일이 됐다.
 
 처음엔 그냥 브라우저 열고 직접 눌러봤다. 근데 이게 매번 하려니까 귀찮은 정도를 넘어서 빠뜨리게 된다. "아 이건 지난번에 됐으니까 괜찮겠지" 하고 넘어가는 순간, 그게 깨져 있다.
+
+![Truck GIF by ViralHog](https://media.giphy.com/media/0tf84HkzGV1y6JgjfI/giphy.gif)
 
 그래서 Playwright를 도입했다.
 
@@ -39,6 +42,8 @@ Playwright 테스트를 돌리면 이런 일이 벌어진다:
 
 이걸 내가 매번 할 필요가 없다. 코드 한 줄이면 전부 돌아간다.
 
+![Artificial Intelligence Dancing GIF](https://media.giphy.com/media/tczJoRU7XwBS8/giphy.gif)
+
 ---
 
 ## 공통 컴포넌트도 같이 확인
@@ -48,6 +53,9 @@ Playwright 테스트를 돌리면 이런 일이 벌어진다:
 > **컴포넌트란?** 레고 블록 같은 거다. 댓글 영역, 태그 필터, 네비게이션 바 같은 걸 각각 블록으로 만들어두고 여기저기 조립해서 쓴다.
 
 공통 컴포넌트가 무서운 이유가 있다. 하나를 고치면 그걸 쓰는 모든 페이지에 영향이 간다. 네비게이션 바를 살짝 수정했는데 글 목록 페이지에서 레이아웃이 깨지는 식이다. ~~설마 이것까지 영향 가겠어?~~ 간다. 매번 간다.
+
+![Break It Down How I Met Your Mother GIF by Laff](https://media.giphy.com/media/XxvRNLaAHZHfd1Nm4c/giphy.gif)
+
 
 Playwright로 주요 페이지들을 한 바퀴 돌리면 이런 걸 잡아준다. 로봇이 각 페이지를 열어보고, 있어야 할 요소가 있는지, 클릭하면 반응하는지 확인한다.
 
