@@ -492,7 +492,7 @@ body {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text);
-  margin: 2.5rem 0 0.75rem;
+  margin: 2.5rem 0 1.5rem;
   letter-spacing: -0.02em;
   line-height: 1.5;
 }
@@ -560,7 +560,18 @@ body {
 .post-body ol li::before,
 .writing-body ol li::before { content: counter(list-counter) "."; position: absolute; left: 0; color: var(--article-accent); font-size: 0.8rem; font-family: 'Fira Code', monospace; }
 .post-body hr,
-.writing-body hr { border: none; height: 1px; background: var(--border-hover); width: 3rem; margin: 4rem auto; }
+.writing-body hr {
+  border: none;
+  height: auto;
+  background: none;
+  margin: 4rem auto;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 0.9rem;
+  letter-spacing: 0.4em;
+}
+.post-body hr::after { content: "// ---"; font-family: 'Fira Code', monospace; }
+.writing-body hr::after { content: "· · ·"; }
 
 /* 단어 설명 — // 코드 주석 스타일 */
 .def-box {
