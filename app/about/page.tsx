@@ -1,6 +1,6 @@
 export default function AboutPage() {
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", paddingTop: "3rem" }}>
+    <div className="post-body" style={{ maxWidth: 640, margin: "0 auto", paddingTop: "3rem" }}>
 
       {/* Header */}
       <div style={{ marginBottom: "3.5rem" }}>
@@ -50,18 +50,8 @@ export default function AboutPage() {
         }}>
           직접 만들어보면서 한 가지를 깨달았다.
         </p>
-        <blockquote style={{
-          borderLeft: "1px solid rgba(6, 214, 160, 0.45)",
-          paddingLeft: "1rem",
-          margin: 0,
-          fontStyle: "italic",
-        }}>
-          <p style={{
-            fontSize: "1.05rem", lineHeight: 1.9,
-            color: "var(--text-2)", margin: 0,
-          }}>
-            사람과 AI는 같은 실수를 반복한다. 기록하지 않으면.
-          </p>
+        <blockquote>
+          <p>사람과 AI는 같은 실수를 반복한다. 기록하지 않으면.</p>
         </blockquote>
       </div>
 
