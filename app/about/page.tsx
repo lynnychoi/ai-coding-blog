@@ -51,16 +51,14 @@ export default function AboutPage() {
           직접 만들어보면서 한 가지를 깨달았다.
         </p>
         <blockquote style={{
-          borderLeft: "2px solid var(--accent)",
-          padding: "0.75rem 1.25rem",
-          background: "var(--accent-dim)",
-          borderRadius: "0 6px 6px 0",
+          borderLeft: "1px solid rgba(6, 214, 160, 0.45)",
+          paddingLeft: "1rem",
           margin: 0,
+          fontStyle: "italic",
         }}>
           <p style={{
-            fontSize: "1.05rem", lineHeight: 1.75,
-            color: "var(--text)", fontWeight: 500,
-            letterSpacing: "-0.01em", margin: 0,
+            fontSize: "1.05rem", lineHeight: 1.9,
+            color: "var(--text-2)", margin: 0,
           }}>
             사람과 AI는 같은 실수를 반복한다. 기록하지 않으면.
           </p>

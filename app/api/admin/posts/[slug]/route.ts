@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import matter from "gray-matter";
-import fs from "fs";
-import path from "path";
 import { getGitHubFile, commitToGitHub } from "../../../../../lib/github";
 import { getExpectedToken, AUTH_COOKIE } from "../../../../../lib/auth";
+import { invalidatePostsCache } from "../../../../../lib/posts";
 
 function authCheck(req: NextRequest, expected: string) {
   const cookie = req.cookies.get(AUTH_COOKIE)?.value;
@@ -66,12 +65,7 @@ export async function PUT(
   if (!markdown) return NextResponse.json({ error: "내용 없음" }, { status: 400 });
 
   await commitToGitHub(`content/posts/${slug}.md`, markdown, `edit: ${slug}`);
-
-  // dev 환경에서는 로컬 파일도 업데이트 (getAllPosts()가 로컬 fs를 읽으므로)
-  if (process.env.NODE_ENV === "development") {
-    const localPath = path.join(process.cwd(), "content", "posts", `${slug}.md`);
-    fs.writeFileSync(localPath, markdown, "utf-8");
-  }
+  invalidatePostsCache();
 
   return NextResponse.json({ slug });
 }

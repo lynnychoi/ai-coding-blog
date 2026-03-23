@@ -79,6 +79,7 @@ export default function ComprehensiveEditPage() {
   const [gifQuery, setGifQuery] = useState("");
   const [gifs, setGifs] = useState<GifResult[]>([]);
   const [gifLoading, setGifLoading] = useState(false);
+  const [gifError, setGifError] = useState("");
   const [imageEntries, setImageEntries] = useState<ImageEntry[]>([]);
   const imgFileRef = useRef<HTMLInputElement>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -129,10 +130,18 @@ export default function ComprehensiveEditPage() {
 
   const searchGifs = async () => {
     setGifLoading(true);
+    setGifError("");
     const url = gifQuery.trim() ? `/api/admin/giphy?q=${encodeURIComponent(gifQuery)}` : "/api/admin/giphy";
     const res = await fetch(url);
+    if (!res.ok) {
+      setGifError("GIPHY_API_KEY가 없거나 만료됐어. .env.local에 추가해줘.");
+      setGifs([]);
+      setGifLoading(false);
+      return;
+    }
     const data = await res.json() as GifResult[];
     if (Array.isArray(data)) setGifs(data);
+    else setGifError("GIF 로드 실패.");
     setGifLoading(false);
   };
 
@@ -384,7 +393,8 @@ export default function ComprehensiveEditPage() {
               </div>
             ))}
           </div>
-          {gifs.length === 0 && !gifLoading && <div style={{ color: "#555", fontSize: 13, textAlign: "center", marginTop: 20 }}>GIF를 검색해봐</div>}
+          {gifError && <div style={{ color: "#f87171", fontSize: 12, textAlign: "center", marginTop: 16, lineHeight: 1.5 }}>{gifError}</div>}
+          {!gifError && gifs.length === 0 && !gifLoading && <div style={{ color: "#555", fontSize: 13, textAlign: "center", marginTop: 20 }}>GIF를 검색해봐</div>}
           <div style={{ color: "#444", fontSize: 11, marginTop: 12, textAlign: "center" }}>클릭하면 커서 위치에 삽입돼</div>
         </div>
       )}

@@ -5,6 +5,7 @@ import path from "path";
 import { commitToGitHub, commitImageToGitHub } from "../../../lib/github";
 import { getExpectedToken, AUTH_COOKIE } from "../../../lib/auth";
 import { today, todayDatetime, parseClaudeJson } from "../../../lib/utils";
+import { invalidatePostsCache } from "../../../lib/posts";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -95,12 +96,7 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
 
   const filename = `content/posts/${date}-${slug}.md`;
   await commitToGitHub(filename, markdown, `add: ${slug}`);
-
-  // dev 환경에서는 로컬 파일도 저장 (대시보드 필터 즉시 반영)
-  if (process.env.NODE_ENV === "development") {
-    const localPath = path.join(process.cwd(), "content", "posts", `${date}-${slug}.md`);
-    fs.writeFileSync(localPath, markdown, "utf-8");
-  }
+  invalidatePostsCache();
 
   // generation-log 저장
   const logDir = path.join(process.cwd(), "logs/generation-log");

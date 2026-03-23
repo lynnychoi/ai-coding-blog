@@ -1,7 +1,7 @@
 import { getPublishedPosts } from "../../lib/posts";
 
-export default function TagsPage() {
-  const posts = getPublishedPosts();
+export default async function TagsPage() {
+  const posts = await getPublishedPosts();
 
   const tagMap: Record<string, number> = {};
   for (const post of posts) {

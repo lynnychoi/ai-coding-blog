@@ -3,8 +3,8 @@ import Link from "next/link";
 import LogoutButton from "./LogoutButton";
 import PostList from "./PostList";
 
-export default function AdminPage() {
-  const posts = getAllPosts();
+export default async function AdminPage() {
+  const posts = await getAllPosts();
 
   return (
     <div style={{

@@ -6,8 +6,8 @@ import HeroContent from "./components/HeroContent";
 import AdminBar from "./components/AdminBar";
 import FadeIn from "./components/FadeIn";
 
-export default function Home() {
-  const posts = getAllPosts();
+export default async function Home() {
+  const posts = await getAllPosts();
   const devPosts = posts.filter((p) => p.type === "dev");
   const writingPosts = posts.filter((p) => p.type === "writing");
   const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));

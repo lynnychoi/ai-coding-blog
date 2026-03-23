@@ -16,8 +16,8 @@ function formatDiaryDate(dateStr: string) {
   return { short: `${mm}.${dd}`, day };
 }
 
-export default function WritingsPage() {
-  const posts = getPublishedPosts().filter((p) => p.type === "writing");
+export default async function WritingsPage() {
+  const posts = (await getPublishedPosts()).filter((p) => p.type === "writing");
 
   return (
     <div className="writings-page" style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>
