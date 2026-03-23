@@ -466,16 +466,29 @@ body {
 }
 .back-link:hover { color: var(--text-2); }
 
-/* ── Post body ── */
-.post-body h1 {
-  font-size: clamp(1.5rem, 5vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  margin: 0 0 1.75rem;
-  color: var(--text);
+/* ── Article body — design tokens ── */
+.post-body {
+  --article-accent: var(--accent);               /* mint #06d6a0 */
+  --article-accent-dim: rgba(6, 214, 160, 0.45);
+  --article-tint: rgba(6, 214, 160, 0.05);
+  --article-strong: #a8f0d8;
+  --article-em: #ddeedd;
+  font-family: 'Figtree', 'Pretendard', sans-serif;
 }
-.post-body h2 {
+.writing-body {
+  --grad: linear-gradient(135deg, #93c5fd, #c4b5fd);
+  --accent-w: #c4b5fd;
+  --article-accent: #c4b5fd;                     /* lavender */
+  --article-accent-dim: rgba(155, 138, 240, 0.45);
+  --article-tint: rgba(196, 181, 253, 0.06);
+  --article-strong: #d8c8ff;
+  --article-em: #ede8ff;
+  font-family: 'Hanken Grotesk', 'Gowun Dodum', sans-serif;
+}
+
+/* ── Shared structural rules (post-body + writing-body) ── */
+.post-body h2,
+.writing-body h2 {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text);
@@ -483,20 +496,108 @@ body {
   letter-spacing: -0.02em;
   line-height: 1.5;
 }
-.post-body h2::before {
+.post-body h2::before,
+.writing-body h2::before {
   content: '';
   display: block;
   width: 30px;
   height: 1px;
-  background: var(--accent);
+  background: var(--article-accent);
   margin-bottom: 0.5rem;
 }
-.post-body h3 {
+.post-body h3,
+.writing-body h3 {
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--text);
   margin: 2rem 0 0.5rem;
   letter-spacing: -0.015em;
+}
+.post-body a,
+.writing-body a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-decoration-color: var(--text-3);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.post-body a:hover,
+.writing-body a:hover { color: var(--text); text-decoration-color: var(--text-2); }
+.post-body strong,
+.writing-body strong { color: var(--article-strong); font-weight: 700; }
+.post-body em,
+.writing-body em { color: var(--article-em); font-style: italic; }
+.post-body del,
+.writing-body del { color: var(--text-3); }
+.post-body u,
+.writing-body u {
+  text-decoration: underline;
+  text-decoration-color: var(--article-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.post-body blockquote,
+.writing-body blockquote {
+  border-left: 1px solid var(--article-accent-dim);
+  padding-left: 1rem;
+  margin: 1.25rem 0;
+  font-size: 0.97rem;
+  color: var(--text-2);
+  line-height: 1.9;
+  font-style: italic;
+}
+.post-body blockquote p,
+.writing-body blockquote p { margin: 0; }
+.post-body ul, .post-body ol,
+.writing-body ul, .writing-body ol { padding-left: 0; margin: 0.6rem 0; list-style: none; counter-reset: list-counter; }
+.post-body li,
+.writing-body li { margin: 0.3rem 0; color: var(--text-2); font-size: 0.93rem; position: relative; padding-left: 1.1rem; }
+.post-body ul li::before,
+.writing-body ul li::before { content: "·"; position: absolute; left: 0; color: var(--article-accent); font-weight: 700; }
+.post-body ol li,
+.writing-body ol li { counter-increment: list-counter; }
+.post-body ol li::before,
+.writing-body ol li::before { content: counter(list-counter) "."; position: absolute; left: 0; color: var(--article-accent); font-size: 0.8rem; font-family: 'Fira Code', monospace; }
+.post-body hr,
+.writing-body hr { border: none; height: 1px; background: var(--border-hover); width: 3rem; margin: 4rem auto; }
+
+/* 단어 설명 — // 코드 주석 스타일 */
+.def-box {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--text-3);
+  line-height: 1.7;
+  padding-left: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+.post-body .def-box::before,
+.writing-body .def-box::before { content: "// "; color: var(--article-accent); opacity: 0.5; }
+.def-box p { margin: 0; color: var(--text-3); font-size: 0.78rem; font-family: 'Fira Code', monospace; }
+.def-box strong { color: var(--text-2); font-weight: 500; }
+
+/* takeaway — article-tint 변수로 통일 */
+.takeaway-box {
+  border-radius: 8px;
+  padding: 1.5rem 1.75rem;
+  margin: 1.5rem 0;
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.8;
+  background: var(--article-tint);
+  color: var(--text);
+}
+.takeaway-box p { margin: 0; font-size: 1.05rem; color: var(--text); }
+
+/* ── Post body (dev — mint) — type-specific ── */
+.post-body h1 {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 1.75rem;
+  color: var(--text);
 }
 .post-body h4 {
   font-size: 0.93rem;
@@ -524,39 +625,11 @@ body {
   font-family: 'Fira Code', monospace;
 }
 .post-body p { color: var(--text-2); margin: 0.8rem 0; line-height: 1.85; font-size: 0.93rem; word-break: keep-all; overflow-wrap: break-word; }
-.post-body a {
-  color: var(--text-2);
-  text-decoration: underline;
-  text-decoration-color: var(--text-3);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  transition: color 0.15s, text-decoration-color 0.15s;
-}
-.post-body a:hover { color: var(--text); text-decoration-color: var(--text-2); }
-.post-body strong { color: #a8f0d8; font-weight: 700; }
-.post-body em { color: #ddeedd; font-style: italic; }
-.post-body del { color: var(--text-3); }
-.post-body u {
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-.post-body blockquote {
-  border-left: 1px solid rgba(6, 214, 160, 0.45);
-  padding-left: 1rem;
-  margin: 1.25rem 0;
-  font-size: 0.97rem;
-  color: var(--text-2);
-  line-height: 1.9;
-  font-style: italic;
-}
-.post-body blockquote p { margin: 0; }
 .post-body code:not(pre code) {
   font-family: 'Fira Code', monospace;
   font-size: 0.82em;
   background: var(--surface);
-  color: var(--accent);
+  color: var(--article-accent);
   padding: 0.15em 0.4em;
   border-radius: 4px;
   border: 1px solid var(--border);
@@ -574,55 +647,11 @@ body {
   font-size: 0.82rem;
   background: transparent !important;
 }
-/* 단어 설명 — // 코드 주석 스타일 */
-.def-box {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.78rem;
-  color: var(--text-3);
-  line-height: 1.7;
-  padding-left: 0.5rem;
-  margin: 0.75rem 0 1rem;
-}
-.def-box::before { content: "// "; color: var(--accent); opacity: 0.5; }
-.def-box p { margin: 0; color: var(--text-3); font-size: 0.78rem; font-family: 'Fira Code', monospace; }
-.def-box strong { color: var(--text-2); font-weight: 500; }
-
-/* takeaway — 공통 구조 */
-.takeaway-box {
-  border-radius: 8px;
-  padding: 1.5rem 1.75rem;
-  margin: 1.5rem 0;
-  font-size: 1.05rem;
-  font-style: italic;
-  font-weight: 400;
-  line-height: 1.8;
-}
-.takeaway-box p { margin: 0; font-size: 1.05rem; }
-
-/* dev — 민트 틴트 */
-.post-body .takeaway-box {
-  background: rgba(6, 214, 160, 0.05);
-  color: var(--text);
-}
-.post-body .takeaway-box p { color: var(--text); }
-
-/* writing — 라벤더 틴트 */
-.writing-body .takeaway-box {
-  background: rgba(196, 181, 253, 0.06);
-  color: var(--text);
-}
-.writing-body .takeaway-box p { color: var(--text); }
-.post-body ul, .post-body ol { padding-left: 0; margin: 0.6rem 0; list-style: none; counter-reset: list-counter; }
-.post-body li { margin: 0.3rem 0; color: var(--text-2); font-size: 0.93rem; position: relative; padding-left: 1.1rem; }
-.post-body ul li::before { content: "·"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
-.post-body ol li { counter-increment: list-counter; }
-.post-body ol li::before { content: counter(list-counter) "."; position: absolute; left: 0; color: var(--accent); font-size: 0.8rem; font-family: 'Fira Code', monospace; }
-.post-body li input[type="checkbox"] { margin-right: 0.4rem; accent-color: var(--accent); }
+.post-body li input[type="checkbox"] { margin-right: 0.4rem; accent-color: var(--article-accent); }
 .post-body table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.84rem; display: block; overflow-x: auto; }
 .post-body th { background: var(--surface); padding: 0.5rem 0.75rem; text-align: left; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); white-space: nowrap; }
 .post-body td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-2); }
 .post-body tr:last-child td { border-bottom: none; }
-.post-body hr { border: none; height: 1px; background: var(--border-hover); width: 3rem; margin: 4rem auto; }
 .post-body img { max-width: 100%; border-radius: 8px; margin: 1.25rem 0; border: 1px solid var(--border); height: auto; display: block; }
 
 /* ── Writings page — 라벤더로 통일 ── */
@@ -749,14 +778,10 @@ body {
   margin: 0;
 }
 
-/* ── Writing body (gradient edition) ── */
-.writing-body {
-  --grad: linear-gradient(135deg, #93c5fd, #c4b5fd);
-  --accent-w: #c4b5fd;
-  font-family: 'Hanken Grotesk', 'Gowun Dodum', sans-serif;
-}
+/* ── Writing body (writing — lavender) — type-specific ── */
+/* Tokens + shared structural rules are in "Article body" section above */
 
-/* 제목 — 하늘색 ~ 라벤더 그라데이션 */
+/* H1 — 하늘색~라벤더 그라데이션 */
 .writing-body h1 {
   background: linear-gradient(135deg, #93c5fd, #c4b5fd);
   -webkit-background-clip: text;
@@ -768,90 +793,13 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* h2 — 위 30px 라벤더 선 */
-.writing-body h2 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text);
-  margin: 2.5rem 0 0.75rem;
-  letter-spacing: -0.02em;
-  line-height: 1.5;
-}
-.writing-body h2::before {
-  content: '';
-  display: block;
-  width: 30px;
-  height: 1px;
-  background: var(--accent-w);
-  margin-bottom: 0.5rem;
-}
-
-/* h3 */
-.writing-body h3 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 2rem 0 0.5rem;
-  letter-spacing: -0.015em;
-}
-
-/* ul/li — 라벤더 불릿 */
-.writing-body ul, .writing-body ol { padding-left: 0; margin: 0.6rem 0; list-style: none; counter-reset: list-counter; }
-.writing-body li { margin: 0.3rem 0; color: var(--text-2); font-size: 0.93rem; position: relative; padding-left: 1.1rem; }
-.writing-body ul li::before { content: "·"; position: absolute; left: 0; color: var(--accent-w); font-weight: 700; }
-.writing-body ol li { counter-increment: list-counter; }
-.writing-body ol li::before { content: counter(list-counter) "."; position: absolute; left: 0; color: var(--accent-w); font-size: 0.8rem; font-family: 'Fira Code', monospace; }
-
-/* blockquote */
-.writing-body blockquote {
-  border-left: 1px solid rgba(155, 138, 240, 0.45);
-  padding-left: 1rem;
-  margin: 1.25rem 0;
-  font-size: 0.97rem;
-  color: var(--text-2);
-  line-height: 1.9;
-  font-style: italic;
-}
-.writing-body blockquote p { margin: 0; }
-
-/* hr — 짧은 가운데 구분선 */
-.writing-body hr {
-  border: none;
-  height: 1px;
-  background: var(--border-hover);
-  width: 3rem;
-  margin: 4rem auto;
-}
-
-/* 링크 — 회색 밑줄 (조용하게) */
-.writing-body a {
-  color: var(--text-2);
-  text-decoration: underline;
-  text-decoration-color: var(--text-3);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  transition: color 0.15s, text-decoration-color 0.15s;
-}
-.writing-body a:hover { color: var(--text); text-decoration-color: var(--text-2); }
-
-/* blockquote — 바 없이, 이탤릭 + 배경으로만 */
-
-/* 본문 — 줄간격 넓게, 더 읽기 편하게 */
+/* p — 줄간격 넓게, 더 읽기 편하게 */
 .writing-body p {
   line-height: 2.0;
   font-size: 0.96rem;
   color: var(--text-2);
   word-break: keep-all;
   overflow-wrap: break-word;
-}
-
-.writing-body strong { color: #d8c8ff; font-weight: 700; }
-.writing-body em { color: #ede8ff; font-style: italic; }
-.writing-body u {
-  text-decoration: underline;
-  text-decoration-color: var(--accent-w);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
 }
 
 /* 이미지 — 살짝 기울기 + 둥근 그림자 */
