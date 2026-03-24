@@ -27,7 +27,10 @@ const markdownComponents: Components = {
   blockquote({ children }) {
     const text = extractBlockquoteText(children);
     const isDef = DEF_PATTERN.test(text.trimStart());
-    return <div className={isDef ? "def-box" : "takeaway-box"}>{children}</div>;
+    if (isDef) {
+      return <div className="def-box"><span className="def-box-prefix">// </span>{children}</div>;
+    }
+    return <blockquote>{children}</blockquote>;
   },
 };
 
