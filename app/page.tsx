@@ -1,4 +1,4 @@
-import { getAllPosts } from "../lib/posts";
+import { getPublishedPosts } from "../lib/posts";
 import { currentItems } from "../content/currently";
 import PostList from "./components/PostList";
 import HeroAurora from "./components/HeroAurora";
@@ -7,7 +7,7 @@ import AdminBar from "./components/AdminBar";
 import FadeIn from "./components/FadeIn";
 
 export default async function Home() {
-  const posts = await getAllPosts();
+  const posts = await getPublishedPosts();
   const devPosts = posts.filter((p) => p.type === "dev");
   const writingPosts = posts.filter((p) => p.type === "writing");
   const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));

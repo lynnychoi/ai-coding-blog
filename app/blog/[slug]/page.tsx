@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import rehypeRaw from "rehype-raw";
 import type { Components } from "react-markdown";
 import "highlight.js/styles/github-dark.css";
 import Comments from "../../components/Comments";
@@ -88,7 +89,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </div>
 
       <article className={isWriting ? "post-body writing-body" : "post-body"}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]} components={markdownComponents}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw, rehypeHighlight]} components={markdownComponents}>
           {post.content}
         </ReactMarkdown>
       </article>
