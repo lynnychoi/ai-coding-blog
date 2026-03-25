@@ -28,6 +28,14 @@ const markdownComponents: Components = {
     const text = extractBlockquoteText(children);
     const isDef = DEF_PATTERN.test(text.trimStart());
     if (isDef) {
+      const match = text.trimStart().match(/^([\s\S]*?(?:란[?:]|이란[?:]))\s*([\s\S]*)/);
+      if (match) {
+        return (
+          <div className="def-box">
+            <span className="def-box-prefix">// </span><span className="def-box-term">{match[1]}</span>{match[2] ? ' ' + match[2] : ''}
+          </div>
+        );
+      }
       return <div className="def-box"><span className="def-box-prefix">// </span>{children}</div>;
     }
     return <blockquote>{children}</blockquote>;
