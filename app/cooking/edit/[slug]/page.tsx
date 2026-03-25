@@ -306,9 +306,21 @@ export default function ComprehensiveEditPage() {
           <>
             <textarea ref={textareaRef} value={body} onChange={e => setBody(e.target.value)}
               style={{ ...DARK.textarea, minHeight: 320 }} spellCheck={false} placeholder="본문을 여기에 작성해줘..." />
-            <div style={{ marginTop: 6, display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-              {[["## 소제목", "## "], ["**굵게**", "**굵게**"], ["~~취소~~", "~~취소~~"], ["> 인용", "> "], ["---", "---"]].map(([label, val]) => (
-                <button key={label} style={DARK.smallBtn} onClick={() => insertAtCursor(val)}>{label}</button>
+            <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" as const, alignItems: "center" }}>
+              {[["## 소제목", "## "], ["### 소소제목", "### "]].map(([l, v]) => (
+                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
+              ))}
+              <span style={{ width: 1, height: 14, background: "#2a2a4a", display: "inline-block" }} />
+              {[["**굵게**", "**굵게**"], ["*기울임*", "*기울임*"], ["~~취소~~", "~~취소~~"], ["`코드`", "`코드`"]].map(([l, v]) => (
+                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
+              ))}
+              <span style={{ width: 1, height: 14, background: "#2a2a4a", display: "inline-block" }} />
+              {[["> 인용", "> "], ["> 단어란?", "> 단어란? "], ["takeaway", "> !! 내용"], ["---", "---"]].map(([l, v]) => (
+                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
+              ))}
+              <span style={{ width: 1, height: 14, background: "#2a2a4a", display: "inline-block" }} />
+              {[["- 목록", "- "], ["1. 목록", "1. "], ["```코드블록", "```\n코드\n```"]].map(([l, v]) => (
+                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
               ))}
             </div>
           </>

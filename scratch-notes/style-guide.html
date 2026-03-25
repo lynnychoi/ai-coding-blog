@@ -134,6 +134,21 @@
 
   /* ── divider ── */
   .section-rule { border: none; height: 1px; background: var(--border); margin: 3rem 0; }
+
+  /* ── Cheat Sheet ── */
+  .cheatsheet { display: grid; grid-template-columns: 150px 1fr 1fr 1.5fr; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cs-header { font-size: 0.58rem; font-family: 'Fira Code', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); background: var(--surface); padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); }
+  .cs-row { display: contents; }
+  .cs-row > div { padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; line-height: 1.6; }
+  .cs-row:last-child > div { border-bottom: none; }
+  .cs-name { font-family: 'Fira Code', monospace; font-size: 0.72rem; color: var(--text-2); display: flex; align-items: center; gap: 0.5rem; }
+  .cs-tag { font-size: 0.55rem; padding: 1px 5px; border-radius: 3px; font-family: 'Fira Code', monospace; }
+  .cs-tag.dev { background: rgba(6,214,160,0.1); color: var(--dev-accent); }
+  .cs-tag.writing { background: rgba(155,138,240,0.1); color: var(--writing-accent); }
+  .cs-tag.both { background: rgba(255,255,255,0.05); color: var(--text-3); }
+  .cs-syntax { font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #e0dcff; background: var(--surface); white-space: pre; }
+  .cs-note { font-size: 0.78rem; color: var(--text-3); display: flex; align-items: center; }
+  .cs-preview { display: flex; align-items: center; font-family: 'Figtree','Pretendard',sans-serif; }
 </style>
 </head>
 <body>
@@ -141,7 +156,149 @@
 
   <div class="page-title">Lynn Blog</div>
   <h1 class="page-heading">Style Guide</h1>
-  <p class="page-sub">Dev (mint #06d6a0) · Writing (lavender #9b8af0) · 업데이트: 2026-03-24</p>
+  <p class="page-sub">Dev (mint #06d6a0) · Writing (lavender #9b8af0) · 업데이트: 2026-03-25</p>
+
+  <!-- ────────────────────────────────── CHEAT SHEET ── -->
+  <div class="section">
+    <div class="section-title">00 · Markdown Cheat Sheet</div>
+    <div class="cheatsheet">
+      <!-- header -->
+      <div class="cs-header">요소</div>
+      <div class="cs-header">마크다운 문법</div>
+      <div class="cs-header">설명</div>
+      <div class="cs-header">미리보기</div>
+
+      <!-- strong -->
+      <div class="cs-row">
+        <div class="cs-name">strong <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">**텍스트**</div>
+        <div class="cs-note">굵게. 핵심 용어, 강조 포인트</div>
+        <div class="cs-preview dev-col"><p><strong>hydration 에러</strong>가 터졌다</p></div>
+      </div>
+      <!-- em -->
+      <div class="cs-row">
+        <div class="cs-name">em <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">*텍스트*</div>
+        <div class="cs-note">기울임. 뉘앙스, 감정, 부제</div>
+        <div class="cs-preview dev-col"><p><em>그게 맞나 싶었는데</em> — 일단 됐다</p></div>
+      </div>
+      <!-- del -->
+      <div class="cs-row">
+        <div class="cs-name">del <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">~~텍스트~~</div>
+        <div class="cs-note">취소선. 자기비하적 유머, 부연</div>
+        <div class="cs-preview dev-col"><p><del>그건 아직 안 되더라.</del></p></div>
+      </div>
+      <!-- code -->
+      <div class="cs-row">
+        <div class="cs-name">inline code <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">`코드`</div>
+        <div class="cs-note">파일명, 명령어, 변수명</div>
+        <div class="cs-preview dev-col"><p>파일 위에 <code>use client</code> 한 줄</p></div>
+      </div>
+      <!-- link -->
+      <div class="cs-row">
+        <div class="cs-name">link <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">[링크텍스트](URL)</div>
+        <div class="cs-note">외부 링크</div>
+        <div class="cs-preview dev-col"><p><a href="#">rauno.me</a> 참고했다</p></div>
+      </div>
+      <!-- h1 -->
+      <div class="cs-row">
+        <div class="cs-name">h1 <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax"># 제목</div>
+        <div class="cs-note">글 제목. 파일당 하나</div>
+        <div class="cs-preview dev-col"><h1 style="font-size:1.1rem">히어로 섹션 하나 만드는 데 하루 다 썼다</h1></div>
+      </div>
+      <!-- h2 -->
+      <div class="cs-row">
+        <div class="cs-name">h2 <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">## 소제목</div>
+        <div class="cs-note">섹션 구분. 각 단락 시작 전 필수</div>
+        <div class="cs-preview dev-col"><h2>이게 맞나 싶었는데</h2></div>
+      </div>
+      <!-- h3 -->
+      <div class="cs-row">
+        <div class="cs-name">h3 <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">### 소소제목</div>
+        <div class="cs-note">h2 안의 하위 구분</div>
+        <div class="cs-preview dev-col"><h3>삽질 1: 블롭이 한쪽에서만 맴돌았다</h3></div>
+      </div>
+      <!-- ul -->
+      <div class="cs-row">
+        <div class="cs-name">목록 (ul) <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">- 항목 하나
+- 항목 둘</div>
+        <div class="cs-note">순서 없는 목록</div>
+        <div class="cs-preview dev-col"><ul><li>댓글 기능</li><li>태그 필터</li></ul></div>
+      </div>
+      <!-- ol -->
+      <div class="cs-row">
+        <div class="cs-name">순서 목록 (ol) <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">1. 첫 번째
+2. 두 번째</div>
+        <div class="cs-note">순서 있는 목록</div>
+        <div class="cs-preview dev-col"><ol><li>로봇이 브라우저를 연다</li><li>글쓰기 페이지로 간다</li></ol></div>
+      </div>
+      <!-- blockquote -->
+      <div class="cs-row">
+        <div class="cs-name">blockquote <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">> 인용 또는 강조 문장</div>
+        <div class="cs-note">인용, 핵심 코멘트</div>
+        <div class="cs-preview dev-col"><blockquote>그때는 몰라도 일단 했다.</blockquote></div>
+      </div>
+      <!-- def-box -->
+      <div class="cs-row">
+        <div class="cs-name">def-box <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">> 단어란? 설명
+> 단어이란? 설명</div>
+        <div class="cs-note">"란?" 또는 "이란?"으로 시작해야 자동 변환됨</div>
+        <div class="cs-preview dev-col"><div class="def-box"><span class="def-box-prefix">// </span><span class="def-box-term">리다이렉트란?</span> 어떤 페이지에서 다른 페이지로 자동으로 넘겨주는 것.</div></div>
+      </div>
+      <!-- takeaway -->
+      <div class="cs-row">
+        <div class="cs-name">takeaway-box <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">> !! 내용</div>
+        <div class="cs-note">글 핵심 한 줄 요약. !! 로 시작하면 자동 변환됨</div>
+        <div class="cs-preview dev-col"><div class="takeaway-box">자동화는 쓰는 수고를 덜어주는 거지, 생각을 대신해주진 않는다.</div></div>
+      </div>
+      <!-- hr -->
+      <div class="cs-row">
+        <div class="cs-name">hr <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">---</div>
+        <div class="cs-note">섹션 구분선. · · · 로 렌더링됨</div>
+        <div class="cs-preview dev-col"><hr></div>
+      </div>
+      <!-- code block -->
+      <div class="cs-row">
+        <div class="cs-name">code block <span class="cs-tag dev">dev</span></div>
+        <div class="cs-syntax">```언어
+코드 내용
+```</div>
+        <div class="cs-note">코드 블록. 언어: js, ts, tsx, bash, css 등</div>
+        <div class="cs-preview dev-col"><pre style="background:#0f0f18;border-radius:6px;padding:10px;font-family:'Fira Code',monospace;font-size:0.75rem;color:#c4b8f8;overflow-x:auto">const hello = "world";</pre></div>
+      </div>
+      <!-- table -->
+      <div class="cs-row">
+        <div class="cs-name">table <span class="cs-tag dev">dev</span></div>
+        <div class="cs-syntax">| 헤더1 | 헤더2 |
+|-------|-------|
+| 셀    | 셀    |</div>
+        <div class="cs-note">표. dev 글에서 정리/비교 시</div>
+        <div class="cs-preview dev-col"><table style="font-size:0.75rem;border-collapse:collapse;width:100%"><thead><tr><th style="border:1px solid #1c1c2a;padding:4px 8px;color:#a0a0b0;text-align:left">인풋</th><th style="border:1px solid #1c1c2a;padding:4px 8px;color:#a0a0b0;text-align:left">아웃풋</th></tr></thead><tbody><tr><td style="border:1px solid #1c1c2a;padding:4px 8px;color:#5a5a70">dev-log.md</td><td style="border:1px solid #1c1c2a;padding:4px 8px;color:#5a5a70">포스트.md</td></tr></tbody></table></div>
+      </div>
+      <!-- image -->
+      <div class="cs-row">
+        <div class="cs-name">image / GIF <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">![캡션 텍스트](URL)
+![캡션 없음](URL)</div>
+        <div class="cs-note">alt 텍스트가 있으면 이미지 아래에 캡션으로 표시됨. alt 없으면 캡션 없음. GIF는 편집기 GIF 탭에서 삽입</div>
+        <div class="cs-preview" style="font-size:0.78rem;display:flex;flex-direction:column;gap:0.3rem"><span style="color:var(--text-3)">🖼 이미지</span><span style="font-size:0.68rem;color:var(--text-3);font-style:italic;text-align:center">캡션 텍스트</span></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
 
   <!-- ────────────────────────────────── INLINE TEXT ── -->
   <div class="section">

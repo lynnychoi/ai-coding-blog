@@ -26,9 +26,13 @@ function extractBlockquoteText(children: React.ReactNode): string {
 const markdownComponents: Components = {
   blockquote({ children }) {
     const text = extractBlockquoteText(children);
-    const isDef = DEF_PATTERN.test(text.trimStart());
+    const trimmed = text.trimStart();
+    if (trimmed.startsWith("!! ")) {
+      return <div className="takeaway-box">{trimmed.slice(3).trim()}</div>;
+    }
+    const isDef = DEF_PATTERN.test(trimmed);
     if (isDef) {
-      const match = text.trimStart().match(/^([\s\S]*?(?:란[?:]|이란[?:]))\s*([\s\S]*)/);
+      const match = trimmed.match(/^([\s\S]*?(?:란[?:]|이란[?:]))\s*([\s\S]*)/);
       if (match) {
         return (
           <div className="def-box">
@@ -39,6 +43,15 @@ const markdownComponents: Components = {
       return <div className="def-box"><span className="def-box-prefix">// </span>{children}</div>;
     }
     return <blockquote>{children}</blockquote>;
+  },
+  img({ src, alt }) {
+    if (!alt) return <img src={src} alt="" />;
+    return (
+      <figure className="post-figure">
+        <img src={src} alt={alt} />
+        <figcaption>{alt}</figcaption>
+      </figure>
+    );
   },
 };
 

@@ -669,6 +669,9 @@ body {
 .post-body td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-2); }
 .post-body tr:last-child td { border-bottom: none; }
 .post-body img { max-width: 100%; border-radius: 8px; margin: 1.25rem 0; border: 1px solid var(--border); height: auto; display: block; }
+.post-body figure, .writing-body figure { margin: 1.25rem 0; }
+.post-body figure img, .writing-body figure img { margin: 0; }
+.post-body figcaption, .writing-body figcaption { font-size: 0.73rem; color: var(--text-3); text-align: center; margin-top: 0.5rem; font-style: italic; line-height: 1.5; }
 
 /* ── Writings page — 라벤더로 통일 ── */
 .writings-page .latest-num {
