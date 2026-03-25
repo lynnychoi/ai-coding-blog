@@ -582,9 +582,88 @@
 
   <hr class="section-rule">
 
+  <!-- ────────────────────────────────── IMAGE / GIF ── -->
+  <div class="section">
+    <div class="section-title">05 · Image / GIF</div>
+
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">image / GIF</div>
+        <div class="el-syntax">![캡션 텍스트](URL)</div>
+        <div class="el-note">alt 텍스트가 있으면 이미지 아래 캡션으로 표시됨. alt 없으면 캡션 없음. GIF는 편집기 GIF 탭에서 삽입.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <figure style="margin:0.5rem 0"><img src="https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif" alt="짜잔" style="max-width:100%;border-radius:6px"><figcaption style="font-size:0.7rem;color:var(--text-3);text-align:center;margin-top:0.4rem;font-style:italic">짜잔</figcaption></figure>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <figure style="margin:0.5rem 0"><img src="https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif" alt="짜잔" style="max-width:100%;border-radius:6px"><figcaption style="font-size:0.7rem;color:var(--text-3);text-align:center;margin-top:0.4rem;font-style:italic">짜잔</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── CODE BLOCK ── -->
+  <div class="section">
+    <div class="section-title">06 · Code Block</div>
+
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">code block <span class="cs-tag dev" style="font-size:0.6rem;padding:1px 6px;border-radius:3px;background:#06d6a020;color:#06d6a0">dev</span></div>
+        <div class="el-syntax">```언어<br>코드 내용<br>```</div>
+        <div class="el-note">코드 블록. 언어: js, ts, tsx, bash, css 등. 하이라이팅 자동 적용.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <pre style="background:#0f0f18;border-radius:8px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.78rem;color:#c4b8f8;overflow-x:auto;margin:0">const slug = params.slug;
+const post = await getPost(slug);</pre>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p style="color:var(--text-3);font-size:0.8rem">해당 없음</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── TABLE ── -->
+  <div class="section">
+    <div class="section-title">07 · Table</div>
+
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">table <span class="cs-tag dev" style="font-size:0.6rem;padding:1px 6px;border-radius:3px;background:#06d6a020;color:#06d6a0">dev</span></div>
+        <div class="el-syntax">| 헤더1 | 헤더2 |<br>|---|---|<br>| 셀 | 셀 |</div>
+        <div class="el-note">표. dev 글에서 정리/비교할 때.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <table style="font-size:0.8rem;border-collapse:collapse;width:100%">
+          <thead><tr>
+            <th style="border:1px solid var(--border);padding:6px 10px;color:var(--text-2);text-align:left">방법</th>
+            <th style="border:1px solid var(--border);padding:6px 10px;color:var(--text-2);text-align:left">속도</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">직접 클릭</td><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">느림</td></tr>
+            <tr><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">Playwright</td><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">빠름</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p style="color:var(--text-3);font-size:0.8rem">해당 없음</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
   <!-- ────────────────────────────────── HR ── -->
   <div class="section">
-    <div class="section-title">05 · HR (Divider)</div>
+    <div class="section-title">08 · HR (Divider)</div>
 
     <div class="row">
       <div class="row-meta">
@@ -607,7 +686,7 @@
 
   <!-- ────────────────────────────────── COLOR ── -->
   <div class="section">
-    <div class="section-title">06 · Color Reference</div>
+    <div class="section-title">09 · Color Reference</div>
     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem;">
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem;">
         <div style="width:32px;height:32px;border-radius:4px;background:#06d6a0;margin-bottom:0.5rem;"></div>
