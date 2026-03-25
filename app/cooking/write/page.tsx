@@ -82,6 +82,7 @@ export default function WritePage() {
     <div style={S.page}>
       <div style={S.top}>
         <Link href="/cooking" style={S.back}>← 대시보드</Link>
+        <a href="/style-guide.html" target="_blank" style={{ fontSize: 11, color: "#555", textDecoration: "none", border: "1px solid #1c1c2a", borderRadius: 5, padding: "3px 8px" }}>📖 Style</a>
         <span style={{ fontSize: 14, fontWeight: 600, color: COLORS.text, flex: 1 }}>새 글 쓰기</span>
       </div>
 

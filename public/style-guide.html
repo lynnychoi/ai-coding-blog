@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Lynn Blog — Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Fira+Code:wght@400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090f;
+    --surface: #0f0f18;
+    --border: #1c1c2a;
+    --text: #eeeeee;
+    --text-2: #a0a0b0;
+    --text-3: #5a5a70;
+    --dev-accent: #06d6a0;
+    --dev-accent-dim: rgba(6,214,160,0.35);
+    --dev-tint: rgba(6,214,160,0.05);
+    --writing-accent: #9b8af0;
+    --writing-accent-dim: rgba(155,138,240,0.35);
+    --writing-tint: rgba(155,138,240,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Figtree','Pretendard',sans-serif; }
+
+  /* ── Layout ── */
+  .wrap { max-width: 960px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+  .page-title {
+    font-size: 0.65rem; font-family: 'Fira Code', monospace;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 0.4rem;
+  }
+  .page-heading {
+    font-size: 2rem; font-weight: 800; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #8ee8c4, #06d6a0);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 0.5rem;
+  }
+  .page-sub { font-size: 0.82rem; color: var(--text-3); margin-bottom: 4rem; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 4rem; }
+  .section-title {
+    font-size: 0.6rem; font-family: 'Fira Code', monospace;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Row: one element ── */
+  .row { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 1.5rem; align-items: start; margin-bottom: 2rem; }
+  .row-meta { padding-top: 0.1rem; }
+  .el-name {
+    font-size: 0.62rem; font-family: 'Fira Code', monospace;
+    color: var(--text-3); letter-spacing: 0.08em; margin-bottom: 0.2rem;
+  }
+  .el-syntax {
+    font-size: 0.58rem; font-family: 'Fira Code', monospace;
+    color: var(--text-3); opacity: 0.5; margin-bottom: 0.3rem; line-height: 1.5;
+  }
+  .el-note { font-size: 0.62rem; color: var(--text-3); line-height: 1.5; }
+
+  .col-label {
+    font-size: 0.55rem; font-family: 'Fira Code', monospace;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 0.5rem;
+  }
+  .col-label.dev { color: var(--dev-accent); opacity: 0.7; }
+  .col-label.writing { color: var(--writing-accent); opacity: 0.7; }
+
+  /* ── Rendered styles — DEV ── */
+  .dev-col { font-family: 'Figtree','Pretendard',sans-serif; }
+  .dev-col p { color: var(--text-2); font-size: 0.93rem; line-height: 1.9; word-break: keep-all; }
+  .dev-col strong { color: #8ee8c4; font-weight: 700; }
+  .dev-col em { color: #b8dece; font-style: italic; }
+  .dev-col del { color: var(--text-3); }
+  .dev-col u { text-decoration: underline; text-decoration-color: var(--dev-accent); text-decoration-thickness: 1px; text-underline-offset: 3px; color: inherit; }
+  .dev-col code { font-family: 'Fira Code',monospace; font-size: 0.82em; background: var(--surface); color: var(--dev-accent); padding: 0.15em 0.4em; border-radius: 4px; border: 1px solid var(--border); }
+  .dev-col a { color: var(--text-2); text-decoration: underline; text-decoration-color: var(--text-3); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+  .dev-col h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; background: linear-gradient(135deg, #8ee8c4, #06d6a0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .dev-col h2 { font-size: 1.2rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; line-height: 1.5; }
+  .dev-col h2::before { content: ''; display: block; width: 30px; height: 1px; background: var(--dev-accent); margin-bottom: 0.5rem; }
+  .dev-col h3 { font-size: 1.05rem; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
+
+  .dev-col ul { padding-left: 0; list-style: none; }
+  .dev-col li { color: var(--text-2); font-size: 0.93rem; position: relative; padding-left: 1.1rem; margin: 0.3rem 0; }
+  .dev-col ul li::before { content: "·"; position: absolute; left: 0; color: var(--dev-accent); font-weight: 700; }
+  .dev-col ol { padding-left: 0; list-style: none; counter-reset: list-counter; }
+  .dev-col ol li { counter-increment: list-counter; }
+  .dev-col ol li::before { content: counter(list-counter) "."; position: absolute; left: 0; color: var(--dev-accent); font-size: 0.8rem; font-family: 'Fira Code',monospace; }
+
+  .dev-col blockquote { border-left: 1px solid var(--dev-accent-dim); padding: 0 0 0 1rem; font-size: 0.97rem; color: var(--text-2); line-height: 1.9; font-style: italic; }
+  .dev-col .def-box { font-size: 0.78rem; color: var(--text-3); line-height: 1.7; padding-left: 0.5rem; }
+  .dev-col .def-box-prefix { font-family: 'Fira Code',monospace; color: var(--dev-accent); opacity: 0.5; }
+  .dev-col .def-box-term { color: var(--text-2); font-weight: 500; }
+  .dev-col .takeaway-box { border-radius: 8px; padding: 1.25rem 1.5rem; background: var(--dev-tint); font-size: 1rem; font-style: italic; line-height: 1.85; color: var(--text); }
+
+  .dev-col hr { border: none; text-align: center; font-size: 0.9rem; color: var(--text-3); margin: 0.5rem 0; }
+  .dev-col hr::after { content: "· · ·"; letter-spacing: 0.4em; }
+
+  /* ── Rendered styles — WRITING ── */
+  .writing-col { font-family: 'Hanken Grotesk','Gowun Dodum',sans-serif; }
+  .writing-col p { color: var(--text-2); font-size: 0.93rem; line-height: 1.9; word-break: keep-all; }
+  .writing-col strong { color: #c4b5fd; font-weight: 700; }
+  .writing-col em { color: #ddd6ff; font-style: italic; }
+  .writing-col del { color: var(--text-3); }
+  .writing-col u { text-decoration: underline; text-decoration-color: var(--writing-accent); text-decoration-thickness: 1px; text-underline-offset: 3px; color: inherit; }
+  .writing-col code { font-family: 'Fira Code',monospace; font-size: 0.82em; background: var(--surface); color: var(--writing-accent); padding: 0.15em 0.4em; border-radius: 4px; border: 1px solid var(--border); }
+  .writing-col a { color: var(--text-2); text-decoration: underline; text-decoration-color: var(--text-3); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+  .writing-col h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; background: linear-gradient(135deg, #c4b5fd, #9b8af0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .writing-col h2 { font-size: 1.2rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; line-height: 1.5; }
+  .writing-col h2::before { content: ''; display: block; width: 30px; height: 1px; background: var(--writing-accent); margin-bottom: 0.5rem; }
+  .writing-col h3 { font-size: 1.05rem; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
+
+  .writing-col ul { padding-left: 0; list-style: none; }
+  .writing-col li { color: var(--text-2); font-size: 0.93rem; position: relative; padding-left: 1.1rem; margin: 0.3rem 0; }
+  .writing-col ul li::before { content: "·"; position: absolute; left: 0; color: var(--writing-accent); font-weight: 700; }
+  .writing-col ol { padding-left: 0; list-style: none; counter-reset: list-counter; }
+  .writing-col ol li { counter-increment: list-counter; }
+  .writing-col ol li::before { content: counter(list-counter) "."; position: absolute; left: 0; color: var(--writing-accent); font-size: 0.8rem; font-family: 'Fira Code',monospace; }
+
+  .writing-col blockquote { border-left: 1px solid var(--writing-accent-dim); padding: 0 0 0 1rem; font-size: 0.97rem; color: var(--text-2); line-height: 1.9; font-style: italic; }
+  .writing-col .def-box { font-size: 0.78rem; color: var(--text-3); line-height: 1.7; padding-left: 0.5rem; }
+  .writing-col .def-box-prefix { font-family: 'Fira Code',monospace; color: var(--writing-accent); opacity: 0.5; }
+  .writing-col .def-box-term { color: var(--text-2); font-weight: 500; }
+  .writing-col .takeaway-box { border-radius: 8px; padding: 1.25rem 1.5rem; background: var(--writing-tint); font-size: 1rem; font-style: italic; line-height: 1.85; color: var(--text); }
+
+  .writing-col hr { border: none; text-align: center; font-size: 0.9rem; color: var(--text-3); margin: 0.5rem 0; }
+  .writing-col hr::after { content: "· · ·"; letter-spacing: 0.4em; }
+
+  /* ── divider ── */
+  .section-rule { border: none; height: 1px; background: var(--border); margin: 3rem 0; }
+
+  /* ── Cheat Sheet ── */
+  .cheatsheet { display: grid; grid-template-columns: 150px 1fr 1fr 1.5fr; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cs-header { font-size: 0.58rem; font-family: 'Fira Code', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); background: var(--surface); padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); }
+  .cs-row { display: contents; }
+  .cs-row > div { padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; line-height: 1.6; }
+  .cs-row:last-child > div { border-bottom: none; }
+  .cs-name { font-family: 'Fira Code', monospace; font-size: 0.72rem; color: var(--text-2); display: flex; align-items: center; gap: 0.5rem; }
+  .cs-tag { font-size: 0.55rem; padding: 1px 5px; border-radius: 3px; font-family: 'Fira Code', monospace; }
+  .cs-tag.dev { background: rgba(6,214,160,0.1); color: var(--dev-accent); }
+  .cs-tag.writing { background: rgba(155,138,240,0.1); color: var(--writing-accent); }
+  .cs-tag.both { background: rgba(255,255,255,0.05); color: var(--text-3); }
+  .cs-syntax { font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #e0dcff; background: var(--surface); white-space: pre; }
+  .cs-note { font-size: 0.78rem; color: var(--text-3); display: flex; align-items: center; }
+  .cs-preview { display: flex; align-items: center; font-family: 'Figtree','Pretendard',sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-title">Lynn Blog</div>
+  <h1 class="page-heading">Style Guide</h1>
+  <p class="page-sub">Dev (mint #06d6a0) · Writing (lavender #9b8af0) · 업데이트: 2026-03-25</p>
+
+  <!-- ────────────────────────────────── CHEAT SHEET ── -->
+  <div class="section">
+    <div class="section-title">00 · Markdown Cheat Sheet</div>
+    <div class="cheatsheet">
+      <!-- header -->
+      <div class="cs-header">요소</div>
+      <div class="cs-header">마크다운 문법</div>
+      <div class="cs-header">설명</div>
+      <div class="cs-header">미리보기</div>
+
+      <!-- h1 -->
+      <div class="cs-row">
+        <div class="cs-name">h1 <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax"># 제목</div>
+        <div class="cs-note">글 제목. 파일당 하나</div>
+        <div class="cs-preview dev-col"><h1 style="font-size:1.1rem">히어로 섹션 하나 만드는 데 하루 다 썼다</h1></div>
+      </div>
+      <!-- h2 -->
+      <div class="cs-row">
+        <div class="cs-name">h2 <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">## 소제목</div>
+        <div class="cs-note">섹션 구분. 각 단락 시작 전 필수</div>
+        <div class="cs-preview dev-col"><h2>이게 맞나 싶었는데</h2></div>
+      </div>
+      <!-- h3 -->
+      <div class="cs-row">
+        <div class="cs-name">h3 <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">### 소소제목</div>
+        <div class="cs-note">h2 안의 하위 구분</div>
+        <div class="cs-preview dev-col"><h3>삽질 1: 블롭이 한쪽에서만 맴돌았다</h3></div>
+      </div>
+      <!-- blockquote -->
+      <div class="cs-row">
+        <div class="cs-name">blockquote <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">> 인용 또는 강조 문장</div>
+        <div class="cs-note">인용, 핵심 코멘트</div>
+        <div class="cs-preview dev-col"><blockquote>그때는 몰라도 일단 했다.</blockquote></div>
+      </div>
+      <!-- def-box -->
+      <div class="cs-row">
+        <div class="cs-name">def-box <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">> 단어란? 설명
+> 단어이란? 설명</div>
+        <div class="cs-note">"란?" 또는 "이란?"으로 시작해야 자동 변환됨</div>
+        <div class="cs-preview dev-col"><div class="def-box"><span class="def-box-prefix">// </span><span class="def-box-term">리다이렉트란?</span> 어떤 페이지에서 다른 페이지로 자동으로 넘겨주는 것.</div></div>
+      </div>
+      <!-- takeaway -->
+      <div class="cs-row">
+        <div class="cs-name">takeaway-box <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">> !! 내용</div>
+        <div class="cs-note">글 핵심 한 줄 요약. !! 로 시작하면 자동 변환됨</div>
+        <div class="cs-preview dev-col"><div class="takeaway-box">자동화는 쓰는 수고를 덜어주는 거지, 생각을 대신해주진 않는다.</div></div>
+      </div>
+      <!-- ul -->
+      <div class="cs-row">
+        <div class="cs-name">목록 (ul) <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">- 항목 하나
+- 항목 둘</div>
+        <div class="cs-note">순서 없는 목록</div>
+        <div class="cs-preview dev-col"><ul><li>댓글 기능</li><li>태그 필터</li></ul></div>
+      </div>
+      <!-- ol -->
+      <div class="cs-row">
+        <div class="cs-name">순서 목록 (ol) <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">1. 첫 번째
+2. 두 번째</div>
+        <div class="cs-note">순서 있는 목록</div>
+        <div class="cs-preview dev-col"><ol><li>로봇이 브라우저를 연다</li><li>글쓰기 페이지로 간다</li></ol></div>
+      </div>
+      <!-- strong -->
+      <div class="cs-row">
+        <div class="cs-name">strong <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">**텍스트**</div>
+        <div class="cs-note">굵게. 핵심 용어, 강조 포인트</div>
+        <div class="cs-preview dev-col"><p><strong>hydration 에러</strong>가 터졌다</p></div>
+      </div>
+      <!-- em -->
+      <div class="cs-row">
+        <div class="cs-name">em <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">*텍스트*</div>
+        <div class="cs-note">기울임. 뉘앙스, 감정, 부제</div>
+        <div class="cs-preview dev-col"><p><em>그게 맞나 싶었는데</em> — 일단 됐다</p></div>
+      </div>
+      <!-- del -->
+      <div class="cs-row">
+        <div class="cs-name">del <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">~~텍스트~~</div>
+        <div class="cs-note">취소선. 자기비하적 유머, 부연</div>
+        <div class="cs-preview dev-col"><p><del>그건 아직 안 되더라.</del></p></div>
+      </div>
+      <!-- code -->
+      <div class="cs-row">
+        <div class="cs-name">inline code <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">`코드`</div>
+        <div class="cs-note">파일명, 명령어, 변수명</div>
+        <div class="cs-preview dev-col"><p>파일 위에 <code>use client</code> 한 줄</p></div>
+      </div>
+      <!-- link -->
+      <div class="cs-row">
+        <div class="cs-name">link <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">[링크텍스트](URL)</div>
+        <div class="cs-note">외부 링크</div>
+        <div class="cs-preview dev-col"><p><a href="#">rauno.me</a> 참고했다</p></div>
+      </div>
+      <!-- code block -->
+      <div class="cs-row">
+        <div class="cs-name">code block <span class="cs-tag dev">dev</span></div>
+        <div class="cs-syntax">```언어
+코드 내용
+```</div>
+        <div class="cs-note">코드 블록. 언어: js, ts, tsx, bash, css 등</div>
+        <div class="cs-preview dev-col"><pre style="background:#0f0f18;border-radius:6px;padding:10px;font-family:'Fira Code',monospace;font-size:0.75rem;color:#c4b8f8;overflow-x:auto">const hello = "world";</pre></div>
+      </div>
+      <!-- table -->
+      <div class="cs-row">
+        <div class="cs-name">table <span class="cs-tag dev">dev</span></div>
+        <div class="cs-syntax">| 헤더1 | 헤더2 |
+|-------|-------|
+| 셀    | 셀    |</div>
+        <div class="cs-note">표. dev 글에서 정리/비교 시</div>
+        <div class="cs-preview dev-col"><table style="font-size:0.75rem;border-collapse:collapse;width:100%"><thead><tr><th style="border:1px solid #1c1c2a;padding:4px 8px;color:#a0a0b0;text-align:left">인풋</th><th style="border:1px solid #1c1c2a;padding:4px 8px;color:#a0a0b0;text-align:left">아웃풋</th></tr></thead><tbody><tr><td style="border:1px solid #1c1c2a;padding:4px 8px;color:#5a5a70">dev-log.md</td><td style="border:1px solid #1c1c2a;padding:4px 8px;color:#5a5a70">포스트.md</td></tr></tbody></table></div>
+      </div>
+      <!-- image -->
+      <div class="cs-row">
+        <div class="cs-name">image / GIF <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">![캡션 텍스트](URL)
+![캡션 없음](URL)</div>
+        <div class="cs-note">alt 텍스트가 있으면 이미지 아래에 캡션으로 표시됨. alt 없으면 캡션 없음. GIF는 편집기 GIF 탭에서 삽입</div>
+        <div class="cs-preview" style="font-size:0.78rem;display:flex;flex-direction:column;gap:0.3rem"><span style="color:var(--text-3)">🖼 이미지</span><span style="font-size:0.68rem;color:var(--text-3);font-style:italic;text-align:center">캡션 텍스트</span></div>
+      </div>
+      <!-- hr -->
+      <div class="cs-row">
+        <div class="cs-name">hr <span class="cs-tag both">both</span></div>
+        <div class="cs-syntax">---</div>
+        <div class="cs-note">섹션 구분선. · · · 로 렌더링됨</div>
+        <div class="cs-preview dev-col"><hr></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── HEADINGS ── -->
+  <div class="section">
+    <div class="section-title">01 · Headings</div>
+
+    <!-- h1 -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">h1</div>
+        <div class="el-syntax"># 제목</div>
+        <div class="el-note">글 제목. 글당 한 번만.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <h1>내가 만든 블로그를 로봇이 대신 테스트해준다</h1>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <h1>아이가 잠든 새벽, 처음으로 뭔가 됐다</h1>
+      </div>
+    </div>
+
+    <!-- h2 -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">h2</div>
+        <div class="el-syntax">## 소제목</div>
+        <div class="el-note">섹션 구분. 위에 민트/라벤더 가로선.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <h2>글 쓰기 → 편집 페이지로 넘어가는지 확인</h2>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <h2>처음으로 뭔가 될 것 같았다</h2>
+      </div>
+    </div>
+
+    <!-- h3 -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">h3</div>
+        <div class="el-syntax">### 소소제목</div>
+        <div class="el-note">세부 항목. 가로선 없음.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <h3>이제 검수는 내가 안 해도 된다</h3>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <h3>Claude가 내 말을 알아들었다</h3>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── BLOCK ELEMENTS ── -->
+  <div class="section">
+    <div class="section-title">02 · Block Elements</div>
+
+    <!-- blockquote -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">blockquote</div>
+        <div class="el-syntax">&gt; 텍스트</div>
+        <div class="el-note">인용, 명언. 왼쪽 세로선.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <blockquote>만드는 것보다 만든 걸 안 깨뜨리는 게 더 어렵다.</blockquote>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <blockquote>만드는 것보다 만든 걸 안 깨뜨리는 게 더 어렵다.</blockquote>
+      </div>
+    </div>
+
+    <!-- def-box -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">def-box</div>
+        <div class="el-syntax">&gt; 단어란? 설명</div>
+        <div class="el-note">용어 설명. "란?" 또는 "이란?"으로 시작하면 자동 변환.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <div class="def-box"><span class="def-box-prefix">// </span><span class="def-box-term">Playwright란?</span> 브라우저를 코드로 자동 조작하는 E2E 테스트 도구다. Chromium, Firefox, WebKit 모두 지원한다.</div>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <div class="def-box"><span class="def-box-prefix">// </span><span class="def-box-term">E2E 테스트란?</span> 사용자가 실제로 쓰는 흐름 전체를 자동으로 검증하는 방식이다.</div>
+      </div>
+    </div>
+
+    <!-- takeaway-box -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">takeaway-box</div>
+        <div class="el-syntax">&gt; !! 내용</div>
+        <div class="el-note">글의 핵심 한 줄 요약. 배경 tint. <code>!! </code>로 시작하는 blockquote가 자동 변환됨</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <div class="takeaway-box">CI 없이 혼자 짜면 결국 테스트를 안 돌리게 된다. 귀찮아서가 아니라 까먹어서.</div>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <div class="takeaway-box">Claude Code로 짜고, Playwright로 지킨다. 혼자 만드는 게 무서울 때 자동화가 버팀목이 된다.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── LISTS ── -->
+  <div class="section">
+    <div class="section-title">03 · Lists</div>
+
+    <!-- ul -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">ul</div>
+        <div class="el-syntax">- 항목</div>
+        <div class="el-note">순서 없는 목록. · 마커.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <ul>
+          <li>브라우저를 headless 모드로 연다</li>
+          <li>GitHub API로 글 목록을 불러온다</li>
+          <li>route handler가 200을 리턴하는지 확인한다</li>
+        </ul>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <ul>
+          <li>Chromium, Firefox, WebKit 모두 지원</li>
+          <li>headless 모드로 백그라운드에서 실행</li>
+          <li>GitHub Actions에 붙이면 자동으로 돌아감</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ol -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">ol</div>
+        <div class="el-syntax">1. 항목</div>
+        <div class="el-note">순서 있는 목록. 숫자 마커.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <ol>
+          <li>로컬에서 <code>npm run dev</code> 실행</li>
+          <li>Playwright test suite 돌리기</li>
+          <li>GitHub에 push</li>
+        </ol>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <ol>
+          <li>Playwright 설치하고 test 파일 작성</li>
+          <li>로컬에서 <code>npm run test</code> 돌려보기</li>
+          <li>GitHub Actions workflow에 연결</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── INLINE TEXT ── -->
+  <div class="section">
+    <div class="section-title">04 · Inline Text</div>
+
+    <!-- strong -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">strong</div>
+        <div class="el-syntax">**텍스트**</div>
+        <div class="el-note">핵심 기술 용어, 강조 포인트</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <p>Next.js App Router로 바꾸면서 <strong>hydration 에러</strong>가 세 개 터졌다.</p>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p><strong>11시 32분</strong>이었다. 아이가 드디어 잠들었다.</p>
+      </div>
+    </div>
+
+    <!-- em -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">em</div>
+        <div class="el-syntax">*텍스트*</div>
+        <div class="el-note">속마음, 생각, 혼잣말</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <p><em>"설마 SSR 문제겠어?"</em> 싶었는데 맞았다.</p>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p><em>"설마 이게 나한테 필요한 도구겠어?"</em> 싶었는데 맞았다.</p>
+      </div>
+    </div>
+
+    <!-- del -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">del</div>
+        <div class="el-syntax">~~텍스트~~</div>
+        <div class="el-note">틀린 생각, 취소선, 자기 반박</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <p><del>useEffect로 때우면 되겠지.</del> 아니었다.</p>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p><del>테스트는 개발자가 하는 거 아닌가.</del></p>
+      </div>
+    </div>
+
+    <!-- u -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">u</div>
+        <div class="el-syntax">&lt;u&gt;텍스트&lt;/u&gt;</div>
+        <div class="el-note">글의 핵심 포인트, 밑줄 강조</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <p><u>이 부분이 핵심이다.</u></p>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p><u>이 순간이 바뀌는 순간이었다.</u></p>
+      </div>
+    </div>
+
+    <!-- code -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">code</div>
+        <div class="el-syntax">`코드`</div>
+        <div class="el-note">명령어, 파일명, 함수명</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <p>터미널에서 <code>npx playwright test --ui</code>를 치면 UI 모드로 열린다.</p>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p>처음엔 무섭게 느껴졌던 <code>npx playwright test</code> 한 줄이 이제는 일상이 됐다.</p>
+      </div>
+    </div>
+
+    <!-- a -->
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">a (link)</div>
+        <div class="el-syntax">[텍스트](url)</div>
+        <div class="el-note">외부 링크, 참고 자료</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <p><a href="#">Playwright 공식 문서</a> 참고.</p>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p><a href="#">Playwright 공식 문서</a>가 생각보다 친절하다.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── IMAGE / GIF ── -->
+  <div class="section">
+    <div class="section-title">05 · Image / GIF</div>
+
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">image / GIF</div>
+        <div class="el-syntax">![캡션 텍스트](URL)</div>
+        <div class="el-note">alt 텍스트가 있으면 이미지 아래 캡션으로 표시됨. alt 없으면 캡션 없음. GIF는 편집기 GIF 탭에서 삽입.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <figure style="margin:0.5rem 0"><img src="https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif" alt="짜잔" style="max-width:100%;border-radius:6px"><figcaption style="font-size:0.7rem;color:var(--text-3);text-align:center;margin-top:0.4rem;font-style:italic">짜잔</figcaption></figure>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <figure style="margin:0.5rem 0"><img src="https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif" alt="짜잔" style="max-width:100%;border-radius:6px"><figcaption style="font-size:0.7rem;color:var(--text-3);text-align:center;margin-top:0.4rem;font-style:italic">짜잔</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── CODE BLOCK ── -->
+  <div class="section">
+    <div class="section-title">06 · Code Block</div>
+
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">code block <span class="cs-tag dev" style="font-size:0.6rem;padding:1px 6px;border-radius:3px;background:#06d6a020;color:#06d6a0">dev</span></div>
+        <div class="el-syntax">```언어<br>코드 내용<br>```</div>
+        <div class="el-note">코드 블록. 언어: js, ts, tsx, bash, css 등. 하이라이팅 자동 적용.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <pre style="background:#0f0f18;border-radius:8px;padding:1rem;font-family:'Fira Code',monospace;font-size:0.78rem;color:#c4b8f8;overflow-x:auto;margin:0">const slug = params.slug;
+const post = await getPost(slug);</pre>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p style="color:var(--text-3);font-size:0.8rem">해당 없음</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── TABLE ── -->
+  <div class="section">
+    <div class="section-title">07 · Table</div>
+
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">table <span class="cs-tag dev" style="font-size:0.6rem;padding:1px 6px;border-radius:3px;background:#06d6a020;color:#06d6a0">dev</span></div>
+        <div class="el-syntax">| 헤더1 | 헤더2 |<br>|---|---|<br>| 셀 | 셀 |</div>
+        <div class="el-note">표. dev 글에서 정리/비교할 때.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <table style="font-size:0.8rem;border-collapse:collapse;width:100%">
+          <thead><tr>
+            <th style="border:1px solid var(--border);padding:6px 10px;color:var(--text-2);text-align:left">방법</th>
+            <th style="border:1px solid var(--border);padding:6px 10px;color:var(--text-2);text-align:left">속도</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">직접 클릭</td><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">느림</td></tr>
+            <tr><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">Playwright</td><td style="border:1px solid var(--border);padding:6px 10px;color:var(--text-3)">빠름</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <p style="color:var(--text-3);font-size:0.8rem">해당 없음</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── HR ── -->
+  <div class="section">
+    <div class="section-title">08 · HR (Divider)</div>
+
+    <div class="row">
+      <div class="row-meta">
+        <div class="el-name">hr</div>
+        <div class="el-syntax">---</div>
+        <div class="el-note">섹션 구분선. 두 테마 모두 · · · 동일.</div>
+      </div>
+      <div class="dev-col">
+        <div class="col-label dev">Dev</div>
+        <hr>
+      </div>
+      <div class="writing-col">
+        <div class="col-label writing">Writing</div>
+        <hr>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-rule">
+
+  <!-- ────────────────────────────────── COLOR ── -->
+  <div class="section">
+    <div class="section-title">09 · Color Reference</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+        <div style="width:32px;height:32px;border-radius:4px;background:#06d6a0;margin-bottom:0.5rem;"></div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text-2);">dev-accent</div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--text-3);">#06d6a0</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+        <div style="width:32px;height:32px;border-radius:4px;background:#9b8af0;margin-bottom:0.5rem;"></div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text-2);">writing-accent</div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--text-3);">#9b8af0</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+        <div style="width:32px;height:32px;border-radius:4px;background:#eeeeee;margin-bottom:0.5rem;"></div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text-2);">text</div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--text-3);">#eeeeee</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+        <div style="width:32px;height:32px;border-radius:4px;background:#a0a0b0;margin-bottom:0.5rem;"></div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text-2);">text-2</div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--text-3);">#a0a0b0</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+        <div style="width:32px;height:32px;border-radius:4px;background:#5a5a70;margin-bottom:0.5rem;"></div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text-2);">text-3</div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--text-3);">#5a5a70</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+        <div style="width:32px;height:32px;border-radius:4px;background:#09090f;border:1px solid #1c1c2a;margin-bottom:0.5rem;"></div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text-2);">bg</div>
+        <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--text-3);">#09090f</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

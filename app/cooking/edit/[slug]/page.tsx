@@ -241,6 +241,7 @@ export default function ComprehensiveEditPage() {
     <div style={DARK.page}>
       <div style={DARK.top}>
         <Link href="/cooking" style={DARK.back}>← 대시보드</Link>
+        <a href="/style-guide.html" target="_blank" style={{ fontSize: 11, color: "#555", textDecoration: "none", border: "1px solid #1c1c2a", borderRadius: 5, padding: "3px 8px" }}>📖 Style</a>
         <span style={DARK.slug}>{slug}</span>
         <button style={DARK.saveBtn(hasChanges ? saveStatus : "idle")} onClick={handleSave} disabled={saveStatus === "saving" || !hasChanges}>
           {saveStatus === "saving" ? "저장 중..." : saveStatus === "saved" ? "저장됨 ✓" : saveStatus === "error" ? "오류" : hasChanges ? "저장하기" : "변경없음"}

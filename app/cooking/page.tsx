@@ -24,6 +24,21 @@ export default async function AdminPage() {
         <LogoutButton />
       </div>
 
+      {/* 스타일 가이드 링크 */}
+      <a href="/style-guide.html" target="_blank" style={{
+        display: "block",
+        textAlign: "center",
+        padding: "10px",
+        borderRadius: 8,
+        border: "1px solid #1c1c2a",
+        color: "#555",
+        fontSize: 12,
+        textDecoration: "none",
+        marginBottom: 12,
+      }}>
+        📖 Style Guide
+      </a>
+
       {/* 새 글 쓰기 버튼 */}
       <Link href="/cooking/write" style={{
         display: "block",
