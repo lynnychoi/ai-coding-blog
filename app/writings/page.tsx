@@ -1,4 +1,5 @@
 import { getPublishedPosts } from "../../lib/posts";
+import AdminBar from "../components/AdminBar";
 
 const categoryLabel: Record<string, string> = {
   diary: "일기",
@@ -67,5 +68,6 @@ export default async function WritingsPage() {
         </div>
       )}
     </div>
+    <AdminBar />
   );
 }
