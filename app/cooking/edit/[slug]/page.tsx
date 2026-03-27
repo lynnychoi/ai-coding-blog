@@ -33,7 +33,7 @@ const DARK = {
   }),
   preview: {
     minHeight: 320, background: COLORS.bgCard, border: `1px solid ${COLORS.borderCard}`, borderRadius: 8,
-    padding: "16px", color: COLORS.text, fontSize: 15, lineHeight: 1.8,
+    padding: "16px",
   } as React.CSSProperties,
   notesBox: {
     background: COLORS.bgPrompt, border: `1px solid ${COLORS.borderPrompt}`, borderRadius: 8,
@@ -326,8 +326,10 @@ export default function ComprehensiveEditPage() {
           </>
         ) : (
           <div style={DARK.preview}>
-            {fields.title && <h1 className="post-title-preview" style={{ fontSize: "1.6rem", fontWeight: 800, marginBottom: "1.5rem", color: "var(--text-1)", lineHeight: 1.3 }}>{fields.title}</h1>}
-            <MarkdownRenderer content={body} isWriting={fields.type === "writing"} />
+            <MarkdownRenderer
+              content={(fields.title ? `# ${fields.title}\n\n` : "") + body}
+              isWriting={fields.type === "writing"}
+            />
           </div>
         )}
       </div>
