@@ -3,9 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { COLORS, COMMON } from "../../styles";
+import MarkdownRenderer from "../../../components/MarkdownRenderer";
 import type { GifResult, ImageEntry, ActiveTab, EditorMode, SaveStatus, Fields } from "../../types";
 import TypeStatusRow from "../../components/TypeStatusRow";
 import TagsInput from "../../components/TagsInput";
@@ -327,28 +326,8 @@ export default function ComprehensiveEditPage() {
           </>
         ) : (
           <div style={DARK.preview}>
-            <style>{`
-              .md-preview h1 { font-size: 1.6rem; font-weight: 800; margin: 0.8em 0 0.4em; color: #f0eeff; line-height: 1.3; }
-              .md-preview h2 { font-size: 1.25rem; font-weight: 700; margin: 1.2em 0 0.4em; color: #d4ccff; line-height: 1.35; }
-              .md-preview h3 { font-size: 1.05rem; font-weight: 600; margin: 1em 0 0.3em; color: #c0b8f0; }
-              .md-preview p { margin: 0.6em 0; }
-              .md-preview strong { color: #f0eeff; font-weight: 700; }
-              .md-preview em { color: #b0aadd; font-style: italic; }
-              .md-preview del { color: #666; text-decoration: line-through; }
-              .md-preview blockquote { border-left: 3px solid #4a4a8a; margin: 1em 0; padding: 0.4em 0 0.4em 1em; color: #9090c0; font-style: italic; background: rgba(74,74,138,0.08); border-radius: 0 6px 6px 0; }
-              .md-preview hr { border: none; border-top: 1px solid #2a2a4e; margin: 1.5em 0; }
-              .md-preview ul, .md-preview ol { padding-left: 1.4em; margin: 0.5em 0; }
-              .md-preview li { margin: 0.25em 0; }
-              .md-preview code { background: #1e1e35; color: #c4b8f8; padding: 2px 6px; border-radius: 4px; font-size: 0.88em; font-family: monospace; }
-              .md-preview pre { background: #1e1e35; border-radius: 8px; padding: 12px; overflow-x: auto; margin: 0.8em 0; }
-              .md-preview pre code { background: none; padding: 0; }
-              .md-preview img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }
-              .md-preview a { color: #c4b8f8; text-decoration: underline; }
-            `}</style>
-            <div className="md-preview">
-              {fields.title && <h1>{fields.title}</h1>}
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
-            </div>
+            {fields.title && <h1 className="post-title-preview" style={{ fontSize: "1.6rem", fontWeight: 800, marginBottom: "1.5rem", color: "var(--text-1)", lineHeight: 1.3 }}>{fields.title}</h1>}
+            <MarkdownRenderer content={body} isWriting={fields.type === "writing"} />
           </div>
         )}
       </div>
