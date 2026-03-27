@@ -70,7 +70,7 @@ function ghHeaders() {
 async function fetchFilenames(): Promise<string[]> {
   const res = await fetch(
     `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_POSTS_PATH}?ref=${GH_BRANCH}`,
-    { headers: ghHeaders() }
+    { headers: ghHeaders(), cache: "no-store" }
   );
   if (!res.ok) return [];
   const files = await res.json() as Array<{ name: string; type: string }>;
@@ -85,7 +85,7 @@ async function fetchRaw(slug: string): Promise<string | null> {
 
   const res = await fetch(
     `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_POSTS_PATH}/${slug}.md?ref=${GH_BRANCH}`,
-    { headers: ghHeaders() }
+    { headers: ghHeaders(), cache: "no-store" }
   );
   if (!res.ok) return null;
   const data = await res.json() as { content: string };
