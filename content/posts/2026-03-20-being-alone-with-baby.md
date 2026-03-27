@@ -17,7 +17,7 @@ status: unpublished
 
 근데 막상 혼자 있어보면 얘기가 좀 다르다.
 
-![Not what I expected](https://media.giphy.com/media/9M5jK4GXmD5o1irGrF/giphy.gif)
+![Not what I expected..](https://media.giphy.com/media/9M5jK4GXmD5o1irGrF/giphy.gif)
 
 ---
 
@@ -65,7 +65,7 @@ status: unpublished
 
 집에만 있으면 하루가 젖병 세척으로 시작해서 젖병 세척으로 끝나는데, 카페에 가면 적어도 그 사이에 내가 낀다. 젖병, 나, 젖병. 이 정도면 선방 아닌가.
 
-![Animated GIF](https://media.giphy.com/media/QN6NnhbgfOpoI/giphy.gif)
+![Please Highfive! 😉](https://media.giphy.com/media/QN6NnhbgfOpoI/giphy.gif)
 
 ---
 
