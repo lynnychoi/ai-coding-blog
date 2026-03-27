@@ -17,7 +17,7 @@ status: unpublished
 
 근데 막상 혼자 있어보면 얘기가 좀 다르다.
 
-![This Is Fine GIF](https://media.giphy.com/media/9M5jK4GXmD5o1irGrF/giphy.gif)
+![Not what I expected](https://media.giphy.com/media/9M5jK4GXmD5o1irGrF/giphy.gif)
 
 ---
 
@@ -35,7 +35,7 @@ status: unpublished
 
 일어났다. 벌써.
 
-![Here I Am Surprise GIF](https://media.giphy.com/media/A5F11Cbo7b8cw/giphy.gif)
+![Woke up again, boo!](https://media.giphy.com/media/A5F11Cbo7b8cw/giphy.gif)
 
 아기 잘 때 같이 자라는 사람들한테 진심으로 묻고 싶다. 설거지는 누가 하나. 젖병은 누가 씻나. 나는 밥은 언제 먹나. 화장실은 언제 가나.
 
@@ -51,7 +51,7 @@ status: unpublished
 
 이게 매일이다.
 
-![Excited Ice Cream GIF](https://media.giphy.com/media/AGGz7y0rCYxdS/giphy.gif)
+![Need milk, Need milk](https://media.giphy.com/media/AGGz7y0rCYxdS/giphy.gif)
 
 ---
 
