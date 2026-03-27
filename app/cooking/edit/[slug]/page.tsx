@@ -83,6 +83,7 @@ export default function ComprehensiveEditPage() {
   const imgFileRef = useRef<HTMLInputElement>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState("");
+  const [showSavePopup, setShowSavePopup] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -206,7 +207,7 @@ export default function ComprehensiveEditPage() {
     insertAtCursor(`![${entry.desc || safeName}](${webPath})`);
   };
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setSaveStatus("saving");
     setSaveError("");
     const toSave = buildMarkdown(fields, body);
@@ -221,13 +222,28 @@ export default function ComprehensiveEditPage() {
       else {
         setSaveStatus("saved");
         setOriginalFields(fields); setOriginalBody(body); setOriginalMarkdown(toSave);
+        setShowSavePopup(true);
         setTimeout(() => setSaveStatus("idle"), 3000);
       }
     } catch {
       setSaveStatus("error");
       setSaveError("네트워크 오류");
     }
-  };
+  }, [fields, body, slug]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        setSaveStatus(s => {
+          if (s !== "saving") setTimeout(() => handleSave(), 0);
+          return s;
+        });
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleSave]);
 
   const hasChanges = JSON.stringify(fields) !== JSON.stringify(originalFields) || body !== originalBody;
   const previewMarkdown = buildMarkdown(fields, body);
@@ -415,6 +431,34 @@ export default function ComprehensiveEditPage() {
       )}
 
       <div style={{ display: "none" }}>{previewMarkdown}{markdown}{originalMarkdown}</div>
+
+      {showSavePopup && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 1000,
+          background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }} onClick={() => setShowSavePopup(false)}>
+          <div style={{
+            background: "#13131e", border: "1px solid #2a2a4a", borderRadius: 16,
+            padding: "28px 32px", minWidth: 280, textAlign: "center",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#e8e8f0", marginBottom: 6 }}>저장 완료!</div>
+            <div style={{ fontSize: 13, color: "#555", marginBottom: 24 }}>{slug}</div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowSavePopup(false)} style={{
+                flex: 1, padding: "10px 0", borderRadius: 8, border: "1px solid #2a2a4a",
+                background: "transparent", color: "#aaa", fontSize: 13, fontWeight: 600, cursor: "pointer",
+              }}>계속 편집</button>
+              <button onClick={() => router.push("/cooking")} style={{
+                flex: 1, padding: "10px 0", borderRadius: 8, border: "none",
+                background: COLORS.primary, color: COLORS.bg, fontSize: 13, fontWeight: 700, cursor: "pointer",
+              }}>목록으로 →</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
