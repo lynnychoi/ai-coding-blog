@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getPublishedPosts } from "../lib/posts";
 import { currentItems } from "../content/currently";
 import PostList from "./components/PostList";
