@@ -111,17 +111,37 @@ export default function ComprehensiveEditPage() {
       .then(d => { if (Array.isArray(d)) setGifs(d as GifResult[]); });
   }, []);
 
-  const insertAtCursor = useCallback((text: string) => {
+  const insertAtCursor = useCallback((text: string, newline = false) => {
     const ta = textareaRef.current;
-    if (!ta) { setBody(prev => prev + "\n" + text); return; }
+    if (!ta) { setBody(prev => prev + text); return; }
     const start = ta.selectionStart;
-    const end = ta.selectionEnd;
     const before = body.substring(0, start);
-    const after = body.substring(end);
-    const newBody = before + "\n" + text + "\n" + after;
+    const after = body.substring(start);
+    const needsNewline = newline && before.length > 0 && !before.endsWith("\n");
+    const prefix = needsNewline ? "\n" : "";
+    const newBody = before + prefix + text + after;
+    const newCursor = start + prefix.length + text.length;
     setBody(newBody);
     requestAnimationFrame(() => {
-      ta.selectionStart = ta.selectionEnd = start + text.length + 2;
+      ta.selectionStart = ta.selectionEnd = newCursor;
+      ta.focus();
+    });
+  }, [body]);
+
+  const wrapAtCursor = useCallback((open: string, close: string, placeholder: string) => {
+    const ta = textareaRef.current;
+    if (!ta) { setBody(prev => prev + open + placeholder + close); return; }
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = body.substring(start, end);
+    const before = body.substring(0, start);
+    const after = body.substring(end);
+    const middle = selected || placeholder;
+    const newBody = before + open + middle + close + after;
+    setBody(newBody);
+    requestAnimationFrame(() => {
+      ta.selectionStart = start + open.length;
+      ta.selectionEnd = start + open.length + middle.length;
       ta.focus();
     });
   }, [body]);
@@ -323,20 +343,21 @@ export default function ComprehensiveEditPage() {
             <textarea ref={textareaRef} value={body} onChange={e => setBody(e.target.value)}
               style={{ ...DARK.textarea, minHeight: 320 }} spellCheck={false} placeholder="본문을 여기에 작성해줘..." />
             <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" as const, alignItems: "center" }}>
-              {[["## 소제목", "## "], ["### 소소제목", "### "]].map(([l, v]) => (
-                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
+              {([["## 소제목", "## "], ["### 소소제목", "### "]] as [string, string][]).map(([l, v]) => (
+                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v, true)}>{l}</button>
               ))}
               <span style={{ width: 1, height: 14, background: "#2a2a4a", display: "inline-block" }} />
-              {[["**굵게**", "**굵게**"], ["*기울임*", "*기울임*"], ["~~취소~~", "~~취소~~"], ["`코드`", "`코드`"]].map(([l, v]) => (
-                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
+              <button style={DARK.smallBtn} onClick={() => wrapAtCursor("**", "**", "굵게")}>**굵게**</button>
+              <button style={DARK.smallBtn} onClick={() => wrapAtCursor("*", "*", "기울임")}>*기울임*</button>
+              <button style={DARK.smallBtn} onClick={() => wrapAtCursor("~~", "~~", "취소선")}>~~취소~~</button>
+              <button style={DARK.smallBtn} onClick={() => wrapAtCursor("`", "`", "코드")}>`코드`</button>
+              <span style={{ width: 1, height: 14, background: "#2a2a4a", display: "inline-block" }} />
+              {([[ "> 인용", "> "], ["> 단어란?", "> 단어란? "], ["takeaway", "> !! 내용"], ["---", "---"]] as [string, string][]).map(([l, v]) => (
+                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v, true)}>{l}</button>
               ))}
               <span style={{ width: 1, height: 14, background: "#2a2a4a", display: "inline-block" }} />
-              {[["> 인용", "> "], ["> 단어란?", "> 단어란? "], ["takeaway", "> !! 내용"], ["---", "---"]].map(([l, v]) => (
-                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
-              ))}
-              <span style={{ width: 1, height: 14, background: "#2a2a4a", display: "inline-block" }} />
-              {[["- 목록", "- "], ["1. 목록", "1. "], ["```코드블록", "```\n코드\n```"]].map(([l, v]) => (
-                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v)}>{l}</button>
+              {([["- 목록", "- "], ["1. 목록", "1. "], ["```코드블록", "```\n코드\n```"]] as [string, string][]).map(([l, v]) => (
+                <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v, true)}>{l}</button>
               ))}
             </div>
           </>
