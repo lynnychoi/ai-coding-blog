@@ -21,6 +21,7 @@ export default async function WritingsPage() {
   const posts = (await getPublishedPosts()).filter((p) => p.type === "writing");
 
   return (
+    <>
     <div className="writings-page" style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>
       <p className="section-label">Writing</p>
       <h1 style={{
@@ -69,5 +70,6 @@ export default async function WritingsPage() {
       )}
     </div>
     <AdminBar />
+    </>
   );
 }
