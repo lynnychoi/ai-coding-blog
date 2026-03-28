@@ -453,8 +453,9 @@ export default function ComprehensiveEditPage() {
             }}>saved</div>
             <div style={{
               fontSize: 16, fontWeight: 700, color: "#e8e8f0",
-              lineHeight: 1.4, marginBottom: 20,
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              lineHeight: 1.5, marginBottom: 20,
+              display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as const,
+              overflow: "hidden",
             }}>
               {fields.title || slug}
             </div>
