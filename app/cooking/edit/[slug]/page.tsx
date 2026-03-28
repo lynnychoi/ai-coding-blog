@@ -435,25 +435,39 @@ export default function ComprehensiveEditPage() {
       {showSavePopup && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 1000,
-          background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }} onClick={() => setShowSavePopup(false)}>
           <div style={{
-            background: "#13131e", border: "1px solid #2a2a4a", borderRadius: 16,
-            padding: "28px 32px", minWidth: 280, textAlign: "center",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+            background: "#0e0e18",
+            border: "1px solid #1e1e32",
+            borderRadius: 14,
+            padding: "28px 28px 22px",
+            width: 300,
+            boxShadow: "0 0 0 1px rgba(168,240,216,0.06), 0 20px 60px rgba(0,0,0,0.7)",
           }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#e8e8f0", marginBottom: 6 }}>저장 완료!</div>
-            <div style={{ fontSize: 13, color: "#555", marginBottom: 24 }}>{slug}</div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{
+              fontSize: 11, fontFamily: "'Fira Code', monospace",
+              color: "#a8f0d8", letterSpacing: "0.1em", textTransform: "uppercase",
+              marginBottom: 10,
+            }}>saved</div>
+            <div style={{
+              fontSize: 16, fontWeight: 700, color: "#e8e8f0",
+              lineHeight: 1.4, marginBottom: 20,
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>
+              {fields.title || slug}
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => setShowSavePopup(false)} style={{
-                flex: 1, padding: "10px 0", borderRadius: 8, border: "1px solid #2a2a4a",
-                background: "transparent", color: "#aaa", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                flex: 1, padding: "9px 0", borderRadius: 7,
+                border: "1px solid #1e1e32", background: "transparent",
+                color: "#555", fontSize: 13, cursor: "pointer",
               }}>계속 편집</button>
               <button onClick={() => router.push("/cooking")} style={{
-                flex: 1, padding: "10px 0", borderRadius: 8, border: "none",
-                background: COLORS.primary, color: COLORS.bg, fontSize: 13, fontWeight: 700, cursor: "pointer",
+                flex: 1, padding: "9px 0", borderRadius: 7, border: "none",
+                background: "#1a2e25", color: "#a8f0d8",
+                fontSize: 13, fontWeight: 600, cursor: "pointer",
               }}>목록으로 →</button>
             </div>
           </div>
