@@ -58,6 +58,38 @@ export async function POST(req: NextRequest) {
     : path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-DEV.md");
   if (fs.existsSync(extPath)) rules += "\n\n" + fs.readFileSync(extPath, "utf-8");
 
+  // Search Giphy: ask Claude (haiku) for English search terms, then fetch candidates
+  let gifContext = "";
+  try {
+    const termRes = await anthropic.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 60,
+      messages: [{
+        role: "user",
+        content: `Given this blog post topic, suggest 2 short English search terms for finding a funny/witty GIF on Giphy. Reply with just the 2 terms, one per line, nothing else.\n\nTopic: ${notes.substring(0, 400)}`,
+      }],
+    });
+    const termText = termRes.content[0].type === "text" ? termRes.content[0].text.trim() : "";
+    const searchTerms = termText.split("\n").map(t => t.trim()).filter(Boolean).slice(0, 2);
+
+    const giphyKey = process.env.GIPHY_API_KEY || "dc6zaTOxFJmzC";
+    const gifLines: string[] = [];
+    for (const term of searchTerms) {
+      const gRes = await fetch(
+        `https://api.giphy.com/v1/gifs/search?api_key=${giphyKey}&q=${encodeURIComponent(term)}&limit=6&rating=g`
+      );
+      const gJson = await gRes.json() as { data?: Array<{ id: string; title: string }> };
+      for (const gif of gJson.data || []) {
+        gifLines.push(`- "${gif.title}" → https://media.giphy.com/media/${gif.id}/giphy.gif`);
+      }
+    }
+    if (gifLines.length > 0) {
+      gifContext = `\n\n## 사용 가능한 GIF 후보 (검색어: ${searchTerms.join(", ")})\n${gifLines.join("\n")}\n이 중에서 글 내용에 가장 재치있고 어울리는 GIF 1개를 골라 적절한 위치에 삽입해줘.`;
+    }
+  } catch {
+    // GIF 검색 실패해도 글 생성은 계속
+  }
+
   // Build prompt
   const imageContext =
     images.length > 0
@@ -71,7 +103,7 @@ export async function POST(req: NextRequest) {
 
 ## 재료 / 원본 메모 (frontmatter의 notes 필드에 그대로 저장해줘)
 ${notes}
-${imageContext}
+${imageContext}${gifContext}
 ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
 위 재료를 바탕으로 블로그 글을 작성해줘. frontmatter의 notes 필드에는 위 원본 메모를 그대로 넣어줘.`;
 
