@@ -76,14 +76,22 @@ export async function POST(req: NextRequest) {
 
     const giphyKey = process.env.GIPHY_API_KEY || "dc6zaTOxFJmzC";
     const gifLines: string[] = [];
+    const fetchWithTimeout = (url: string, ms: number) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+    };
     for (const term of searchTerms) {
-      const gRes = await fetch(
-        `https://api.giphy.com/v1/gifs/search?api_key=${giphyKey}&q=${encodeURIComponent(term)}&limit=6&rating=g`
-      );
-      const gJson = await gRes.json() as { data?: Array<{ id: string; title: string }> };
-      for (const gif of gJson.data || []) {
-        gifLines.push(`- "${gif.title}" → https://media.giphy.com/media/${gif.id}/giphy.gif`);
-      }
+      try {
+        const gRes = await fetchWithTimeout(
+          `https://api.giphy.com/v1/gifs/search?api_key=${giphyKey}&q=${encodeURIComponent(term)}&limit=6&rating=g`,
+          5000
+        );
+        const gJson = await gRes.json() as { data?: Array<{ id: string; title: string }> };
+        for (const gif of gJson.data || []) {
+          gifLines.push(`- "${gif.title}" → https://media.giphy.com/media/${gif.id}/giphy.gif`);
+        }
+      } catch { /* 검색어별 실패 무시 */ }
     }
     if (gifLines.length > 0) {
       gifContext = `\n\n## 사용 가능한 GIF 후보 (검색어: ${searchTerms.join(", ")})\n${gifLines.join("\n")}\n이 중에서 글 내용에 가장 재치있고 어울리는 GIF 1개를 골라 적절한 위치에 삽입해줘.`;
