@@ -25,6 +25,8 @@ export default function WritePage() {
   const [noteList, setNoteList]           = useState<NoteItem[]>([]);
   const [showNotePanel, setShowNotePanel] = useState(false);
   const [loadingNotes, setLoadingNotes]   = useState(false);
+  const [preview, setPreview]             = useState<{ path: string; content: string } | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   const fetchNoteList = async () => {
     setLoadingNotes(true);
@@ -38,15 +40,22 @@ export default function WritePage() {
     setLoadingNotes(false);
   };
 
-  const handleLoadNote = async (notePath: string) => {
+  const handleSelectNote = async (notePath: string) => {
+    if (preview?.path === notePath) { setPreview(null); return; }
+    setLoadingPreview(true);
     try {
       const res = await fetch(`/api/admin/scratch-notes?file=${encodeURIComponent(notePath)}`);
       const data = await res.json() as { content?: string };
-      if (data.content) {
-        setNotes(prev => prev ? prev + "\n\n---\n\n" + data.content : data.content);
-        setShowNotePanel(false);
-      }
+      if (data.content) setPreview({ path: notePath, content: data.content });
     } catch { /* silent */ }
+    setLoadingPreview(false);
+  };
+
+  const handleLoadNote = () => {
+    if (!preview) return;
+    setNotes(prev => prev ? prev + "\n\n---\n\n" + preview.content : preview.content);
+    setPreview(null);
+    setShowNotePanel(false);
   };
 
   useEffect(() => {
@@ -107,16 +116,35 @@ export default function WritePage() {
             ) : noteList.length === 0 ? (
               <div style={{ color: "#555", fontSize: 12, textAlign: "center", padding: "12px 0" }}>scratch-notes에 파일이 없어 (로컬 실행 중일 때만 보여)</div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 240, overflowY: "auto" }}>
-                {noteList.map(note => (
-                  <button key={note.path} onClick={() => handleLoadNote(note.path)}
-                    style={{ background: "transparent", border: "1px solid #2a2a3e", borderRadius: 6, padding: "7px 10px", textAlign: "left", cursor: "pointer", display: "flex", gap: 8, alignItems: "center" }}>
-                    <span style={{ fontSize: 10, color: "#4a4a7a", background: "#1a1a2e", borderRadius: 4, padding: "2px 6px", flexShrink: 0 }}>{note.project}</span>
-                    <span style={{ fontSize: 12, color: "#9090c0", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{note.filename.replace(/\.md$/, "")}</span>
-                    <span style={{ fontSize: 10, color: "#3a3a5a", flexShrink: 0 }}>{note.date}</span>
-                  </button>
-                ))}
-              </div>
+              <>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 200, overflowY: "auto" }}>
+                  {noteList.map(note => {
+                    const isSelected = preview?.path === note.path;
+                    return (
+                      <button key={note.path} onClick={() => handleSelectNote(note.path)}
+                        style={{ background: isSelected ? "#1a1a32" : "transparent", border: `1px solid ${isSelected ? "#4a4a8a" : "#2a2a3e"}`, borderRadius: 6, padding: "7px 10px", textAlign: "left", cursor: "pointer", display: "flex", gap: 8, alignItems: "center" }}>
+                        <span style={{ fontSize: 10, color: "#4a4a7a", background: "#1a1a2e", borderRadius: 4, padding: "2px 6px", flexShrink: 0 }}>{note.project}</span>
+                        <span style={{ fontSize: 12, color: isSelected ? "#c0c0f0" : "#9090c0", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{note.filename.replace(/\.md$/, "")}</span>
+                        <span style={{ fontSize: 10, color: "#3a3a5a", flexShrink: 0 }}>{note.date}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {loadingPreview && (
+                  <div style={{ color: "#555", fontSize: 12, textAlign: "center", padding: "10px 0" }}>불러오는 중...</div>
+                )}
+                {preview && !loadingPreview && (
+                  <div style={{ marginTop: 8, background: "#0a0a14", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 12px" }}>
+                    <pre style={{ fontSize: 11, color: "#8080b0", lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: 180, overflowY: "auto", margin: 0, fontFamily: "'Fira Code', monospace" }}>
+                      {preview.content}
+                    </pre>
+                    <button onClick={handleLoadNote}
+                      style={{ marginTop: 10, width: "100%", padding: "8px 0", borderRadius: 7, border: "none", background: "#2a2a6a", color: "#a0a0f0", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                      이걸로 불러오기 →
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
