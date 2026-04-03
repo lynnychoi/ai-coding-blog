@@ -139,7 +139,7 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
     slug = parsed.slug;
     markdown = parsed.markdown;
   } catch {
-    return NextResponse.json({ error: "Claude 응답 파싱 실패", raw: rawText }, { status: 500 });
+    return NextResponse.json({ error: `Claude 응답 파싱 실패: ${rawText.substring(0, 200)}` }, { status: 500 });
   }
 
   const filename = `content/posts/${date}-${slug}.md`;
