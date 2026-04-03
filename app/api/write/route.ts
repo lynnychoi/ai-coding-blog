@@ -7,7 +7,7 @@ import { getExpectedToken, AUTH_COOKIE } from "../../../lib/auth";
 import { today, todayDatetime, parseClaudeJson } from "../../../lib/utils";
 import { invalidatePostsCache } from "../../../lib/posts";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -52,53 +52,59 @@ export async function POST(req: NextRequest) {
     images.push({ path: webPath, description: desc });
   }
 
-  // Read rules
-  const rulesPath = path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES.md");
-  let rules = fs.readFileSync(rulesPath, "utf-8");
-  const extPath = type === "writing"
-    ? path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-WRITING.md")
-    : path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-DEV.md");
-  if (fs.existsSync(extPath)) rules += "\n\n" + fs.readFileSync(extPath, "utf-8");
+  // Read rules + Giphy search in parallel
+  const readRules = () => {
+    const rulesPath = path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES.md");
+    let r = fs.readFileSync(rulesPath, "utf-8");
+    const extPath = type === "writing"
+      ? path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-WRITING.md")
+      : path.join(process.cwd(), "prompts/LYNN-BLOG-PRINCIPLES-DEV.md");
+    if (fs.existsSync(extPath)) r += "\n\n" + fs.readFileSync(extPath, "utf-8");
+    return r;
+  };
 
-  // Search Giphy: ask Claude (haiku) for English search terms, then fetch candidates
-  let gifContext = "";
-  try {
-    const termRes = await anthropic.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 60,
-      messages: [{
-        role: "user",
-        content: `Given this blog post topic, suggest 2 short English search terms for finding a funny/witty GIF on Giphy. Reply with just the 2 terms, one per line, nothing else.\n\nTopic: ${notes.substring(0, 400)}`,
-      }],
-    });
-    const termText = termRes.content[0].type === "text" ? termRes.content[0].text.trim() : "";
-    const searchTerms = termText.split("\n").map(t => t.trim()).filter(Boolean).slice(0, 2);
+  const searchGiphy = async (): Promise<string> => {
+    try {
+      const termRes = await anthropic.messages.create({
+        model: "claude-haiku-4-5",
+        max_tokens: 60,
+        messages: [{ role: "user", content: `Given this blog post topic, suggest 2 short English search terms for finding a funny/witty GIF on Giphy. Reply with just the 2 terms, one per line, nothing else.\n\nTopic: ${notes.substring(0, 400)}` }],
+      });
+      const termText = termRes.content[0].type === "text" ? termRes.content[0].text.trim() : "";
+      const searchTerms = termText.split("\n").map(t => t.trim()).filter(Boolean).slice(0, 2);
 
-    const giphyKey = process.env.GIPHY_API_KEY || "dc6zaTOxFJmzC";
-    const gifLines: string[] = [];
-    const fetchWithTimeout = (url: string, ms: number) => {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), ms);
-      return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
-    };
-    for (const term of searchTerms) {
-      try {
-        const gRes = await fetchWithTimeout(
-          `https://api.giphy.com/v1/gifs/search?api_key=${giphyKey}&q=${encodeURIComponent(term)}&limit=6&rating=g`,
-          5000
-        );
-        const gJson = await gRes.json() as { data?: Array<{ id: string; title: string }> };
-        for (const gif of gJson.data || []) {
-          gifLines.push(`- "${gif.title}" → https://media.giphy.com/media/${gif.id}/giphy.gif`);
-        }
-      } catch { /* 검색어별 실패 무시 */ }
-    }
-    if (gifLines.length > 0) {
-      gifContext = `\n\n## 사용 가능한 GIF 후보 (검색어: ${searchTerms.join(", ")})\n${gifLines.join("\n")}\n이 중에서 글 내용에 가장 재치있고 어울리는 GIF 1개를 골라 적절한 위치에 삽입해줘.`;
-    }
-  } catch {
-    // GIF 검색 실패해도 글 생성은 계속
-  }
+      const giphyKey = process.env.GIPHY_API_KEY || "dc6zaTOxFJmzC";
+      const fetchWithTimeout = (url: string, ms: number) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), ms);
+        return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+      };
+
+      const results = await Promise.all(
+        searchTerms.map(async term => {
+          try {
+            const gRes = await fetchWithTimeout(
+              `https://api.giphy.com/v1/gifs/search?api_key=${giphyKey}&q=${encodeURIComponent(term)}&limit=6&rating=g`,
+              5000
+            );
+            const gJson = await gRes.json() as { data?: Array<{ id: string; title: string }> };
+            return (gJson.data || []).map(gif => `- "${gif.title}" → https://media.giphy.com/media/${gif.id}/giphy.gif`);
+          } catch { return []; }
+        })
+      );
+
+      const gifLines = results.flat();
+      if (gifLines.length > 0) {
+        return `\n\n## 사용 가능한 GIF 후보 (검색어: ${searchTerms.join(", ")})\n${gifLines.join("\n")}\n이 중에서 글 내용에 가장 재치있고 어울리는 GIF 1개를 골라 적절한 위치에 삽입해줘.`;
+      }
+    } catch { /* 실패 무시 */ }
+    return "";
+  };
+
+  const [rules, gifContext] = await Promise.all([
+    Promise.resolve(readRules()),
+    searchGiphy(),
+  ]);
 
   // Build prompt
   const imageContext =

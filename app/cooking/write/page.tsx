@@ -80,10 +80,10 @@ export default function WritePage() {
     try {
       const res  = await fetch("/api/write", { method: "POST", body: fd });
       const data = await res.json() as { slug?: string; error?: string };
-      if (!res.ok || !data.slug) { setErrorMsg(data.error || "뭔가 잘못됐어"); setStatus("error"); return; }
+      if (!res.ok || !data.slug) { setErrorMsg(data.error || `서버 오류 (${res.status})`); setStatus("error"); return; }
       router.push(`/cooking/edit/${data.slug}?new=1`);
-    } catch {
-      setErrorMsg("네트워크 오류"); setStatus("error");
+    } catch (e) {
+      setErrorMsg(`연결 실패: ${e instanceof Error ? e.message : String(e)}`); setStatus("error");
     }
   };
 
