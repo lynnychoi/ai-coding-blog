@@ -7,6 +7,8 @@ import { getExpectedToken, AUTH_COOKIE } from "../../../lib/auth";
 import { today, todayDatetime, parseClaudeJson } from "../../../lib/utils";
 import { invalidatePostsCache } from "../../../lib/posts";
 
+export const maxDuration = 60;
+
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
