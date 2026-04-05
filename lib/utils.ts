@@ -14,17 +14,19 @@ export function parseClaudeJson<T>(rawText: string): T {
     .replace(/```\s*$/m, "")
     .trim();
 
-  // 2. 직접 파싱 시도
+  // 2. 첫 { ~ 마지막 } 추출
+  const start = clean.indexOf("{");
+  const end = clean.lastIndexOf("}");
+  if (start !== -1 && end !== -1 && end > start) {
+    clean = clean.slice(start, end + 1);
+  }
+
+  // 3. 직접 파싱 시도
   try {
     return JSON.parse(clean) as T;
   } catch { /* 계속 */ }
 
-  // 3. 첫 { 부터 마지막 } 까지 추출
-  const start = clean.indexOf("{");
-  const end = clean.lastIndexOf("}");
-  if (start !== -1 && end !== -1 && end > start) {
-    return JSON.parse(clean.slice(start, end + 1)) as T;
-  }
-
-  throw new Error("JSON을 찾을 수 없음");
+  // 4. JSON 문자열 내 invalid escape 수정 후 재시도 (\* \_ 등)
+  const fixed = clean.replace(/\\([^"\\/bfnrtu0-9])/g, "\\\\$1");
+  return JSON.parse(fixed) as T;
 }
