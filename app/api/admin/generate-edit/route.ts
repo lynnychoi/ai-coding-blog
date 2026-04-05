@@ -68,7 +68,7 @@ ${currentMarkdown}
   let rawText: string;
   try {
     const response = await anthropic.messages.create({
-      model: "claude-opus-4-6",
+      model: "claude-sonnet-4-6",
       max_tokens: 8192,
       system: rules,
       messages: [{ role: "user", content: prompt }],
