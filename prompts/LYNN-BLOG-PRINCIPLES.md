@@ -201,7 +201,7 @@
 ```json
 {
   "slug": "영어-소문자-하이픈-3~5단어",
-  "markdown": "---\ntitle: \"제목\"\ndate: YYYY-MM-DD\ndatetime: YYYY-MM-DDTHH:MM\ntags: [\"태그1\", \"태그2\"]\ntype: dev\nnotes: \"원본 메모 그대로\"\n---\n\n# 제목\n\n본문..."
+  "markdown": "---\ntitle: \"제목\"\ndate: YYYY-MM-DD\ndatetime: YYYY-MM-DDTHH:MM\ntags: [\"태그1\", \"태그2\"]\ntype: dev\nstatus: unpublished\nnotes: \"원본 메모 그대로\"\n---\n\n# 제목\n\n본문..."
 }
 ```
 
@@ -219,3 +219,4 @@
 | 2026-04-03 | 7번 GIF 원칙: 기본 목록 삭제, 매번 후보에서 재치있게 선택하는 방식으로 변경 |
 | 2026-04-03 | 4번 글 구조 원칙에 헤딩 규칙 추가 (## 섹션 필수, 최소 2~3개). 6번 포맷 원칙 도입부 수정 ("골라서" → "가독성을 위해 필요한 곳에 적절히"). ## 서브헤더 설명 강화 |
 | 2026-04-10 | 7번 GIF 원칙: 자동 삽입 제거 (편집 페이지에서 직접 추가 방식으로 변경). URL 없이 자의적 삽입 금지 추가 |
+| 2026-04-10 | 11번 출력 형식: frontmatter에 status 필드 추가 (기본값 unpublished) |

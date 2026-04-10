@@ -17,7 +17,8 @@ export default function WritePage() {
   const [prompt, setPrompt]   = useState("");
   const [tags, setTags]       = useState("");
   const [type, setType]       = useState<"dev" | "writing">("dev");
-  const [postStatus, setPostStatus] = useState<"published" | "unpublished">("published");
+  const [postStatus, setPostStatus] = useState<"published" | "unpublished">("unpublished");
+  const [date, setDate]       = useState(() => new Date().toISOString().substring(0, 10));
   const [images, setImages]   = useState<ImageEntry[]>([]);
   const [status, setStatus]   = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -72,6 +73,7 @@ export default function WritePage() {
     fd.append("tags", tags);
     fd.append("type", type);
     fd.append("status", postStatus);
+    fd.append("date", date);
     fd.append("_admin", "1");
     images.forEach((img, i) => {
       fd.append(`image_${i}_file`, img.file);
@@ -167,13 +169,18 @@ export default function WritePage() {
           placeholder={"예) 버그 고친 과정을 중심으로 써줘\n예) 초보자 독자 배려해서 용어 설명 많이 넣어줘"} />
       </div>
 
-      {/* 태그 + 타입 + 공개여부 */}
+      {/* 태그 + 타입 + 공개여부 + 날짜 */}
       <div style={S.section}>
         <TagsInput value={tags} onChange={setTags} />
         <TypeStatusRow
           type={type} onTypeChange={setType}
           status={postStatus} onStatusChange={setPostStatus}
         />
+        <div style={{ marginTop: 8 }}>
+          <label style={{ fontSize: 11, color: "#555", textTransform: "uppercase" as const, letterSpacing: 1, display: "block", marginBottom: 6 }}>작성 날짜</label>
+          <input type="date" value={date} onChange={e => setDate(e.target.value)}
+            style={{ background: "#13131e", border: "1px solid #2a2a4a", borderRadius: 8, color: "#c0c0f0", fontSize: 13, padding: "8px 12px", width: "100%", boxSizing: "border-box" as const }} />
+        </div>
       </div>
 
       {/* 이미지 */}
