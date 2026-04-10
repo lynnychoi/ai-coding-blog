@@ -55,6 +55,8 @@ export default function WritePage() {
   const handleLoadNote = () => {
     if (!preview) return;
     setNotes(prev => prev ? prev + "\n\n---\n\n" + preview.content : preview.content);
+    const note = noteList.find(n => n.path === preview.path);
+    if (note?.date) setDate(note.date);
     setPreview(null);
     setShowNotePanel(false);
   };
