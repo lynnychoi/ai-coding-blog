@@ -99,21 +99,22 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
   await commitToGitHub(filename, markdown, `add: ${slug}`);
   invalidatePostsCache();
 
-  // generation-log 저장
-  const logDir = path.join(process.cwd(), "logs/generation-log");
-  if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-  const logFile = path.join(logDir, `${date}-${slug}.md`);
-  const timestamp = new Date().toISOString().substring(0, 16);
-  const newEntry = `## v — ${timestamp}\n- **재료**: ${notes.replace(/\n/g, " ").substring(0, 200)}${notes.length > 200 ? "..." : ""}\n- **추가 프롬프트**: ${prompt.trim() || "없음"}\n- **태그**: ${tags || "없음"}\n- **타입**: ${type}\n\n---\n\n`;
+  // generation-log 저장 (로컬 전용 — Vercel은 파일시스템이 읽기전용이라 무시)
+  try {
+    const logDir = path.join(process.cwd(), "logs/generation-log");
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+    const logFile = path.join(logDir, `${date}-${slug}.md`);
+    const timestamp = new Date().toISOString().substring(0, 16);
+    const newEntry = `## v — ${timestamp}\n- **재료**: ${notes.replace(/\n/g, " ").substring(0, 200)}${notes.length > 200 ? "..." : ""}\n- **추가 프롬프트**: ${prompt.trim() || "없음"}\n- **태그**: ${tags || "없음"}\n- **타입**: ${type}\n\n---\n\n`;
 
-  if (fs.existsSync(logFile)) {
-    const existing = fs.readFileSync(logFile, "utf-8");
-    // 헤더 다음에 최신 항목 삽입
-    const headerEnd = existing.indexOf("\n\n") + 2;
-    fs.writeFileSync(logFile, existing.substring(0, headerEnd) + newEntry + existing.substring(headerEnd));
-  } else {
-    fs.writeFileSync(logFile, `# ${date}-${slug}\n\n` + newEntry);
-  }
+    if (fs.existsSync(logFile)) {
+      const existing = fs.readFileSync(logFile, "utf-8");
+      const headerEnd = existing.indexOf("\n\n") + 2;
+      fs.writeFileSync(logFile, existing.substring(0, headerEnd) + newEntry + existing.substring(headerEnd));
+    } else {
+      fs.writeFileSync(logFile, `# ${date}-${slug}\n\n` + newEntry);
+    }
+  } catch { /* 로컬 전용 로그, 실패해도 무시 */ }
 
   return NextResponse.json({ slug: `${date}-${slug}` });
 }
