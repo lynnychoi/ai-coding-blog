@@ -56,7 +56,7 @@ export default async function BlogPage() {
           </div>
         </>
       )}
-      <AdminListControls type="dev" slugs={posts.map(p => p.slug)} />
+      <AdminListControls />
       <AdminBar />
     </div>
   );

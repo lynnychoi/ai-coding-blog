@@ -69,7 +69,7 @@ export default async function WritingsPage() {
           })}
         </div>
       )}
-      <AdminListControls type="writing" slugs={posts.map(p => p.slug)} />
+      <AdminListControls />
     </div>
     <AdminBar />
     </>
