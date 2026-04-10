@@ -12,6 +12,7 @@ export const maxDuration = 300;
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
+  try {
   const formData = await req.formData();
 
   const password = formData.get("password") as string | null;
@@ -78,7 +79,7 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
 
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 8192,
+    max_tokens: 4096,
     system: rules,
     messages: [{ role: "user", content: promptText }],
   });
@@ -117,5 +118,10 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
   } catch { /* 로컬 전용 로그, 실패해도 무시 */ }
 
   return NextResponse.json({ slug: `${date}-${slug}` });
+
+  } catch (e) {
+    console.error("[write] unhandled error:", e);
+    return NextResponse.json({ error: `서버 오류: ${String(e)}` }, { status: 500 });
+  }
 }
 
