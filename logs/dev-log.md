@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-04-10 (3)
+
+- 목록 페이지 각 글 편집 버튼 제거 (hover 방식 → 레이아웃 깨짐, Cooking Station으로 충분)
+- AdminListControls 단순화: 새 글 쓰기 버튼만 유지
+
+---
+
 ## 2026-04-10 (2)
 
 - StickyHeader: 로그인 시 nav에 🍳 아이콘으로 Cooking Station 링크 추가
