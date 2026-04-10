@@ -4,8 +4,13 @@ import { usePathname } from "next/navigation";
 
 export default function StickyHeader() {
   const [visible, setVisible] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+
+  useEffect(() => {
+    fetch("/api/auth/status").then(r => r.json()).then(d => setLoggedIn(d.loggedIn)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     setVisible(false);
@@ -44,6 +49,9 @@ export default function StickyHeader() {
           <a href="/blog" className="nav-link">Dev Log</a>
           <a href="/writings" className="nav-link">Writing</a>
           <a href="/about" className="nav-link">About</a>
+          {loggedIn && (
+            <a href="/cooking" className="nav-link" style={{ color: "var(--text-3)", fontSize: "0.8em" }}>🍳</a>
+          )}
         </nav>
       </div>
     </header>

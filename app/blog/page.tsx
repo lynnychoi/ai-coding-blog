@@ -1,12 +1,13 @@
 import { getPublishedPosts } from "../../lib/posts";
 import PostList from "../components/PostList";
 import AdminBar from "../components/AdminBar";
+import AdminListControls from "../components/AdminListControls";
 
 export default async function BlogPage() {
   const posts = (await getPublishedPosts()).filter((p) => p.type === "dev");
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>
+    <div className="admin-list-page" style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>
       <p className="section-label">Dev Log</p>
       <h1 style={{
         fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
@@ -55,6 +56,7 @@ export default async function BlogPage() {
           </div>
         </>
       )}
+      <AdminListControls type="dev" slugs={posts.map(p => p.slug)} />
       <AdminBar />
     </div>
   );

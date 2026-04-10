@@ -1,5 +1,6 @@
 import { getPublishedPosts } from "../../lib/posts";
 import AdminBar from "../components/AdminBar";
+import AdminListControls from "../components/AdminListControls";
 
 const categoryLabel: Record<string, string> = {
   diary: "일기",
@@ -22,7 +23,7 @@ export default async function WritingsPage() {
 
   return (
     <>
-    <div className="writings-page" style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>
+    <div className="writings-page admin-list-page" style={{ maxWidth: 680, margin: "0 auto", paddingTop: "3rem" }}>
       <p className="section-label">Writing</p>
       <h1 style={{
         fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
@@ -68,6 +69,7 @@ export default async function WritingsPage() {
           })}
         </div>
       )}
+      <AdminListControls type="writing" slugs={posts.map(p => p.slug)} />
     </div>
     <AdminBar />
     </>
