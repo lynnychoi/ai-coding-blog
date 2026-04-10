@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-04-10 (2)
+
+- StickyHeader: 로그인 시 nav에 🍳 아이콘으로 Cooking Station 링크 추가
+- AdminBar: 플로팅 Cooking Station 버튼 제거 (nav로 통합)
+- AdminListControls 신규 컴포넌트: Dev Log / Writing 리스트 페이지에서 로그인 시 새 글 쓰기 버튼 + 각 글 hover 시 편집 링크 표시
+
+---
+
 ## 2026-04-10
 
 - scratch-note 미리보기 기능 추가 (클릭 시 내용 확인 후 불러오기)
