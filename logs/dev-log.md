@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-04-10 (4)
+
+- LYNN-BLOG-PRINCIPLES.md 글쓰기 원칙 강화:
+  - 4번: 한 가닥 흐름 원칙 / 포함할 거면 깊게 빼면 과감하게 / h2-first 규칙
+  - 5번: 제목이 핵심 갈등/긴장을 대표해야 한다는 원칙 + 제목 테스트 기준
+  - 11번: markdown 템플릿에 ## 섹션 바로 시작하는 구조 반영
+- LYNN-BLOG-PRINCIPLES-DEV.md: 동일 원칙 반영
+- 아카이브: LYNN-BLOG-PRINCIPLES-2026-04-10.md
+
+---
+
 ## 2026-04-10 (3)
 
 - 목록 페이지 각 글 편집 버튼 제거 (hover 방식 → 레이아웃 깨짐, Cooking Station으로 충분)
