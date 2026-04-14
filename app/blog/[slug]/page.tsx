@@ -1,14 +1,45 @@
 import { getPost, getPublishedPosts, getAdjacentPosts } from "../../../lib/posts";
 import { notFound } from "next/navigation";
+import { type Metadata } from "next";
 import "highlight.js/styles/github-dark.css";
 import Comments from "../../components/Comments";
 import ReadingProgress from "../../components/ReadingProgress";
 import AdminBar from "../../components/AdminBar";
 import MarkdownRenderer from "../../components/MarkdownRenderer";
 
+const SITE_URL = "https://ai-coding-blog.vercel.app";
 
 export async function generateStaticParams() {
   return (await getPublishedPosts()).map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPost(slug);
+  if (!post) return {};
+
+  const url = `${SITE_URL}/blog/${slug}`;
+  const description = post.excerpt || post.title;
+
+  return {
+    title: `${post.title} — Lynn.ai`,
+    description,
+    openGraph: {
+      title: post.title,
+      description,
+      url,
+      siteName: "Lynn.ai",
+      locale: "ko_KR",
+      type: "article",
+      publishedTime: post.date,
+      tags: post.tags,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+    },
+  };
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
