@@ -132,3 +132,7 @@ pkill -9 -f "next" && rm -rf .next/dev/lock && npm run dev -- --port 3011
 # 에러 메시지 직접 확인하고 싶으면
 npm run dev 2>/tmp/err.txt & sleep 5 && cat /tmp/err.txt
 ```
+
+그리고 실행 후 바로 안 켜져도 최소 8분은 기다릴 것. `✓ Starting...`은 끝이 아니라 시작이다.
+
+> !! 에러가 없어 보이는 것과 에러가 없는 것은 다르다. 조용한 실패가 제일 찾기 어렵다.
