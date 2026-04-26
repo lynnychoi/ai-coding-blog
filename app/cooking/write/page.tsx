@@ -8,6 +8,8 @@ import type { ImageEntry, Status, NoteItem } from "../types";
 import TypeStatusRow from "../components/TypeStatusRow";
 import TagsInput from "../components/TagsInput";
 import ImageUploadList from "../components/ImageUploadList";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const S = { ...COMMON };
 
@@ -180,8 +182,15 @@ export default function WritePage() {
         />
         <div style={{ marginTop: 8 }}>
           <label style={{ fontSize: 11, color: "#555", textTransform: "uppercase" as const, letterSpacing: 1, display: "block", marginBottom: 6 }}>작성 날짜</label>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)}
-            style={{ background: "#13131e", border: "1px solid #2a2a4a", borderRadius: 8, color: "#c0c0f0", fontSize: 13, padding: "8px 12px", width: "100%", boxSizing: "border-box" as const }} />
+          <DatePicker
+            selected={date ? new Date(date + "T12:00:00") : null}
+            onChange={(d: Date | null) => { if (d) setDate(d.toISOString().substring(0, 10)); }}
+            dateFormat="yyyy/MM/dd"
+            wrapperClassName="dp-wrapper"
+            customInput={
+              <input style={{ background: "#13131e", border: "1px solid #2a2a4a", borderRadius: 8, color: "#c0c0f0", fontSize: 13, padding: "8px 12px", width: "100%", boxSizing: "border-box" as const, cursor: "pointer" }} readOnly />
+            }
+          />
         </div>
       </div>
 
