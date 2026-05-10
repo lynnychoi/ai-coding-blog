@@ -48,6 +48,7 @@ export default function StickyHeader() {
         <nav className="site-nav">
           <a href="/blog" className="nav-link">Dev Log</a>
           <a href="/writings" className="nav-link">Writing</a>
+          <a href="/projects" className="nav-link">Projects</a>
           <a href="/about" className="nav-link">About</a>
           {loggedIn && (
             <a href="/cooking" className="nav-link" style={{ color: "var(--text-3)", fontSize: "0.8em" }}>🍳</a>

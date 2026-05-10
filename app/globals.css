@@ -924,3 +924,89 @@ body {
   border-color: #6060a0 !important;
 }
 .react-datepicker__triangle { display: none !important; }
+
+/* ── Projects list (rauno-style) ── */
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+.project-row {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+}
+.project-row:hover {
+  opacity: 0.7;
+}
+.project-row-inactive {
+  cursor: default;
+}
+.project-row-inactive:hover {
+  opacity: 1;
+}
+.project-year {
+  flex-shrink: 0;
+  width: 3.5rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--text-3);
+  padding-top: 0.18rem;
+}
+.project-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.project-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.project-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.project-status {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: lowercase;
+}
+.status-in-progress {
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+}
+.status-live {
+  color: #c4b5fd;
+  background: rgba(196, 181, 253, 0.08);
+  border: 1px solid rgba(196, 181, 253, 0.2);
+}
+.status-archived {
+  color: var(--text-3);
+  background: transparent;
+  border: 1px solid var(--border);
+}
+.project-tagline {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+  .project-row { gap: 1rem; padding: 1.25rem 0; }
+  .project-year { width: 2.8rem; font-size: 0.72rem; }
+  .project-name { font-size: 0.98rem; }
+}
