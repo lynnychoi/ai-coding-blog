@@ -6,6 +6,8 @@ visibility: "published"
 order: 1
 year: "2026"
 links: []
+cover: "🌙"
+coverColor: "#1a1530"
 ---
 
 # 달마다

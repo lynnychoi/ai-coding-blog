@@ -6,6 +6,8 @@ visibility: "published"
 order: 2
 year: "2026"
 links: []
+cover: "💳"
+coverColor: "#0f1f2e"
 ---
 
 # Wallet Couple

@@ -23,6 +23,8 @@ export interface ProjectMeta {
   order: number;
   year: string;
   links: ProjectLink[];
+  cover: string;       // 이미지 경로 또는 이모지
+  coverColor: string;  // 배경 색
 }
 
 export interface Project extends ProjectMeta {
@@ -83,6 +85,8 @@ function parseMeta(slug: string, raw: string): ProjectMeta {
     order: typeof data.order === "number" ? data.order : 999,
     year: String(data.year || ""),
     links: Array.isArray(data.links) ? data.links : [],
+    cover: String(data.cover || ""),
+    coverColor: String(data.coverColor || "#1a1a2e"),
   };
 }
 
