@@ -30,6 +30,7 @@ export default function WritePage() {
   const [loadingNotes, setLoadingNotes]   = useState(false);
   const [preview, setPreview]             = useState<{ path: string; content: string } | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [sourceNotes, setSourceNotes]     = useState<string[]>([]); // 이 글의 원본이 된 노트 경로들
 
   const fetchNoteList = async () => {
     setLoadingNotes(true);
@@ -59,6 +60,7 @@ export default function WritePage() {
     setNotes(prev => prev ? prev + "\n\n---\n\n" + preview.content : preview.content);
     const note = noteList.find(n => n.path === preview.path);
     if (note?.date) setDate(note.date);
+    setSourceNotes(prev => prev.includes(preview.path) ? prev : [...prev, preview.path]);
     setPreview(null);
     setShowNotePanel(false);
   };
@@ -78,6 +80,7 @@ export default function WritePage() {
     fd.append("type", type);
     fd.append("status", postStatus);
     fd.append("date", date);
+    fd.append("sourceNotes", JSON.stringify(sourceNotes));
     fd.append("_admin", "1");
     images.forEach((img, i) => {
       fd.append(`image_${i}_file`, img.file);
@@ -135,6 +138,23 @@ export default function WritePage() {
                         style={{ background: isSelected ? "#1a1a32" : "transparent", border: `1px solid ${isSelected ? "#4a4a8a" : "#2a2a3e"}`, borderRadius: 6, padding: "7px 10px", textAlign: "left", cursor: "pointer", display: "flex", gap: 8, alignItems: "center" }}>
                         <span style={{ fontSize: 10, color: "#4a4a7a", background: "#1a1a2e", borderRadius: 4, padding: "2px 6px", flexShrink: 0 }}>{note.project}</span>
                         <span style={{ fontSize: 12, color: isSelected ? "#c0c0f0" : "#9090c0", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{note.filename.replace(/\.md$/, "")}</span>
+                        {note.usedStatus && (
+                          <span
+                            onClick={note.usedSlug ? (e) => { e.stopPropagation(); window.open(`/cooking/edit/${note.usedSlug}`, "_blank"); } : undefined}
+                            title={
+                              (note.usedMatch === "guess" ? "내용이 비슷한 글이 있어 (추정)" : "이 노트로 쓴 글") +
+                              (note.usedStatus === "published" ? " · 공개" : " · 비공개") +
+                              (note.usedSlug ? " — 클릭하면 글로 이동" : "")
+                            }
+                            style={{
+                              fontSize: 10, flexShrink: 0, display: "flex", alignItems: "center", gap: 3,
+                              color: note.usedStatus === "published" ? "#5bbf8a" : "#c9a94a",
+                              cursor: note.usedSlug ? "pointer" : "default",
+                            }}>
+                            <span style={{ width: 6, height: 6, borderRadius: "50%", flexShrink: 0, background: note.usedStatus === "published" ? "#5bbf8a" : "#c9a94a" }} />
+                            {note.usedStatus === "published" ? "공개" : "비공개"}{note.usedMatch === "guess" ? "?" : ""}
+                          </span>
+                        )}
                         <span style={{ fontSize: 10, color: "#3a3a5a", flexShrink: 0 }}>{note.date}</span>
                       </button>
                     );

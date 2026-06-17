@@ -46,6 +46,9 @@ export async function GET(
       type: String(data.type ?? "dev"),
       notes: String(data.notes ?? ""),
       status: data.status === "unpublished" ? "unpublished" : "published",
+      sourceNotes: Array.isArray(data.sourceNotes)
+        ? data.sourceNotes.join(", ")
+        : String(data.sourceNotes ?? ""),
     },
     body: bodyWithoutTitle,
   });

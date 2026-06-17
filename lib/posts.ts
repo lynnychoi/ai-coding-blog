@@ -144,6 +144,39 @@ export async function getPublishedPosts(): Promise<PostMeta[]> {
   return (await getAllPosts()).filter((p) => p.status === "published");
 }
 
+// 노트↔글 연결 추적용: 각 글의 sourceNotes(정확한 연결)와 notes(추정 매칭용 원본 메모)
+export interface PostUsage {
+  slug: string;
+  status: PostStatus;
+  sourceNotes: string[];
+  notes: string;
+}
+
+export async function getPostsUsage(): Promise<PostUsage[]> {
+  const filenames = await fetchFilenames();
+  const results = await Promise.all(
+    filenames.map(async (filename) => {
+      const slug = filename.replace(/\.md$/, "");
+      const raw = await fetchRaw(slug);
+      if (!raw) return null;
+      const { data } = matter(raw);
+      const sn = data.sourceNotes;
+      const sourceNotes = Array.isArray(sn)
+        ? sn.map(String)
+        : sn
+          ? [String(sn)]
+          : [];
+      return {
+        slug,
+        status: (data.status === "unpublished" ? "unpublished" : "published") as PostStatus,
+        sourceNotes,
+        notes: String(data.notes ?? ""),
+      };
+    })
+  );
+  return results.filter((p): p is PostUsage => p !== null);
+}
+
 export async function getAdjacentPosts(
   slug: string,
   type: PostType

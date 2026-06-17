@@ -31,6 +31,16 @@ export async function POST(req: NextRequest) {
   const date = (formData.get("date") as string) || today();
   const status = (formData.get("status") as string) === "unpublished" ? "unpublished" : "published";
 
+  // 원본이 된 scratch-note 경로들 (정확한 노트↔글 연결용)
+  let sourceNotes: string[] = [];
+  try {
+    const raw = formData.get("sourceNotes") as string | null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) sourceNotes = parsed.filter((p) => typeof p === "string");
+    }
+  } catch { /* 무시 — 연결 정보 없이 진행 */ }
+
   // Upload images to GitHub and collect paths + descriptions
   const images: { path: string; description: string }[] = [];
   const datePrefix = date;
@@ -94,6 +104,13 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
     markdown = parsed.markdown;
   } catch {
     return NextResponse.json({ error: `Claude 응답 파싱 실패: ${rawText.substring(0, 200)}` }, { status: 500 });
+  }
+
+  // sourceNotes를 frontmatter에 직접 주입 (Claude에 맡기지 않고 코드로 확실히)
+  if (sourceNotes.length > 0 && markdown.startsWith("---\n")) {
+    const yaml = "sourceNotes:\n" +
+      sourceNotes.map((p) => `  - "${p.replace(/"/g, '\\"')}"`).join("\n") + "\n";
+    markdown = "---\n" + yaml + markdown.slice(4);
   }
 
   const filename = `content/posts/${date}-${slug}.md`;

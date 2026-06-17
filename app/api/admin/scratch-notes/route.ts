@@ -1,11 +1,88 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getExpectedToken, AUTH_COOKIE } from "../../../../lib/auth";
 import { getGitHubFile, commitToGitHub } from "../../../../lib/github";
+import { getPostsUsage } from "../../../../lib/posts";
 import fs from "fs";
 import path from "path";
 
 const SCRATCH_ROOT = path.join(process.cwd(), "scratch-notes");
 const IS_LOCAL = process.env.NODE_ENV === "development";
+
+type NoteWithUsage = {
+  project: string;
+  filename: string;
+  path: string;
+  date: string;
+  usedStatus?: "published" | "unpublished";
+  usedSlug?: string;
+  usedMatch?: "exact" | "guess";
+};
+
+// 공백 제거 + 소문자 — 줄바꿈/들여쓰기 차이 무시하고 내용만 비교
+const norm = (s: string) => s.toLowerCase().replace(/\s+/g, "");
+
+// 로컬에서 노트 파일 내용 읽기 (심볼릭 링크 안전 처리)
+function readLocalNote(notePath: string): string | null {
+  try {
+    const resolved = path.resolve(SCRATCH_ROOT, notePath);
+    const realRoot = fs.realpathSync(SCRATCH_ROOT);
+    const realResolved = fs.realpathSync(resolved);
+    if (!realResolved.startsWith(realRoot)) return null;
+    return fs.readFileSync(realResolved, "utf-8");
+  } catch {
+    return null;
+  }
+}
+
+// 노트 목록에 "이 노트로 쓴 글" 표시 붙이기
+// - exact: 글 frontmatter의 sourceNotes에 이 노트 경로가 들어있음 (정확)
+// - guess: 글의 notes(원본 메모)와 노트 내용이 비슷함 (추정, 로컬에서만)
+async function attachUsage(notes: NoteWithUsage[]): Promise<void> {
+  let posts;
+  try {
+    posts = await getPostsUsage();
+  } catch {
+    return; // 글 목록 못 읽으면 그냥 표시 없이 반환
+  }
+
+  for (const note of notes) {
+    // 1) 정확한 연결 — sourceNotes 우선, 공개 글을 우선 채택
+    let exact: (typeof posts)[number] | undefined;
+    for (const p of posts) {
+      if (p.sourceNotes.includes(note.path)) {
+        if (!exact || p.status === "published") exact = p;
+      }
+    }
+    if (exact) {
+      note.usedStatus = exact.status;
+      note.usedSlug = exact.slug;
+      note.usedMatch = "exact";
+      continue;
+    }
+
+    // 2) 추정 매칭 — 노트 내용 vs 글 notes (로컬에서만, GitHub 호출 비용 회피)
+    if (!IS_LOCAL) continue;
+    const content = readLocalNote(note.path);
+    if (!content) continue;
+    const a = norm(content);
+    if (a.length < 60) continue;
+    for (const p of posts) {
+      if (!p.notes) continue;
+      const b = norm(p.notes);
+      if (b.length < 60) continue;
+      const shorter = a.length < b.length ? a : b;
+      const longer = a.length < b.length ? b : a;
+      if (longer.includes(shorter.slice(0, 150))) {
+        if (!note.usedStatus || p.status === "published") {
+          note.usedStatus = p.status;
+          note.usedSlug = p.slug;
+          note.usedMatch = "guess";
+        }
+        if (p.status === "published") break;
+      }
+    }
+  }
+}
 
 // ── 인증 헬퍼 ──────────────────────────────────────────────────────────────
 async function isAuthed(req: NextRequest): Promise<boolean> {
@@ -119,7 +196,8 @@ export async function GET(req: NextRequest) {
   }
 
   // 목록 반환
-  const notes = IS_LOCAL ? listFromLocal() : await listFromGitHub();
+  const notes: NoteWithUsage[] = IS_LOCAL ? listFromLocal() : await listFromGitHub();
+  await attachUsage(notes);
   return NextResponse.json({ notes });
 }
 

@@ -47,7 +47,11 @@ function buildMarkdown(fields: Fields, body: string): string {
   const tagsStr = tags.length ? `[${tags.map(t => `"${t}"`).join(", ")}]` : "[]";
   const notesLine = fields.notes.trim() ? `notes: "${fields.notes.replace(/"/g, '\\"')}"\n` : "";
   const statusLine = fields.status === "unpublished" ? `status: unpublished\n` : "";
-  const fm = `---\ntitle: "${fields.title}"\ndate: ${fields.date}\ndatetime: ${fields.datetime}\ntags: ${tagsStr}\ntype: ${fields.type}\n${notesLine}${statusLine}---`;
+  const srcPaths = fields.sourceNotes.split(",").map(s => s.trim()).filter(Boolean);
+  const sourceLine = srcPaths.length
+    ? `sourceNotes:\n${srcPaths.map(p => `  - "${p.replace(/"/g, '\\"')}"`).join("\n")}\n`
+    : "";
+  const fm = `---\ntitle: "${fields.title}"\ndate: ${fields.date}\ndatetime: ${fields.datetime}\ntags: ${tagsStr}\ntype: ${fields.type}\n${notesLine}${statusLine}${sourceLine}---`;
   const titleLine = fields.title ? `\n# ${fields.title}\n` : "";
   return `${fm}${titleLine}\n${body}`;
 }
@@ -59,8 +63,8 @@ export default function ComprehensiveEditPage() {
   const isNew = searchParams.get("new") === "1";
   const slug = params.slug as string;
 
-  const [fields, setFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published" });
-  const [originalFields, setOriginalFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published" });
+  const [fields, setFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published", sourceNotes: "" });
+  const [originalFields, setOriginalFields] = useState<Fields>({ title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published", sourceNotes: "" });
   const [body, setBody] = useState("");
   const [originalBody, setOriginalBody] = useState("");
   const [markdown, setMarkdown] = useState("");
@@ -95,7 +99,7 @@ export default function ComprehensiveEditPage() {
       .then(r => r.json())
       .then((d: { markdown?: string; fields?: Fields; body?: string }) => {
         if (!d.markdown) { router.push("/cooking"); return; }
-        const f = d.fields ?? { title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published" };
+        const f = d.fields ?? { title: "", date: "", datetime: "", tags: "", type: "dev", notes: "", status: "published", sourceNotes: "" };
         const b = d.body ?? "";
         setFields(f); setOriginalFields(f);
         setBody(b); setOriginalBody(b);
