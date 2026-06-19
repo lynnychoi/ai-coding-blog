@@ -34,9 +34,20 @@ function readLocalNote(notePath: string): string | null {
   }
 }
 
+// 노트 내용 읽기 — 로컬은 파일시스템, 버셀(production)은 GitHub에서
+async function readNote(notePath: string): Promise<string | null> {
+  if (IS_LOCAL) return readLocalNote(notePath);
+  try {
+    const data = await getGitHubFile(`scratch-notes/${notePath}`);
+    return data?.content ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // 노트 목록에 "이 노트로 쓴 글" 표시 붙이기
 // - exact: 글 frontmatter의 sourceNotes에 이 노트 경로가 들어있음 (정확)
-// - guess: 글의 notes(원본 메모)와 노트 내용이 비슷함 (추정, 로컬에서만)
+// - guess: 글의 notes(원본 메모)와 노트 내용이 비슷함 (추정)
 async function attachUsage(notes: NoteWithUsage[]): Promise<void> {
   let posts;
   try {
@@ -45,8 +56,9 @@ async function attachUsage(notes: NoteWithUsage[]): Promise<void> {
     return; // 글 목록 못 읽으면 그냥 표시 없이 반환
   }
 
+  // 1) 정확한 연결 — sourceNotes. 매칭 안 되면 추정 후보로 넘김
+  const needGuess: NoteWithUsage[] = [];
   for (const note of notes) {
-    // 1) 정확한 연결 — sourceNotes 우선, 공개 글을 우선 채택
     let exact: (typeof posts)[number] | undefined;
     for (const p of posts) {
       if (p.sourceNotes.includes(note.path)) {
@@ -57,19 +69,23 @@ async function attachUsage(notes: NoteWithUsage[]): Promise<void> {
       note.usedStatus = exact.status;
       note.usedSlug = exact.slug;
       note.usedMatch = "exact";
-      continue;
+    } else {
+      needGuess.push(note);
     }
+  }
 
-    // 2) 추정 매칭 — 노트 내용 vs 글 notes (로컬에서만, GitHub 호출 비용 회피)
-    if (!IS_LOCAL) continue;
-    const content = readLocalNote(note.path);
-    if (!content) continue;
+  // 2) 추정 매칭 — 노트 내용 vs 글 notes(원본 메모). 내용은 병렬로 가져옴
+  const postsWithNotes = posts.filter((p) => norm(p.notes).length >= 60);
+  if (postsWithNotes.length === 0 || needGuess.length === 0) return;
+
+  const contents = await Promise.all(needGuess.map((n) => readNote(n.path)));
+  needGuess.forEach((note, i) => {
+    const content = contents[i];
+    if (!content) return;
     const a = norm(content);
-    if (a.length < 60) continue;
-    for (const p of posts) {
-      if (!p.notes) continue;
+    if (a.length < 60) return;
+    for (const p of postsWithNotes) {
       const b = norm(p.notes);
-      if (b.length < 60) continue;
       const shorter = a.length < b.length ? a : b;
       const longer = a.length < b.length ? b : a;
       if (longer.includes(shorter.slice(0, 150))) {
@@ -81,7 +97,7 @@ async function attachUsage(notes: NoteWithUsage[]): Promise<void> {
         if (p.status === "published") break;
       }
     }
-  }
+  });
 }
 
 // ── 인증 헬퍼 ──────────────────────────────────────────────────────────────
