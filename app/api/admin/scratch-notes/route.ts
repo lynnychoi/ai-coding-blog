@@ -21,6 +21,24 @@ type NoteWithUsage = {
 // 공백 제거 + 소문자 — 줄바꿈/들여쓰기 차이 무시하고 내용만 비교
 const norm = (s: string) => s.toLowerCase().replace(/\s+/g, "");
 
+// 두 글이 겹치는지 — 짧은 쪽에서 W자 윈도우를 슬라이딩하며 긴 쪽에 들어있나 확인.
+// 앞부분만 보지 않으므로 노트 제목/구조가 달라도 본문이 겹치면 잡힌다.
+function contentOverlaps(a: string, b: string): boolean {
+  const W = 120;
+  if (a.length < W || b.length < W) {
+    // 둘 다 짧으면 한쪽이 다른 쪽에 통째로 들어있는지만
+    const shrt = a.length < b.length ? a : b;
+    const lng = a.length < b.length ? b : a;
+    return shrt.length >= 60 && lng.includes(shrt);
+  }
+  const shorter = a.length < b.length ? a : b;
+  const longer = a.length < b.length ? b : a;
+  for (let i = 0; i + W <= shorter.length; i += 40) {
+    if (longer.includes(shorter.slice(i, i + W))) return true;
+  }
+  return false;
+}
+
 // 로컬에서 노트 파일 내용 읽기 (심볼릭 링크 안전 처리)
 function readLocalNote(notePath: string): string | null {
   try {
@@ -86,9 +104,7 @@ async function attachUsage(notes: NoteWithUsage[]): Promise<void> {
     if (a.length < 60) return;
     for (const p of postsWithNotes) {
       const b = norm(p.notes);
-      const shorter = a.length < b.length ? a : b;
-      const longer = a.length < b.length ? b : a;
-      if (longer.includes(shorter.slice(0, 150))) {
+      if (contentOverlaps(a, b)) {
         if (!note.usedStatus || p.status === "published") {
           note.usedStatus = p.status;
           note.usedSlug = p.slug;
