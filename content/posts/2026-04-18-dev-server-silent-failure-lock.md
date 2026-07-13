@@ -6,6 +6,8 @@ tags: ["삽질", "Next.js", "dev-server"]
 type: dev
 status: published
 notes: "dev server 1시간 디버깅 — lock 파일 문제"
+sourceNotes:
+  - "ai-coding-blog/2026-04-18T18:00:00-dev-server-lockfile-debug.md"
 ---
 
 # 에러는 났고, 나는 몰랐고, 한 시간이 지났다

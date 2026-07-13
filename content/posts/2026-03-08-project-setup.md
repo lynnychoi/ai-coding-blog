@@ -3,6 +3,8 @@ date: 2026-03-08
 datetime: 2026-03-08T14:00
 tags: [setup, next.js, claude-api, automation]
 type: dev
+sourceNotes:
+  - "ai-coding-blog/2026-03-12T00:00:00-mobile-write-system.md"
 ---
 
 # 개발 로그를 쓰면 블로그가 자동으로 올라오게 만들었다
