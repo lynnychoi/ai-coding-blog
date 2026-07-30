@@ -4,6 +4,8 @@ date: 2026-06-06
 datetime: 2026-06-06T00:00
 tags: ["claude-code", "삽질", "파일복구"]
 type: dev
+sourceNotes:
+  - "ai-coding-blog/2026-06-06T18:30:00-sd-card-photo-recovery.md"
 notes: "# SD 카드에서 실수로 지운 아기 사진 32장, Claude Code로 복구하기
 > Claude가 세션 직후 대신 기록. 특히 감정 섹션은 Lynn이 직접 다듬으면 더 좋음.
 ## 프로젝트 한 줄 소개
