@@ -6,7 +6,7 @@ import { getExpectedToken, AUTH_COOKIE } from "../../../../lib/auth";
 import { commitToGitHub, commitImageToGitHub } from "../../../../lib/github";
 import { today, parseClaudeJson } from "../../../../lib/utils";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
