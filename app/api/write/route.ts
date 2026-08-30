@@ -88,7 +88,7 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
 위 재료를 바탕으로 블로그 글을 작성해줘. frontmatter의 notes 필드에는 위 원본 메모를 그대로 넣어줘.`;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-opus-4-8",
     max_tokens: 8192,
     system: rules,
     messages: [{ role: "user", content: promptText }],
