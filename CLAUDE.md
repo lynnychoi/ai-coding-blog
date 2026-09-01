@@ -85,7 +85,7 @@ Lynn이 원칙 추가/수정을 요청하면:
 - `react-markdown` + `remark-gfm` — 마크다운 미리보기
 - GitHub Contents API — 글 저장/불러오기 (base64 인코딩)
 - HTTP-only 쿠키 인증 (`crypto.subtle` SHA-256)
-- Claude API (`claude-opus-4-6`) — 글 생성/수정
+- Claude API (`claude-opus-4-8`) — 글 생성/수정 (2026-09 Sonnet 4.6→Opus 4.8로 교체)
 
 ## 주요 파일 경로
 
