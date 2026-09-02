@@ -14,3 +14,4 @@
 | 2026-06-17T02:39:20.493Z | 49.170.42.83 | `ly*****0` | Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0. |
 | 2026-07-23T06:55:51.840Z | 211.234.188.197 | `ra*********0` | Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Vers |
 | 2026-08-26T05:00:31.862Z | 211.234.203.162 | `ly*****0` | Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Vers |
+| 2026-09-02T01:10:51.873Z | ::1 | `ly*****0` | Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0. |
