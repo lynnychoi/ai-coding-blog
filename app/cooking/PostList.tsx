@@ -61,36 +61,40 @@ export default function PostList({ initialPosts }: { initialPosts: PostMeta[] })
         </button>
       </div>
 
-      {/* 글 목록 */}
-      <Section title="Dev" posts={devPosts} deletingSlug={deletingSlug} onDelete={handleDelete} />
-      <Section title="Writing" posts={writingPosts} deletingSlug={deletingSlug} onDelete={handleDelete} />
-
-      {filtered.length === 0 && (
-        <div style={{ color: "#555", fontSize: 13, textAlign: "center", marginTop: 40 }}>
-          해당하는 글이 없어요.
-        </div>
-      )}
+      {/* 글 목록 — 섹션별 '+ 새 글'로 진입하면 해당 타입이 자동 선택됨 */}
+      <Section title="Dev" newType="dev" posts={devPosts} deletingSlug={deletingSlug} onDelete={handleDelete} />
+      <Section title="Writing" newType="writing" posts={writingPosts} deletingSlug={deletingSlug} onDelete={handleDelete} />
     </>
   );
 }
 
 function Section({
   title,
+  newType,
   posts,
   deletingSlug,
   onDelete,
 }: {
   title: string;
+  newType: "dev" | "writing";
   posts: PostMeta[];
   deletingSlug: string | null;
   onDelete: (slug: string) => void;
 }) {
-  if (posts.length === 0) return null;
   return (
     <div style={{ marginBottom: 32 }}>
-      <div style={{ fontSize: 12, color: "#555", fontWeight: 600, marginBottom: 12, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-        {title} ({posts.length})
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: "#555", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          {title} ({posts.length})
+        </div>
+        <Link href={`/cooking/write?type=${newType}`} style={{
+          fontSize: 12, color: "#a8f0d8", textDecoration: "none",
+          border: "1px solid #1e3a30", borderRadius: 6, padding: "4px 10px", fontWeight: 600,
+        }}>+ 새 글</Link>
       </div>
+      {posts.length === 0 && (
+        <div style={{ color: "#3a3a4e", fontSize: 12, padding: "2px 2px 4px" }}>아직 없어요</div>
+      )}
       {posts.map((post) => (
         <div key={post.slug} style={{
           display: "flex",

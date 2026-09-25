@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { COLORS, COMMON } from "../styles";
 import type { ImageEntry, Status, NoteItem } from "../types";
 import TypeStatusRow from "../components/TypeStatusRow";
@@ -13,13 +13,17 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const S = { ...COMMON };
 
-export default function WritePage() {
+function WritePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // 진입한 목록(Dev/Writing 섹션)에 따라 타입 초기 선택. 없으면 dev.
+  const initialType = searchParams.get("type") === "writing" ? "writing" : "dev";
   const [notes, setNotes]     = useState("");
   const [prompt, setPrompt]   = useState("");
   const [tags, setTags]       = useState("");
-  const [type, setType]       = useState<"dev" | "writing">("dev");
-  const [postStatus, setPostStatus] = useState<"published" | "unpublished">("unpublished");
+  const [type, setType]       = useState<"dev" | "writing">(initialType);
+  // 기본은 공개 (비공개가 지금은 더 드묾)
+  const [postStatus, setPostStatus] = useState<"published" | "unpublished">("published");
   const [date, setDate]       = useState(() => new Date().toISOString().substring(0, 10));
   const [images, setImages]   = useState<ImageEntry[]>([]);
   const [status, setStatus]   = useState<Status>("idle");
@@ -238,5 +242,13 @@ export default function WritePage() {
         생성 후 편집 페이지에서 바로 수정할 수 있어
       </p>
     </div>
+  );
+}
+
+export default function WritePage() {
+  return (
+    <Suspense fallback={null}>
+      <WritePageInner />
+    </Suspense>
   );
 }
