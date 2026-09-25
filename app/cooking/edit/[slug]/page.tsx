@@ -79,6 +79,15 @@ export default function ComprehensiveEditPage() {
   const [aiError, setAiError] = useState("");
   const [aiImages, setAiImages] = useState<ImageEntry[]>([]);
   const aiFileRef = useRef<HTMLInputElement>(null);
+  // 부분 수정 (선택 → AI): 선택 구간만 고치고 나머지 본문은 안 건드림
+  const [selPanelOpen, setSelPanelOpen] = useState(false);
+  const [selRange, setSelRange] = useState<{ start: number; end: number } | null>(null);
+  const [selText, setSelText] = useState("");
+  const [selInstr, setSelInstr] = useState("");
+  const [selLoading, setSelLoading] = useState(false);
+  const [selError, setSelError] = useState("");
+  // 새 글(초안): 아직 한 번도 저장 안 했으면 수정 없어도 저장 허용 (AI 생성본 그대로 임시 저장용)
+  const [savedNew, setSavedNew] = useState(false);
   const [gifQuery, setGifQuery] = useState("");
   const [gifs, setGifs] = useState<GifResult[]>([]);
   const [gifLoading, setGifLoading] = useState(false);
@@ -202,6 +211,65 @@ export default function ComprehensiveEditPage() {
     }
   };
 
+  const openSelectionEdit = () => {
+    const ta = textareaRef.current;
+    setSelError("");
+    if (!ta || ta.selectionStart === ta.selectionEnd) {
+      setSelError("먼저 본문에서 고칠 부분을 드래그로 선택해줘.");
+      return;
+    }
+    setSelRange({ start: ta.selectionStart, end: ta.selectionEnd });
+    setSelText(body.substring(ta.selectionStart, ta.selectionEnd));
+    setSelInstr("");
+    setSelPanelOpen(true);
+  };
+
+  const closeSelectionEdit = () => {
+    setSelPanelOpen(false);
+    setSelRange(null);
+    setSelText("");
+    setSelInstr("");
+    setSelError("");
+  };
+
+  const applySelectionEdit = async () => {
+    if (!selRange || !selInstr.trim()) return;
+    setSelLoading(true);
+    setSelError("");
+    const range = selRange;
+    try {
+      const res = await fetch("/api/admin/edit-selection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selection: selText,
+          instructions: selInstr,
+          before: body.substring(0, range.start),
+          after: body.substring(range.end),
+          postType: fields.type,
+        }),
+      });
+      const data = await res.json() as { text?: string; error?: string };
+      if (!res.ok || data.error || typeof data.text !== "string") {
+        setSelError(data.error || "수정 실패");
+        return;
+      }
+      // 선택 구간만 교체 — 새로고침 없이 작업본(body)만 갱신, 나머지는 그대로
+      const newBody = body.substring(0, range.start) + data.text + body.substring(range.end);
+      setBody(newBody);
+      const newEnd = range.start + data.text.length;
+      closeSelectionEdit();
+      requestAnimationFrame(() => {
+        const ta = textareaRef.current;
+        if (ta) { ta.focus(); ta.selectionStart = range.start; ta.selectionEnd = newEnd; }
+      });
+    } catch {
+      setSelError("네트워크 오류");
+    } finally {
+      setSelLoading(false);
+    }
+  };
+
   const handleAiImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     Array.from(e.target.files || []).forEach(file => {
       setAiImages(prev => [...prev, { file, desc: "", preview: URL.createObjectURL(file) }]);
@@ -245,6 +313,7 @@ export default function ComprehensiveEditPage() {
       if (!res.ok) { setSaveStatus("error"); setSaveError(data.error || "저장 실패"); }
       else {
         setSaveStatus("saved");
+        setSavedNew(true);
         setOriginalFields(fields); setOriginalBody(body); setOriginalMarkdown(toSave);
         setShowSavePopup(true);
         setTimeout(() => setSaveStatus("idle"), 3000);
@@ -270,6 +339,7 @@ export default function ComprehensiveEditPage() {
   }, [handleSave]);
 
   const hasChanges = JSON.stringify(fields) !== JSON.stringify(originalFields) || body !== originalBody;
+  const canSave = hasChanges || (isNew && !savedNew);
   const previewMarkdown = buildMarkdown(fields, body);
 
   if (loading) {
@@ -282,8 +352,8 @@ export default function ComprehensiveEditPage() {
         <Link href="/cooking" style={DARK.back}>← 대시보드</Link>
         <a href="/style-guide.html" target="_blank" style={{ fontSize: 11, color: "#555", textDecoration: "none", border: "1px solid #1c1c2a", borderRadius: 5, padding: "3px 8px" }}>📖 Style</a>
         <span style={DARK.slug}>{slug}</span>
-        <button style={DARK.saveBtn(hasChanges ? saveStatus : "idle")} onClick={handleSave} disabled={saveStatus === "saving" || !hasChanges}>
-          {saveStatus === "saving" ? "저장 중..." : saveStatus === "saved" ? "저장됨 ✓" : saveStatus === "error" ? "오류" : hasChanges ? "저장하기" : "변경없음"}
+        <button style={DARK.saveBtn(canSave ? saveStatus : "idle")} onClick={handleSave} disabled={saveStatus === "saving" || !canSave}>
+          {saveStatus === "saving" ? "저장 중..." : saveStatus === "saved" ? "저장됨 ✓" : saveStatus === "error" ? "오류" : canSave ? "저장하기" : "변경없음"}
         </button>
       </div>
 
@@ -363,6 +433,29 @@ export default function ComprehensiveEditPage() {
               {([["- 목록", "- "], ["1. 목록", "1. "], ["```코드블록", "```\n코드\n```"]] as [string, string][]).map(([l, v]) => (
                 <button key={l} style={DARK.smallBtn} onClick={() => insertAtCursor(v, true)}>{l}</button>
               ))}
+            </div>
+
+            <div style={{ marginTop: 12, borderTop: `1px solid ${COLORS.border}`, paddingTop: 12 }}>
+              {!selPanelOpen ? (
+                <button style={DARK.smallBtn} onClick={openSelectionEdit}>✏️ 선택 부분만 AI 수정</button>
+              ) : (
+                <div style={{ background: "#13131e", border: "1px solid #2a2a4a", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontSize: 11, color: "#888", marginBottom: 6 }}>선택한 부분만 고쳐. 나머지 본문은 안 건드려.</div>
+                  <div style={{ fontSize: 12, color: COLORS.textMuted, background: COLORS.bgCard, border: `1px solid ${COLORS.borderCard}`, borderRadius: 6, padding: "6px 8px", marginBottom: 8, maxHeight: 72, overflow: "auto", whiteSpace: "pre-wrap" as const }}>{selText}</div>
+                  <input value={selInstr} onChange={e => setSelInstr(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") applySelectionEdit(); }}
+                    style={{ ...DARK.inlineInput, width: "100%", boxSizing: "border-box" as const, marginBottom: 8 }}
+                    placeholder="이 부분 어떻게 고칠까? (예: 더 짧게)" autoFocus />
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button style={{ ...DARK.primaryBtn, flex: 1, opacity: selLoading || !selInstr.trim() ? 0.5 : 1 }}
+                      onClick={applySelectionEdit} disabled={selLoading || !selInstr.trim()}>
+                      {selLoading ? "고치는 중... ✍️" : "이 부분만 고치기 →"}
+                    </button>
+                    <button style={DARK.smallBtn} onClick={closeSelectionEdit} disabled={selLoading}>취소</button>
+                  </div>
+                </div>
+              )}
+              {selError && <div style={{ ...DARK.errorBox, marginTop: 6 }}>{selError}</div>}
             </div>
           </>
         ) : (
