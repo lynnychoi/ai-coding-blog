@@ -4,10 +4,8 @@ date: 2026-07-30
 datetime: 2026-07-30T21:00
 tags: ["이유식트래커", "디자인", "삽질"]
 type: dev
-status: unpublished
 notes: "이유식 재고를 제빙판 큐브로 시각화한 작업. 원본 노트: baby-meal-plan/scratch-notes/2026-07-30T21:00:00-cube-inventory-visualization.md"
 ---
-
 # 숫자로 정확히 보여줬더니, 아무도 안 봤다
 
 ## 소고기 큐브가 없던 날
