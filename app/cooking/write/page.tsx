@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { COLORS, COMMON } from "../styles";
@@ -35,6 +35,19 @@ function WritePageInner() {
   const [preview, setPreview]             = useState<{ path: string; content: string } | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [sourceNotes, setSourceNotes]     = useState<string[]>([]); // 이 글의 원본이 된 노트 경로들
+  const notesRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertIntoNotes = (text: string) => {
+    const ta = notesRef.current;
+    if (!ta) { setNotes(prev => prev + text); return; }
+    const start = ta.selectionStart;
+    const before = notes.substring(0, start);
+    const after = notes.substring(start);
+    const needsNewline = before.length > 0 && !before.endsWith("\n");
+    const newNotes = before + (needsNewline ? "\n" : "") + text + after;
+    setNotes(newNotes);
+    requestAnimationFrame(() => { ta.focus(); ta.selectionStart = ta.selectionEnd = start + (needsNewline ? 1 : 0) + text.length; });
+  };
 
   const fetchNoteList = async () => {
     setLoadingNotes(true);
@@ -183,9 +196,22 @@ function WritePageInner() {
           </div>
         )}
 
-        <textarea value={notes} onChange={e => setNotes(e.target.value)}
+        <textarea ref={notesRef} value={notes} onChange={e => setNotes(e.target.value)}
           style={{ ...S.textarea, minHeight: 180 }}
           placeholder={"- 히어로 섹션 만들었음\n- 오로라 블롭 3개\n- 모바일에서 안 보이는 버그 고침"} />
+        <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+          {([["## 소제목", "## "], ["### 소소제목", "### "]] as [string, string][]).map(([l, v]) => (
+            <button key={l} style={S.smallBtn} onClick={() => insertIntoNotes(v)}>{l}</button>
+          ))}
+          <span style={{ width: 1, height: 14, background: "#2a2a4a", alignSelf: "center", display: "inline-block" }} />
+          {([["**굵게**", "**굵게**"], ["*기울임*", "*기울임*"], ["~~취소~~", "~~취소선~~"]] as [string, string][]).map(([l, v]) => (
+            <button key={l} style={S.smallBtn} onClick={() => insertIntoNotes(v)}>{l}</button>
+          ))}
+          <span style={{ width: 1, height: 14, background: "#2a2a4a", alignSelf: "center", display: "inline-block" }} />
+          {([[ "> 인용", "> "], ["> 단어란?", "> 단어란? "], ["takeaway", "> !! 내용"]] as [string, string][]).map(([l, v]) => (
+            <button key={l} style={S.smallBtn} onClick={() => insertIntoNotes(v)}>{l}</button>
+          ))}
+        </div>
       </div>
 
       {/* Claude에게 */}

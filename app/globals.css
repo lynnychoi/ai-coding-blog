@@ -669,6 +669,9 @@ body {
 .post-body td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-2); }
 .post-body tr:last-child td { border-bottom: none; }
 .post-body img { max-width: 100%; border-radius: 8px; margin: 1.25rem 0; border: 1px solid var(--border); height: auto; display: block; }
+/* GIF (giphy) — 너무 커지지 않게 사이즈 제한. 가로/세로/정방형 모두 커버 */
+.post-body img[src*="giphy.com"],
+.post-body img[src*=".gif"] { max-width: min(420px, 100%); max-height: 320px; object-fit: contain; margin-left: auto; margin-right: auto; border: none; background: transparent; }
 .post-body figure, .writing-body figure { margin: 1.25rem 0; }
 .post-body figure img, .writing-body figure img { margin: 0; }
 .post-body figcaption, .writing-body figcaption { font-size: 0.73rem; color: var(--text-3); text-align: left; margin-top: 0.5rem; font-style: italic; line-height: 1.5; }
