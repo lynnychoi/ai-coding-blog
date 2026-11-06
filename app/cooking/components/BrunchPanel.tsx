@@ -141,11 +141,31 @@ function parseBlocks(md: string): BrunchBlock[] {
   return blocks;
 }
 
-type Props = { body: string };
+// 연속 paragraph들을 하나로 합치기
+function mergeParas(blocks: BrunchBlock[]): BrunchBlock[] {
+  const result: BrunchBlock[] = [];
+  let i = 0;
+  while (i < blocks.length) {
+    if (blocks[i].type === "paragraph") {
+      const texts: string[] = [(blocks[i] as { type: "paragraph"; text: string }).text];
+      while (i + 1 < blocks.length && blocks[i + 1].type === "paragraph") {
+        i++;
+        texts.push((blocks[i] as { type: "paragraph"; text: string }).text);
+      }
+      result.push({ type: "paragraph", text: texts.join("\n\n") });
+    } else {
+      result.push(blocks[i]);
+    }
+    i++;
+  }
+  return result;
+}
 
-export default function BrunchPanel({ body }: Props) {
+type Props = { title?: string; body: string };
+
+export default function BrunchPanel({ title, body }: Props) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const blocks = useMemo(() => parseBlocks(body), [body]);
+  const blocks = useMemo(() => mergeParas(parseBlocks(body)), [body]);
 
   const copy = async (text: string, key: string) => {
     try {
@@ -198,6 +218,17 @@ export default function BrunchPanel({ body }: Props) {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {/* 대제목 */}
+        {title && (
+          <div style={row}>
+            <div style={{ flex: 1 }}>
+              <Tag label="대제목" />
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#e0e0f0" }}>{title}</div>
+            </div>
+            <CopyBtn text={title} id="__title__" />
+          </div>
+        )}
+
         {blocks.map((block, i) => {
           const key = String(i);
 
