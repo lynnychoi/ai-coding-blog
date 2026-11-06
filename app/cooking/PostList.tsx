@@ -68,6 +68,21 @@ export default function PostList({ initialPosts }: { initialPosts: PostMeta[] })
   );
 }
 
+const iconBtn: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 30,
+  height: 30,
+  borderRadius: 6,
+  border: "1px solid #2a2a3e",
+  background: "transparent",
+  color: "#888",
+  textDecoration: "none",
+  cursor: "pointer",
+  flexShrink: 0,
+};
+
 function Section({
   title,
   newType,
@@ -83,6 +98,7 @@ function Section({
 }) {
   return (
     <div style={{ marginBottom: 32 }}>
+
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <div style={{ fontSize: 12, color: "#555", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
           {title} ({posts.length})
@@ -123,35 +139,50 @@ function Section({
             </div>
             <div style={{ fontSize: 12, color: "#555" }}>{post.date}</div>
           </div>
-          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 4, flexShrink: 0, alignItems: "center" }}>
             {post.status === "published" && (
-              <Link href={`/blog/${post.slug}`} target="_blank" style={{
-                padding: "6px 12px", borderRadius: 6,
-                border: "1px solid #2a2a3e", color: "#888",
-                fontSize: 12, textDecoration: "none",
-              }}>
-                보기
+              <Link href={`/blog/${post.slug}`} target="_blank" title="보기" style={iconBtn}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
               </Link>
             )}
-            <Link href={`/cooking/edit/${post.slug}`} style={{
-              padding: "6px 12px", borderRadius: 6,
-              background: "#1e1e38", color: "#c4b8f8",
-              fontSize: 12, textDecoration: "none",
-              border: "1px solid #2a2a3e",
-            }}>
-              수정
+            <Link href={`/cooking/edit/${post.slug}`} title="수정" style={{ ...iconBtn, color: "#c4b8f8" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </Link>
+            <Link href={`/cooking/publish/${post.slug}`} title="외부 게시" style={{ ...iconBtn, color: "#a8f0d8" }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
             </Link>
             <button
               onClick={() => onDelete(post.slug)}
               disabled={deletingSlug === post.slug}
+              title="삭제"
               style={{
-                padding: "6px 12px", borderRadius: 6,
-                background: "transparent", color: deletingSlug === post.slug ? "#555" : "#c06060",
-                fontSize: 12, border: "1px solid #3a2a2a",
+                ...iconBtn,
+                color: deletingSlug === post.slug ? "#555" : "#c06060",
                 cursor: deletingSlug === post.slug ? "default" : "pointer",
-              }}
+                background: "none",
+                border: "none",
+              } as React.CSSProperties}
             >
-              {deletingSlug === post.slug ? "..." : "삭제"}
+              {deletingSlug === post.slug ? (
+                <span style={{ fontSize: 11 }}>...</span>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                </svg>
+              )}
             </button>
           </div>
         </div>

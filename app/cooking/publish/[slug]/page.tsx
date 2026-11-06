@@ -29,12 +29,12 @@ export default function PublishPage() {
   useEffect(() => {
     fetch(`/api/admin/posts/${slug}`)
       .then(r => r.json())
-      .then((d: { title?: string; body?: string; tags?: string; error?: string }) => {
+      .then((d: { fields?: { title?: string; tags?: string }; body?: string; error?: string }) => {
         if (d.error) { setError(d.error); return; }
         setPost({
-          title: d.title ?? "",
+          title: d.fields?.title ?? "",
           body: d.body ?? "",
-          tags: d.tags ?? "",
+          tags: d.fields?.tags ?? "",
         });
       })
       .catch(() => setError("글을 불러오지 못했어요."))
