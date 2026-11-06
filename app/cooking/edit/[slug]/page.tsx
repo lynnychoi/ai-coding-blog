@@ -9,6 +9,8 @@ import type { GifResult, ImageEntry, ActiveTab, EditorMode, SaveStatus, Fields }
 import TypeStatusRow from "../../components/TypeStatusRow";
 import TagsInput from "../../components/TagsInput";
 import ImageUploadList from "../../components/ImageUploadList";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const DARK = {
   ...COMMON,
@@ -371,7 +373,15 @@ export default function ComprehensiveEditPage() {
 
         <div style={{ marginBottom: 12 }}>
           <label style={DARK.label}>날짜</label>
-          <input type="date" style={DARK.input} value={fields.date} onChange={e => updateField("date", e.target.value)} />
+          <DatePicker
+            selected={fields.date ? new Date(fields.date + "T12:00:00") : null}
+            onChange={(d: Date | null) => { if (d) updateField("date", d.toISOString().substring(0, 10)); }}
+            dateFormat="yyyy/MM/dd"
+            wrapperClassName="dp-wrapper"
+            customInput={
+              <input style={{ ...DARK.input, cursor: "pointer" }} readOnly />
+            }
+          />
         </div>
 
         <TypeStatusRow
