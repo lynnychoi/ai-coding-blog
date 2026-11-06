@@ -378,6 +378,7 @@ export default function ComprehensiveEditPage() {
             onChange={(d: Date | null) => { if (d) updateField("date", d.toISOString().substring(0, 10)); }}
             dateFormat="yyyy/MM/dd"
             wrapperClassName="dp-wrapper"
+            showIcon={false}
             customInput={
               <input style={{ ...DARK.input, cursor: "pointer" }} readOnly />
             }
