@@ -1,6 +1,6 @@
 ---
 title: "똑부러진 엄마 vs 착한 엄마"
-date: 2026-11-01
+date: 2026-10-08
 datetime: 2026-11-01T00:00
 tags: ["육아", "어린이집", "엄마"]
 type: writing
