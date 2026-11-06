@@ -6,7 +6,6 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { COLORS, COMMON } from "../../styles";
 import MarkdownRenderer from "../../../components/MarkdownRenderer";
 import type { GifResult, ImageEntry, ActiveTab, EditorMode, SaveStatus, Fields } from "../../types";
-import ThreadsPanel from "../../components/ThreadsPanel";
 import TypeStatusRow from "../../components/TypeStatusRow";
 import TagsInput from "../../components/TagsInput";
 import ImageUploadList from "../../components/ImageUploadList";
@@ -470,9 +469,9 @@ export default function ComprehensiveEditPage() {
       </div>
 
       <div style={DARK.tabBar}>
-        {(["ai", "giphy", "image", "threads"] as ActiveTab[]).map(t => (
+        {(["ai", "giphy", "image"] as ActiveTab[]).map(t => (
           <button key={t} style={DARK.tab(tab === t)} onClick={() => setTab(t)}>
-            {t === "ai" ? "AI 수정" : t === "giphy" ? "GIF" : t === "image" ? "이미지" : "🧵 스레드"}
+            {t === "ai" ? "AI 수정" : t === "giphy" ? "GIF" : "이미지"}
           </button>
         ))}
       </div>
@@ -549,9 +548,6 @@ export default function ComprehensiveEditPage() {
         </div>
       )}
 
-      {tab === "threads" && (
-        <ThreadsPanel title={fields.title} body={body} tags={fields.tags} />
-      )}
 
       <div style={{ display: "none" }}>{previewMarkdown}{markdown}{originalMarkdown}</div>
 

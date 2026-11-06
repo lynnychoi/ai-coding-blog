@@ -15,26 +15,33 @@ export default function AdminBar({ slug }: { slug?: string }) {
 
   if (!loggedIn || !slug) return null;
 
+  const btnStyle = {
+    padding: "7px 14px",
+    borderRadius: 20,
+    background: "rgba(196, 184, 248, 0.15)",
+    border: "1px solid rgba(196, 184, 248, 0.4)",
+    color: "#c4b8f8",
+    fontSize: 12,
+    fontWeight: 600,
+    textDecoration: "none",
+    backdropFilter: "blur(8px)",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
+    letterSpacing: "0.02em",
+  };
+
   return (
     <div style={{
       position: "fixed",
       bottom: 20,
       right: 20,
       zIndex: 999,
+      display: "flex",
+      gap: 8,
     }}>
-      <Link href={`/cooking/edit/${slug}`} style={{
-        padding: "7px 14px",
-        borderRadius: 20,
-        background: "rgba(196, 184, 248, 0.15)",
-        border: "1px solid rgba(196, 184, 248, 0.4)",
-        color: "#c4b8f8",
-        fontSize: 12,
-        fontWeight: 600,
-        textDecoration: "none",
-        backdropFilter: "blur(8px)",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
-        letterSpacing: "0.02em",
-      }}>
+      <Link href={`/cooking/publish/${slug}`} style={btnStyle}>
+        ↗ 외부 게시
+      </Link>
+      <Link href={`/cooking/edit/${slug}`} style={btnStyle}>
         ✏️ 편집
       </Link>
     </div>

@@ -1,17 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { COLORS, COMMON } from "../styles";
 
 const S = COMMON;
 
-type Props = { title: string; body: string; tags: string };
+type Props = { title: string; body: string; tags: string; slug?: string };
 
-export default function ThreadsPanel({ title, body, tags }: Props) {
+export default function ThreadsPanel({ title, body, tags, slug }: Props) {
   const [posts, setPosts] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [cacheLoading, setCacheLoading] = useState(!!slug);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState<number | null>(null);
+
+  // 마운트 시 저장된 변환 결과 불러오기
+  useEffect(() => {
+    if (!slug) return;
+    fetch(`/api/admin/threads-cache/${slug}`)
+      .then(r => r.json())
+      .then((d: { posts?: string[] | null }) => {
+        if (d.posts) setPosts(d.posts);
+      })
+      .catch(() => {})
+      .finally(() => setCacheLoading(false));
+  }, [slug]);
+
+  const saveCache = async (newPosts: string[]) => {
+    if (!slug) return;
+    try {
+      await fetch(`/api/admin/threads-cache/${slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ posts: newPosts }),
+      });
+    } catch {}
+  };
 
   const convert = async () => {
     if (!body.trim()) return;
@@ -25,7 +49,9 @@ export default function ThreadsPanel({ title, body, tags }: Props) {
       });
       const data = await res.json() as { posts?: string[]; error?: string };
       if (!res.ok || data.error) { setError(data.error || "변환 실패"); return; }
-      setPosts(data.posts ?? []);
+      const newPosts = data.posts ?? [];
+      setPosts(newPosts);
+      saveCache(newPosts);
     } catch {
       setError("네트워크 오류");
     } finally {
@@ -38,17 +64,22 @@ export default function ThreadsPanel({ title, body, tags }: Props) {
       await navigator.clipboard.writeText(text);
       setCopied(idx);
       setTimeout(() => setCopied(null), 2000);
-    } catch {
-      // 클립보드 실패 시 조용히 무시
-    }
+    } catch {}
   };
 
   const copyAll = async () => {
-    const all = posts.join("\n\n---\n\n");
-    await navigator.clipboard.writeText(all);
+    await navigator.clipboard.writeText(posts.join("\n\n---\n\n"));
     setCopied(-1);
     setTimeout(() => setCopied(null), 2000);
   };
+
+  if (cacheLoading) {
+    return (
+      <div style={{ padding: "14px 16px", color: "#555", fontSize: 13 }}>
+        저장된 변환 결과 확인 중...
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "14px 16px" }}>
@@ -94,10 +125,9 @@ export default function ThreadsPanel({ title, body, tags }: Props) {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <span style={{ fontSize: 11, color: "#555", fontWeight: 600 }}>{i + 1} / {posts.length}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{
-                    fontSize: 11,
-                    color: post.length > 460 ? "#f87171" : "#555",
-                  }}>{post.length}자</span>
+                  <span style={{ fontSize: 11, color: post.length > 460 ? "#f87171" : "#555" }}>
+                    {post.length}자
+                  </span>
                   <button
                     style={{
                       ...S.smallBtn,
