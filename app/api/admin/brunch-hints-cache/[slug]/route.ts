@@ -19,7 +19,7 @@ export async function GET(
   if (!file) return NextResponse.json({ suggestions: null });
 
   try {
-    const data = JSON.parse(Buffer.from(file.content, "base64").toString("utf-8")) as { suggestions: Suggestion[] };
+    const data = JSON.parse(file.content) as { suggestions: Suggestion[] };
     return NextResponse.json({ suggestions: data.suggestions ?? null });
   } catch {
     return NextResponse.json({ suggestions: null });
