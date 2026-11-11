@@ -307,6 +307,7 @@ export default function BrunchPanel({ title, body }: Props) {
           }
 
           if (block.type === "gif") {
+            const downloadUrl = `/api/admin/giphy-download?url=${encodeURIComponent(block.url)}`;
             return (
               <div key={i} style={{ background: "#0d0d1a", border: "1px dashed #3a3a6a", borderRadius: 8, padding: "10px 12px", display: "flex", alignItems: "center", gap: 12 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -315,10 +316,16 @@ export default function BrunchPanel({ title, body }: Props) {
                   <div style={{ fontSize: 10, color: "#6060a0", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 3 }}>여기 GIF 삽입</div>
                   <div style={{ fontSize: 12, color: "#5050a0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{block.alt || "(제목 없음)"}</div>
                 </div>
-                <a href={block.url} target="_blank" rel="noopener noreferrer"
-                  style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", color: "#9090d0", borderColor: "#3a3a6a", flexShrink: 0 }}>
-                  Giphy 열기
-                </a>
+                <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
+                  <a href={downloadUrl} download
+                    style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", textAlign: "center", color: "#a8f0d8", borderColor: "#2a5a4a", flexShrink: 0 }}>
+                    ⬇ GIF 저장
+                  </a>
+                  <a href={block.url} target="_blank" rel="noopener noreferrer"
+                    style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", textAlign: "center", color: "#9090d0", borderColor: "#3a3a6a", flexShrink: 0 }}>
+                    Giphy 열기
+                  </a>
+                </div>
               </div>
             );
           }
