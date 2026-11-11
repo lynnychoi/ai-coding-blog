@@ -5,20 +5,20 @@
       "format": "bold"
     },
     {
+      "text": "아이가 드디어 잠들었다.",
+      "format": "underline"
+    },
+    {
       "text": "내가 쓴 코드에서 나온 거",
       "format": "bold"
     },
     {
-      "text": "됐어.",
+      "text": "\"됐어.\"",
       "format": "bold"
     },
     {
       "text": "제일 충격이었던 것:",
       "format": "bold"
-    },
-    {
-      "text": "내가 그동안 개발자한테 \"이건 쉽게 되는 거 아니에요?\" 라고 했던 것들이 전혀 쉽지 않았다는 것.",
-      "format": "underline"
     },
     {
       "text": "Claude 없었으면 아무것도 못 했다.",
