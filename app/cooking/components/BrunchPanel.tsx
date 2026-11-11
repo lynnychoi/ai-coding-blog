@@ -131,6 +131,7 @@ const FORMAT_STYLES: Record<FormatType, { bg: string; color: string; label: stri
   underline:     { bg: "#0a1e38", color: "#70b8ff", label: "밑줄",   textStyle: { textDecoration: "underline" } },
   strikethrough: { bg: "#2e0f0f", color: "#ff7060", label: "취소선", textStyle: { textDecoration: "line-through" } },
   핵심:          { bg: "#1e1200", color: "#ffb830", label: "핵심",   textStyle: {} },
+  color:         { bg: "#0d2010", color: "#60e090", label: "색상",   textStyle: {} },
   bullet:        { bg: "#16162a", color: "#a090f8", label: "불렛",   textStyle: {} },
 };
 
