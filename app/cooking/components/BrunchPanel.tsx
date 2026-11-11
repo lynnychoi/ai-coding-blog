@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { COLORS, COMMON } from "../styles";
+import type { FormatType, Suggestion } from "../../api/admin/brunch-hints/route";
 
 const S = COMMON;
 
@@ -124,12 +125,87 @@ function blocksToPlainText(blocks: BrunchBlock[]): string {
   return parts.join("\n\n").trim();
 }
 
+// 힌트 스타일 정의
+const FORMAT_STYLES: Record<FormatType, { bg: string; color: string; label: string; textStyle?: React.CSSProperties }> = {
+  bold:          { bg: "#2a2510", color: "#f0c040", label: "볼드",   textStyle: { fontWeight: 700 } },
+  underline:     { bg: "#0f1e2e", color: "#60a8f0", label: "밑줄",   textStyle: { textDecoration: "underline" } },
+  strikethrough: { bg: "#2a1010", color: "#f07060", label: "취소선", textStyle: { textDecoration: "line-through" } },
+  color:         { bg: "#0f2318", color: "#60d090", label: "색상",   textStyle: {} },
+  bullet:        { bg: "#1a1a2a", color: "#a090f0", label: "불렛",   textStyle: {} },
+};
+
+function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
+  // bullet은 블록 레벨이라 inline 처리 안 함
+  const inlineSuggestions = suggestions.filter(s => s.format !== "bullet" && text.includes(s.text));
+  if (inlineSuggestions.length === 0) return text;
+
+  // 겹치지 않는 매치 수집
+  type Match = { start: number; end: number; format: FormatType };
+  const matches: Match[] = [];
+  for (const s of inlineSuggestions) {
+    let pos = 0;
+    while (pos < text.length) {
+      const idx = text.indexOf(s.text, pos);
+      if (idx === -1) break;
+      // 겹치면 스킵
+      const overlaps = matches.some(m => idx < m.end && idx + s.text.length > m.start);
+      if (!overlaps) matches.push({ start: idx, end: idx + s.text.length, format: s.format });
+      pos = idx + 1;
+    }
+  }
+  matches.sort((a, b) => a.start - b.start);
+
+  const nodes: React.ReactNode[] = [];
+  let cur = 0;
+  for (const m of matches) {
+    if (m.start > cur) nodes.push(text.slice(cur, m.start));
+    const fmt = FORMAT_STYLES[m.format];
+    nodes.push(
+      <span key={m.start} style={{ background: fmt.bg, borderRadius: 3, padding: "0 2px", ...fmt.textStyle, position: "relative" as const }}>
+        {text.slice(m.start, m.end)}
+        <span style={{
+          fontSize: 9, fontWeight: 700, color: fmt.color,
+          background: fmt.bg, border: `1px solid ${fmt.color}`,
+          borderRadius: 3, padding: "0 4px", marginLeft: 3,
+          verticalAlign: "middle", letterSpacing: "0.03em",
+          whiteSpace: "nowrap" as const,
+        }}>
+          {fmt.label}
+        </span>
+      </span>
+    );
+    cur = m.end;
+  }
+  if (cur < text.length) nodes.push(text.slice(cur));
+  return <>{nodes}</>;
+}
+
+function hasBulletHint(text: string, suggestions: Suggestion[]): boolean {
+  return suggestions.some(s => s.format === "bullet" && text.includes(s.text));
+}
+
 type Props = { title?: string; body: string };
 
 export default function BrunchPanel({ title, body }: Props) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [hints, setHints] = useState<Suggestion[]>([]);
+  const [hintsLoading, setHintsLoading] = useState(false);
   const blocks = useMemo(() => mergeParas(parseBlocks(body)), [body]);
   const fullText = useMemo(() => blocksToPlainText(blocks), [blocks]);
+
+  useEffect(() => {
+    if (!body.trim()) return;
+    setHintsLoading(true);
+    fetch("/api/admin/brunch-hints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body }),
+    })
+      .then(r => r.json())
+      .then((d: { suggestions?: Suggestion[] }) => setHints(d.suggestions ?? []))
+      .catch(() => {})
+      .finally(() => setHintsLoading(false));
+  }, [body]);
 
   const copy = async (text: string, key: string) => {
     try {
@@ -169,9 +245,25 @@ export default function BrunchPanel({ title, body }: Props) {
 
   return (
     <div style={{ padding: "14px 16px" }}>
-      <div style={{ fontSize: 12, color: "#666", marginBottom: 16, lineHeight: 1.7 }}>
-        본문 전체 복사 → 브런치 붙여넣기 → 소제목 위치 찾아서 서식 변경 → GIF 카드 위치에 삽입
+      {/* 안내 + 힌트 로딩 상태 */}
+      <div style={{ fontSize: 12, color: "#666", marginBottom: 16, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <span>본문 전체 복사 → 브런치 붙여넣기 → 힌트 보고 서식 적용 → GIF 카드 위치에 삽입</span>
+        {hintsLoading && (
+          <span style={{ fontSize: 11, color: "#4a4a7a", flexShrink: 0 }}>✦ 서식 힌트 분석 중...</span>
+        )}
       </div>
+
+      {/* 힌트 범례 */}
+      {hints.length > 0 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+          {(Object.keys(FORMAT_STYLES) as FormatType[]).filter(f => hints.some(h => h.format === f)).map(f => (
+            <span key={f} style={{ fontSize: 10, color: FORMAT_STYLES[f].color, background: FORMAT_STYLES[f].bg, border: `1px solid ${FORMAT_STYLES[f].color}`, borderRadius: 4, padding: "2px 7px", fontWeight: 600 }}>
+              {FORMAT_STYLES[f].label}
+            </span>
+          ))}
+          <span style={{ fontSize: 10, color: "#3a3a5a" }}>표시된 텍스트에 해당 서식 적용 추천</span>
+        </div>
+      )}
 
       {/* 대제목 */}
       {title && (
@@ -207,7 +299,9 @@ export default function BrunchPanel({ title, body }: Props) {
                 }}>
                   {block.level === 2 ? "소제목" : "소소제목"}
                 </span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "#c0c0f0" }}>{block.text}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#c0c0f0" }}>
+                  {applyHints(block.text, hints)}
+                </span>
               </div>
             );
           }
@@ -239,9 +333,17 @@ export default function BrunchPanel({ title, body }: Props) {
           }
 
           if (block.type === "paragraph") {
+            const isBullet = hasBulletHint(block.text, hints);
             return (
               <div key={i} style={{ padding: "6px 2px" }}>
-                <div style={{ fontSize: 13, color: "#7070a0", lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{block.text}</div>
+                {isBullet && (
+                  <div style={{ fontSize: 10, color: FORMAT_STYLES.bullet.color, background: FORMAT_STYLES.bullet.bg, border: `1px solid ${FORMAT_STYLES.bullet.color}`, borderRadius: 4, padding: "2px 7px", display: "inline-block", marginBottom: 5, fontWeight: 600 }}>
+                    불렛포인트 변환 추천
+                  </div>
+                )}
+                <div style={{ fontSize: 13, color: "#7070a0", lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
+                  {applyHints(block.text, hints)}
+                </div>
               </div>
             );
           }
@@ -249,7 +351,9 @@ export default function BrunchPanel({ title, body }: Props) {
           if (block.type === "quote") {
             return (
               <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #3a3a6a" }}>
-                <div style={{ fontSize: 13, color: "#6060a0", fontStyle: "italic" }}>{block.text}</div>
+                <div style={{ fontSize: 13, color: "#6060a0", fontStyle: "italic" }}>
+                  {applyHints(block.text, hints)}
+                </div>
               </div>
             );
           }
@@ -257,7 +361,9 @@ export default function BrunchPanel({ title, body }: Props) {
           if (block.type === "defbox") {
             return (
               <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #4a4a8a" }}>
-                <div style={{ fontSize: 13, color: "#6060a0" }}>{block.text}</div>
+                <div style={{ fontSize: 13, color: "#6060a0" }}>
+                  {applyHints(block.text, hints)}
+                </div>
               </div>
             );
           }
@@ -265,7 +371,9 @@ export default function BrunchPanel({ title, body }: Props) {
           if (block.type === "takeaway") {
             return (
               <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #c9a94a" }}>
-                <div style={{ fontSize: 13, color: "#c9a94a" }}>{block.text}</div>
+                <div style={{ fontSize: 13, color: "#c9a94a" }}>
+                  {applyHints(block.text, hints)}
+                </div>
               </div>
             );
           }
@@ -274,7 +382,9 @@ export default function BrunchPanel({ title, body }: Props) {
             return (
               <div key={i} style={{ padding: "6px 2px" }}>
                 {block.items.map((it, j) => (
-                  <div key={j} style={{ fontSize: 13, color: "#7070a0", lineHeight: 1.8 }}>• {it}</div>
+                  <div key={j} style={{ fontSize: 13, color: "#7070a0", lineHeight: 1.8 }}>
+                    • {applyHints(it, hints)}
+                  </div>
                 ))}
               </div>
             );
