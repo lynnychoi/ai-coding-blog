@@ -184,28 +184,59 @@ function hasListHint(items: string[], suggestions: Suggestion[]): boolean {
   return suggestions.some(s => s.format === "bullet" && items.some(it => it.includes(s.text)));
 }
 
-type Props = { title?: string; body: string };
+type Props = { title?: string; body: string; slug?: string };
 
-export default function BrunchPanel({ title, body }: Props) {
+export default function BrunchPanel({ title, body, slug }: Props) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [hints, setHints] = useState<Suggestion[]>([]);
   const [hintsLoading, setHintsLoading] = useState(false);
   const blocks = useMemo(() => mergeParas(parseBlocks(body)), [body]);
   const fullText = useMemo(() => blocksToPlainText(blocks), [blocks]);
 
-  useEffect(() => {
+  const analyzeAndSave = async () => {
     if (!body.trim()) return;
     setHintsLoading(true);
-    fetch("/api/admin/brunch-hints", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body }),
-    })
-      .then(r => r.json())
-      .then((d: { suggestions?: Suggestion[] }) => setHints(d.suggestions ?? []))
-      .catch(() => {})
-      .finally(() => setHintsLoading(false));
-  }, [body]);
+    try {
+      const res = await fetch("/api/admin/brunch-hints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body }),
+      });
+      const d = await res.json() as { suggestions?: Suggestion[] };
+      const suggestions = d.suggestions ?? [];
+      setHints(suggestions);
+      if (slug && suggestions.length > 0) {
+        fetch(`/api/admin/brunch-hints-cache/${slug}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ suggestions }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setHintsLoading(false);
+  };
+
+  useEffect(() => {
+    if (!body.trim()) return;
+    if (slug) {
+      // 캐시 먼저 확인
+      setHintsLoading(true);
+      fetch(`/api/admin/brunch-hints-cache/${slug}`)
+        .then(r => r.json())
+        .then((d: { suggestions: Suggestion[] | null }) => {
+          if (d.suggestions) {
+            setHints(d.suggestions);
+            setHintsLoading(false);
+          } else {
+            // 캐시 없으면 새로 분석
+            analyzeAndSave();
+          }
+        })
+        .catch(() => analyzeAndSave());
+    } else {
+      analyzeAndSave();
+    }
+  }, [body, slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const copy = async (text: string, key: string) => {
     try {
@@ -248,8 +279,12 @@ export default function BrunchPanel({ title, body }: Props) {
       {/* 안내 + 힌트 로딩 상태 */}
       <div style={{ fontSize: 12, color: "#a0a0b8", marginBottom: 16, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <span>본문 전체 복사 → 브런치 붙여넣기 → 힌트 보고 서식 적용 → GIF 카드 위치에 삽입</span>
-        {hintsLoading && (
-          <span style={{ fontSize: 11, color: "#7070a0", flexShrink: 0 }}>✦ 서식 힌트 분석 중...</span>
+        {hintsLoading ? (
+          <span style={{ fontSize: 11, color: "#7070a0", flexShrink: 0 }}>✦ 분석 중...</span>
+        ) : (
+          <button onClick={analyzeAndSave} style={{ fontSize: 11, color: "#6060a0", background: "none", border: "1px solid #2a2a4a", borderRadius: 6, padding: "3px 9px", cursor: "pointer", flexShrink: 0 }}>
+            🔄 다시 분석
+          </button>
         )}
       </div>
 

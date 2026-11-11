@@ -114,7 +114,7 @@ export default function PublishPage() {
         <ThreadsPanel title={post.title} body={post.body} tags={post.tags} slug={slug} />
       )}
       {tab === "brunch" && (
-        <BrunchPanel title={post.title} body={post.body} />
+        <BrunchPanel title={post.title} body={post.body} slug={slug} />
       )}
     </div>
   );
