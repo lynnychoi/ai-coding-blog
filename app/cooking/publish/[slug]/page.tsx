@@ -21,7 +21,7 @@ export default function PublishPage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const [tab, setTab] = useState<Tab>("threads");
+  const [tab, setTab] = useState<Tab>("brunch");
   const [post, setPost] = useState<PostData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
