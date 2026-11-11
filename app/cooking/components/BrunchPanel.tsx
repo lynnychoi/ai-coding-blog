@@ -127,11 +127,11 @@ function blocksToPlainText(blocks: BrunchBlock[]): string {
 
 // 힌트 스타일 정의
 const FORMAT_STYLES: Record<FormatType, { bg: string; color: string; label: string; textStyle?: React.CSSProperties }> = {
-  bold:          { bg: "#2a2510", color: "#f0c040", label: "볼드",   textStyle: { fontWeight: 700 } },
-  underline:     { bg: "#0f1e2e", color: "#60a8f0", label: "밑줄",   textStyle: { textDecoration: "underline" } },
-  strikethrough: { bg: "#2a1010", color: "#f07060", label: "취소선", textStyle: { textDecoration: "line-through" } },
-  color:         { bg: "#0f2318", color: "#60d090", label: "색상",   textStyle: {} },
-  bullet:        { bg: "#1a1a2a", color: "#a090f0", label: "불렛",   textStyle: {} },
+  bold:          { bg: "#2e2800", color: "#ffd040", label: "볼드",   textStyle: { fontWeight: 700 } },
+  underline:     { bg: "#0a1e38", color: "#70b8ff", label: "밑줄",   textStyle: { textDecoration: "underline" } },
+  strikethrough: { bg: "#2e0f0f", color: "#ff7060", label: "취소선", textStyle: { textDecoration: "line-through" } },
+  핵심:          { bg: "#1e1200", color: "#ffb830", label: "핵심",   textStyle: {} },
+  bullet:        { bg: "#16162a", color: "#a090f8", label: "불렛",   textStyle: {} },
 };
 
 function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
@@ -162,16 +162,16 @@ function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
     const fmt = FORMAT_STYLES[m.format];
     nodes.push(
       <span key={m.start} style={{ background: fmt.bg, borderRadius: 3, padding: "0 2px", ...fmt.textStyle, position: "relative" as const }}>
-        {text.slice(m.start, m.end)}
         <span style={{
           fontSize: 9, fontWeight: 700, color: fmt.color,
           background: fmt.bg, border: `1px solid ${fmt.color}`,
-          borderRadius: 3, padding: "0 4px", marginLeft: 3,
+          borderRadius: 3, padding: "0 4px", marginRight: 3,
           verticalAlign: "middle", letterSpacing: "0.03em",
           whiteSpace: "nowrap" as const,
         }}>
           {fmt.label}
         </span>
+        {text.slice(m.start, m.end)}
       </span>
     );
     cur = m.end;
@@ -180,8 +180,8 @@ function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
   return <>{nodes}</>;
 }
 
-function hasBulletHint(text: string, suggestions: Suggestion[]): boolean {
-  return suggestions.some(s => s.format === "bullet" && text.includes(s.text));
+function hasListHint(items: string[], suggestions: Suggestion[]): boolean {
+  return suggestions.some(s => s.format === "bullet" && items.some(it => it.includes(s.text)));
 }
 
 type Props = { title?: string; body: string };
@@ -246,10 +246,10 @@ export default function BrunchPanel({ title, body }: Props) {
   return (
     <div style={{ padding: "14px 16px" }}>
       {/* 안내 + 힌트 로딩 상태 */}
-      <div style={{ fontSize: 12, color: "#666", marginBottom: 16, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+      <div style={{ fontSize: 12, color: "#a0a0b8", marginBottom: 16, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <span>본문 전체 복사 → 브런치 붙여넣기 → 힌트 보고 서식 적용 → GIF 카드 위치에 삽입</span>
         {hintsLoading && (
-          <span style={{ fontSize: 11, color: "#4a4a7a", flexShrink: 0 }}>✦ 서식 힌트 분석 중...</span>
+          <span style={{ fontSize: 11, color: "#7070a0", flexShrink: 0 }}>✦ 서식 힌트 분석 중...</span>
         )}
       </div>
 
@@ -333,22 +333,16 @@ export default function BrunchPanel({ title, body }: Props) {
           if (block.type === "image") {
             return (
               <div key={i} style={{ background: "#0d0d1a", border: "1px dashed #3a3a4a", borderRadius: 8, padding: "9px 12px" }}>
-                <div style={{ fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>여기 이미지 삽입</div>
-                <div style={{ fontSize: 12, color: "#4a4a7a" }}>{block.alt || block.url}</div>
+                <div style={{ fontSize: 10, color: "#888", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>여기 이미지 삽입</div>
+                <div style={{ fontSize: 12, color: "#7070a0" }}>{block.alt || block.url}</div>
               </div>
             );
           }
 
           if (block.type === "paragraph") {
-            const isBullet = hasBulletHint(block.text, hints);
             return (
               <div key={i} style={{ padding: "6px 2px" }}>
-                {isBullet && (
-                  <div style={{ fontSize: 10, color: FORMAT_STYLES.bullet.color, background: FORMAT_STYLES.bullet.bg, border: `1px solid ${FORMAT_STYLES.bullet.color}`, borderRadius: 4, padding: "2px 7px", display: "inline-block", marginBottom: 5, fontWeight: 600 }}>
-                    불렛포인트 변환 추천
-                  </div>
-                )}
-                <div style={{ fontSize: 13, color: "#7070a0", lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
+                <div style={{ fontSize: 13, color: "#c8c8d8", lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
                   {applyHints(block.text, hints)}
                 </div>
               </div>
@@ -357,8 +351,8 @@ export default function BrunchPanel({ title, body }: Props) {
 
           if (block.type === "quote") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #3a3a6a" }}>
-                <div style={{ fontSize: 13, color: "#6060a0", fontStyle: "italic" }}>
+              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a7a" }}>
+                <div style={{ fontSize: 13, color: "#b0b0cc", fontStyle: "italic" }}>
                   {applyHints(block.text, hints)}
                 </div>
               </div>
@@ -367,8 +361,8 @@ export default function BrunchPanel({ title, body }: Props) {
 
           if (block.type === "defbox") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #4a4a8a" }}>
-                <div style={{ fontSize: 13, color: "#6060a0" }}>
+              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a9a" }}>
+                <div style={{ fontSize: 13, color: "#b0b0cc" }}>
                   {applyHints(block.text, hints)}
                 </div>
               </div>
@@ -378,7 +372,7 @@ export default function BrunchPanel({ title, body }: Props) {
           if (block.type === "takeaway") {
             return (
               <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #c9a94a" }}>
-                <div style={{ fontSize: 13, color: "#c9a94a" }}>
+                <div style={{ fontSize: 13, color: "#d4b84a" }}>
                   {applyHints(block.text, hints)}
                 </div>
               </div>
@@ -386,10 +380,16 @@ export default function BrunchPanel({ title, body }: Props) {
           }
 
           if (block.type === "list") {
+            const isHinted = hasListHint(block.items, hints);
             return (
               <div key={i} style={{ padding: "6px 2px" }}>
+                {isHinted && (
+                  <div style={{ fontSize: 10, color: FORMAT_STYLES.bullet.color, background: FORMAT_STYLES.bullet.bg, border: `1px solid ${FORMAT_STYLES.bullet.color}`, borderRadius: 4, padding: "2px 7px", display: "inline-block", marginBottom: 5, fontWeight: 600 }}>
+                    불렛 유지
+                  </div>
+                )}
                 {block.items.map((it, j) => (
-                  <div key={j} style={{ fontSize: 13, color: "#7070a0", lineHeight: 1.8 }}>
+                  <div key={j} style={{ fontSize: 13, color: "#c8c8d8", lineHeight: 1.8 }}>
                     • {applyHints(it, hints)}
                   </div>
                 ))}
@@ -400,7 +400,7 @@ export default function BrunchPanel({ title, body }: Props) {
           if (block.type === "codeblock") {
             return (
               <div key={i} style={{ padding: "6px 2px" }}>
-                <pre style={{ fontSize: 11, color: "#6060a0", fontFamily: "'Fira Code', monospace", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{block.text}</pre>
+                <pre style={{ fontSize: 11, color: "#9090b0", fontFamily: "'Fira Code', monospace", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{block.text}</pre>
               </div>
             );
           }
