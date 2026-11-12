@@ -127,17 +127,13 @@ function blocksToPlainText(blocks: BrunchBlock[]): string {
 
 // 힌트 스타일 정의
 const FORMAT_STYLES: Record<FormatType, { bg: string; color: string; label: string; textStyle?: React.CSSProperties }> = {
-  bold:          { bg: "#2e2800", color: "#ffd040", label: "볼드",   textStyle: { fontWeight: 700 } },
-  underline:     { bg: "#0a1e38", color: "#70b8ff", label: "밑줄",   textStyle: { textDecoration: "underline" } },
-  strikethrough: { bg: "#2e0f0f", color: "#ff7060", label: "취소선", textStyle: { textDecoration: "line-through" } },
-  핵심:          { bg: "#1e1200", color: "#ffb830", label: "핵심",   textStyle: {} },
-  color:         { bg: "#0d2010", color: "#60e090", label: "색상",   textStyle: {} },
-  bullet:        { bg: "#16162a", color: "#a090f8", label: "불렛",   textStyle: {} },
+  bold:  { bg: "#2e2800", color: "#ffd040", label: "볼드", textStyle: { fontWeight: 700 } },
+  color: { bg: "#0d2010", color: "#60e090", label: "색상", textStyle: {} },
+  핵심:  { bg: "#1e1200", color: "#ffb830", label: "핵심", textStyle: {} },
 };
 
 function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
-  // bullet은 블록 레벨이라 inline 처리 안 함
-  const inlineSuggestions = suggestions.filter(s => s.format !== "bullet" && text.includes(s.text));
+  const inlineSuggestions = suggestions.filter(s => text.includes(s.text));
   if (inlineSuggestions.length === 0) return text;
 
   // 겹치지 않는 매치 수집
@@ -181,9 +177,6 @@ function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
   return <>{nodes}</>;
 }
 
-function hasListHint(items: string[], suggestions: Suggestion[]): boolean {
-  return suggestions.some(s => s.format === "bullet" && items.some(it => it.includes(s.text)));
-}
 
 type Props = { title?: string; body: string; slug?: string };
 
@@ -416,14 +409,8 @@ export default function BrunchPanel({ title, body, slug }: Props) {
           }
 
           if (block.type === "list") {
-            const isHinted = hasListHint(block.items, hints);
             return (
               <div key={i} style={{ padding: "6px 2px" }}>
-                {isHinted && (
-                  <div style={{ fontSize: 10, color: FORMAT_STYLES.bullet.color, background: FORMAT_STYLES.bullet.bg, border: `1px solid ${FORMAT_STYLES.bullet.color}`, borderRadius: 4, padding: "2px 7px", display: "inline-block", marginBottom: 5, fontWeight: 600 }}>
-                    불렛 유지
-                  </div>
-                )}
                 {block.items.map((it, j) => (
                   <div key={j} style={{ fontSize: 13, color: "#c8c8d8", lineHeight: 1.8 }}>
                     • {applyHints(it, hints)}
