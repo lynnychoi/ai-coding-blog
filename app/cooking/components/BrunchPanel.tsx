@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { COLORS, COMMON } from "../styles";
-import type { FormatType, Suggestion } from "../../api/admin/brunch-hints/route";
 
 const S = COMMON;
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type FormatType = "bold" | "italic" | "strikethrough" | "underline" | "inlineCode" | "링크";
+type Suggestion = { text: string; format: FormatType };
 
 type BrunchBlock =
   | { type: "heading"; level: 2 | 3; text: string }
@@ -15,11 +19,34 @@ type BrunchBlock =
   | { type: "gif"; alt: string; url: string }
   | { type: "image"; alt: string; url: string }
   | { type: "codeblock"; lang: string; text: string }
-  | { type: "list"; items: string[] }
+  | { type: "list"; ordered: boolean; items: string[] }
   | { type: "divider" };
+
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
+const FORMAT_STYLES: Record<FormatType, { bg: string; color: string; label: string; textStyle?: React.CSSProperties }> = {
+  bold:          { bg: "#2e2800", color: "#ffd040", label: "볼드",       textStyle: { fontWeight: 700 } },
+  italic:        { bg: "#1a1a30", color: "#a090f8", label: "기울임",     textStyle: { fontStyle: "italic" } },
+  strikethrough: { bg: "#2e0f0f", color: "#ff7060", label: "취소선",     textStyle: { textDecoration: "line-through" } },
+  underline:     { bg: "#091826", color: "#70b8ff", label: "밑줄",       textStyle: { textDecoration: "underline" } },
+  inlineCode:    { bg: "#1e1a08", color: "#c8b040", label: "볼드(코드)", textStyle: { fontFamily: "monospace" } },
+  링크:          { bg: "#081e1e", color: "#40d0c8", label: "링크",       textStyle: { textDecoration: "underline" } },
+};
+
+const BLOCK_BADGE: Record<string, { color: string; bg: string; label: string }> = {
+  색상:    { color: "#60e090", bg: "#0d2010", label: "색상" },
+  핵심:    { color: "#ffb830", bg: "#1e1200", label: "핵심" },
+  불렛:    { color: "#90c8f0", bg: "#081822", label: "불렛" },
+  번호목록: { color: "#90c8f0", bg: "#081822", label: "번호목록" },
+  구분선:  { color: "#707080", bg: "#111118", label: "구분선" },
+  코드블록: { color: "#c8b040", bg: "#1e1a08", label: "코드블록" },
+};
+
+// ─── Markdown parsing ─────────────────────────────────────────────────────────
 
 function stripMd(text: string): string {
   return text
+    .replace(/<u>(.+?)<\/u>/g, "$1")
     .replace(/\*\*(.+?)\*\*/g, "$1")
     .replace(/\*(.+?)\*/g, "$1")
     .replace(/~~(.+?)~~/g, "$1")
@@ -76,11 +103,12 @@ function parseBlocks(md: string): BrunchBlock[] {
     if (line.trim() === "---") { flushPara(); blocks.push({ type: "divider" }); i++; continue; }
     if (/^[-*] /.test(line) || /^\d+\. /.test(line)) {
       flushPara();
+      const ordered = /^\d+\. /.test(line);
       const items: string[] = [];
       while (i < lines.length && (/^[-*] /.test(lines[i]) || /^\d+\. /.test(lines[i]))) {
         items.push(stripMd(lines[i].replace(/^[-*\d.]+\s/, ""))); i++;
       }
-      blocks.push({ type: "list", items }); continue;
+      blocks.push({ type: "list", ordered, items }); continue;
     }
     if (line.trim() === "") { flushPara(); i++; continue; }
     paraLines.push(line); i++;
@@ -119,24 +147,58 @@ function blocksToPlainText(blocks: BrunchBlock[]): string {
     if (b.type === "quote")     { parts.push(b.text); continue; }
     if (b.type === "defbox")    { parts.push(b.text); continue; }
     if (b.type === "takeaway")  { parts.push(b.text); continue; }
-    if (b.type === "list")      { parts.push(b.items.map(it => `• ${it}`).join("\n")); continue; }
+    if (b.type === "list")      { parts.push(b.items.map((it, idx) => b.ordered ? `${idx + 1}. ${it}` : `• ${it}`).join("\n")); continue; }
     if (b.type === "codeblock") { parts.push(b.text); continue; }
   }
   return parts.join("\n\n").trim();
 }
 
-// 힌트 스타일 정의
-const FORMAT_STYLES: Record<FormatType, { bg: string; color: string; label: string; textStyle?: React.CSSProperties }> = {
-  bold:  { bg: "#2e2800", color: "#ffd040", label: "볼드", textStyle: { fontWeight: 700 } },
-  color: { bg: "#0d2010", color: "#60e090", label: "색상", textStyle: {} },
-  핵심:  { bg: "#1e1200", color: "#ffb830", label: "핵심", textStyle: {} },
-};
+// ─── Hint extraction (pure markdown, no AI) ───────────────────────────────────
+
+function extractInlineHints(md: string): Suggestion[] {
+  const hints: Suggestion[] = [];
+  let m: RegExpExecArray | null;
+
+  const boldRe = /\*\*(.+?)\*\*/g;
+  while ((m = boldRe.exec(md)) !== null) {
+    if (m[1].trim()) hints.push({ text: m[1], format: "bold" });
+  }
+
+  const noDouble = md.replace(/\*\*[^*\n]+?\*\*/g, s => " ".repeat(s.length));
+  const italicRe = /\*([^*\n]+?)\*/g;
+  while ((m = italicRe.exec(noDouble)) !== null) {
+    if (m[1].trim()) hints.push({ text: m[1], format: "italic" });
+  }
+
+  const strikeRe = /~~(.+?)~~/g;
+  while ((m = strikeRe.exec(md)) !== null) {
+    if (m[1].trim()) hints.push({ text: m[1], format: "strikethrough" });
+  }
+
+  const ulRe = /<u>(.+?)<\/u>/g;
+  while ((m = ulRe.exec(md)) !== null) {
+    if (m[1].trim()) hints.push({ text: m[1], format: "underline" });
+  }
+
+  const codeRe = /`([^`\n]+?)`/g;
+  while ((m = codeRe.exec(md)) !== null) {
+    if (m[1].trim()) hints.push({ text: m[1], format: "inlineCode" });
+  }
+
+  const linkRe = /\[([^\]\n]+?)\]\([^)\n]+?\)/g;
+  while ((m = linkRe.exec(md)) !== null) {
+    if (m[1].trim()) hints.push({ text: m[1], format: "링크" });
+  }
+
+  return hints;
+}
+
+// ─── Inline hint rendering ────────────────────────────────────────────────────
 
 function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
   const inlineSuggestions = suggestions.filter(s => text.includes(s.text));
   if (inlineSuggestions.length === 0) return text;
 
-  // 겹치지 않는 매치 수집
   type Match = { start: number; end: number; format: FormatType };
   const matches: Match[] = [];
   for (const s of inlineSuggestions) {
@@ -144,8 +206,7 @@ function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
     while (pos < text.length) {
       const idx = text.indexOf(s.text, pos);
       if (idx === -1) break;
-      // 겹치면 스킵
-      const overlaps = matches.some(m => idx < m.end && idx + s.text.length > m.start);
+      const overlaps = matches.some(mx => idx < mx.end && idx + s.text.length > mx.start);
       if (!overlaps) matches.push({ start: idx, end: idx + s.text.length, format: s.format });
       pos = idx + 1;
     }
@@ -154,83 +215,50 @@ function applyHints(text: string, suggestions: Suggestion[]): React.ReactNode {
 
   const nodes: React.ReactNode[] = [];
   let cur = 0;
-  for (const m of matches) {
-    if (m.start > cur) nodes.push(text.slice(cur, m.start));
-    const fmt = FORMAT_STYLES[m.format];
+  for (const mx of matches) {
+    if (mx.start > cur) nodes.push(text.slice(cur, mx.start));
+    const fmt = FORMAT_STYLES[mx.format];
     nodes.push(
-      <span key={m.start} style={{ background: fmt.bg, borderRadius: 3, padding: "0 2px", ...fmt.textStyle, position: "relative" as const }}>
+      <span key={mx.start} style={{ background: fmt.bg, borderRadius: 3, padding: "0 2px", ...fmt.textStyle }}>
         <span style={{
           fontSize: 9, fontWeight: 700, color: fmt.color,
           background: fmt.bg, border: `1px solid ${fmt.color}`,
           borderRadius: 3, padding: "0 4px", marginRight: 3,
-          verticalAlign: "middle", letterSpacing: "0.03em",
-          whiteSpace: "nowrap" as const,
+          verticalAlign: "middle", letterSpacing: "0.03em", whiteSpace: "nowrap",
         }}>
           {fmt.label}
         </span>
-        {text.slice(m.start, m.end)}
+        {text.slice(mx.start, mx.end)}
       </span>
     );
-    cur = m.end;
+    cur = mx.end;
   }
   if (cur < text.length) nodes.push(text.slice(cur));
   return <>{nodes}</>;
 }
 
+function BBadge({ id }: { id: string }) {
+  const b = BLOCK_BADGE[id];
+  if (!b) return null;
+  return (
+    <span style={{
+      fontSize: 10, fontWeight: 700, color: b.color,
+      background: b.bg, border: `1px solid ${b.color}`,
+      borderRadius: 4, padding: "2px 7px", flexShrink: 0,
+      letterSpacing: "0.03em",
+    }}>{b.label}</span>
+  );
+}
 
-type Props = { title?: string; body: string; slug?: string };
+// ─── Main component ───────────────────────────────────────────────────────────
 
-export default function BrunchPanel({ title, body, slug }: Props) {
+type Props = { title?: string; body: string };
+
+export default function BrunchPanel({ title, body }: Props) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [hints, setHints] = useState<Suggestion[]>([]);
-  const [hintsLoading, setHintsLoading] = useState(false);
   const blocks = useMemo(() => mergeParas(parseBlocks(body)), [body]);
   const fullText = useMemo(() => blocksToPlainText(blocks), [blocks]);
-
-  const analyzeAndSave = async () => {
-    if (!body.trim()) return;
-    setHintsLoading(true);
-    try {
-      const res = await fetch("/api/admin/brunch-hints", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body }),
-      });
-      const d = await res.json() as { suggestions?: Suggestion[] };
-      const suggestions = d.suggestions ?? [];
-      setHints(suggestions);
-      if (slug && suggestions.length > 0) {
-        fetch(`/api/admin/brunch-hints-cache/${slug}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ suggestions }),
-        }).catch(() => {});
-      }
-    } catch {}
-    setHintsLoading(false);
-  };
-
-  useEffect(() => {
-    if (!body.trim()) return;
-    if (slug) {
-      // 캐시 먼저 확인
-      setHintsLoading(true);
-      fetch(`/api/admin/brunch-hints-cache/${slug}`)
-        .then(r => r.json())
-        .then((d: { suggestions: Suggestion[] | null }) => {
-          if (d.suggestions) {
-            setHints(d.suggestions);
-            setHintsLoading(false);
-          } else {
-            // 캐시 없으면 새로 분석
-            analyzeAndSave();
-          }
-        })
-        .catch(() => analyzeAndSave());
-    } else {
-      analyzeAndSave();
-    }
-  }, [body, slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  const hints = useMemo(() => extractInlineHints(body), [body]);
 
   const copy = async (text: string, key: string) => {
     try {
@@ -268,29 +296,28 @@ export default function BrunchPanel({ title, body, slug }: Props) {
     return <div style={{ padding: "14px 16px", color: "#555", fontSize: 13 }}>글 본문이 없어요.</div>;
   }
 
+  const presentFormats = (Object.keys(FORMAT_STYLES) as FormatType[]).filter(f => hints.some(h => h.format === f));
+
   return (
     <div style={{ padding: "14px 16px" }}>
-      {/* 안내 + 힌트 로딩 상태 */}
-      <div style={{ fontSize: 12, color: "#a0a0b8", marginBottom: 16, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <span>본문 전체 복사 → 브런치 붙여넣기 → 힌트 보고 서식 적용 → GIF 카드 위치에 삽입</span>
-        {hintsLoading ? (
-          <span style={{ fontSize: 11, color: "#7070a0", flexShrink: 0 }}>✦ 분석 중...</span>
-        ) : (
-          <button onClick={analyzeAndSave} style={{ fontSize: 11, color: "#6060a0", background: "none", border: "1px solid #2a2a4a", borderRadius: 6, padding: "3px 9px", cursor: "pointer", flexShrink: 0 }}>
-            🔄 다시 분석
-          </button>
-        )}
+      {/* 안내 */}
+      <div style={{ fontSize: 12, color: "#a0a0b8", marginBottom: 16, lineHeight: 1.7 }}>
+        본문 전체 복사 → 브런치 붙여넣기 → 힌트 보고 서식 적용 → GIF 카드 위치에 삽입
       </div>
 
-      {/* 힌트 범례 */}
-      {hints.length > 0 && (
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
-          {(Object.keys(FORMAT_STYLES) as FormatType[]).filter(f => hints.some(h => h.format === f)).map(f => (
-            <span key={f} style={{ fontSize: 10, color: FORMAT_STYLES[f].color, background: FORMAT_STYLES[f].bg, border: `1px solid ${FORMAT_STYLES[f].color}`, borderRadius: 4, padding: "2px 7px", fontWeight: 600 }}>
+      {/* 인라인 힌트 범례 */}
+      {presentFormats.length > 0 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
+          {presentFormats.map(f => (
+            <span key={f} style={{
+              fontSize: 10, fontWeight: 700,
+              color: FORMAT_STYLES[f].color, background: FORMAT_STYLES[f].bg,
+              border: `1px solid ${FORMAT_STYLES[f].color}`, borderRadius: 4, padding: "2px 7px",
+            }}>
               {FORMAT_STYLES[f].label}
             </span>
           ))}
-          <span style={{ fontSize: 10, color: "#3a3a5a" }}>표시된 텍스트에 해당 서식 적용 추천</span>
+          <span style={{ fontSize: 10, color: "#3a3a5a" }}>표시된 텍스트에 해당 서식 적용</span>
         </div>
       )}
 
@@ -314,7 +341,13 @@ export default function BrunchPanel({ title, body, slug }: Props) {
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {blocks.map((block, i) => {
           if (block.type === "divider") {
-            return <div key={i} style={{ borderTop: "1px solid #1e1e2e", margin: "4px 0" }} />;
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, margin: "4px 0" }}>
+                <div style={{ flex: 1, borderTop: "1px solid #1e1e2e" }} />
+                <BBadge id="구분선" />
+                <div style={{ flex: 1, borderTop: "1px solid #1e1e2e" }} />
+              </div>
+            );
           }
 
           if (block.type === "heading") {
@@ -380,50 +413,57 @@ export default function BrunchPanel({ title, body, slug }: Props) {
 
           if (block.type === "quote") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a7a" }}>
-                <div style={{ fontSize: 13, color: "#b0b0cc", fontStyle: "italic" }}>
+              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a7a", display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ flex: 1, fontSize: 13, color: "#b0b0cc", fontStyle: "italic" }}>
                   {applyHints(block.text, hints)}
                 </div>
+                <BBadge id="색상" />
               </div>
             );
           }
 
           if (block.type === "defbox") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a9a" }}>
-                <div style={{ fontSize: 13, color: "#b0b0cc" }}>
+              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a9a", display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ flex: 1, fontSize: 13, color: "#b0b0cc" }}>
                   {applyHints(block.text, hints)}
                 </div>
+                <BBadge id="색상" />
               </div>
             );
           }
 
           if (block.type === "takeaway") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #c9a94a" }}>
-                <div style={{ fontSize: 13, color: "#d4b84a" }}>
+              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #c9a94a", display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ flex: 1, fontSize: 13, color: "#d4b84a" }}>
                   {applyHints(block.text, hints)}
                 </div>
+                <BBadge id="핵심" />
               </div>
             );
           }
 
           if (block.type === "list") {
             return (
-              <div key={i} style={{ padding: "6px 2px" }}>
-                {block.items.map((it, j) => (
-                  <div key={j} style={{ fontSize: 13, color: "#c8c8d8", lineHeight: 1.8 }}>
-                    • {applyHints(it, hints)}
-                  </div>
-                ))}
+              <div key={i} style={{ padding: "6px 2px", display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  {block.items.map((it, j) => (
+                    <div key={j} style={{ fontSize: 13, color: "#c8c8d8", lineHeight: 1.8 }}>
+                      {block.ordered ? `${j + 1}.` : "•"} {applyHints(it, hints)}
+                    </div>
+                  ))}
+                </div>
+                <BBadge id={block.ordered ? "번호목록" : "불렛"} />
               </div>
             );
           }
 
           if (block.type === "codeblock") {
             return (
-              <div key={i} style={{ padding: "6px 2px" }}>
-                <pre style={{ fontSize: 11, color: "#9090b0", fontFamily: "'Fira Code', monospace", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{block.text}</pre>
+              <div key={i} style={{ padding: "6px 2px", display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <pre style={{ flex: 1, fontSize: 11, color: "#9090b0", fontFamily: "'Fira Code', monospace", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{block.text}</pre>
+                <BBadge id="코드블록" />
               </div>
             );
           }
