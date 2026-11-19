@@ -13,6 +13,7 @@ export default function ThreadsPanel({ title, body, tags, slug }: Props) {
   const [cacheLoading, setCacheLoading] = useState(!!slug);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState<number | null>(null);
+  const [publishState, setPublishState] = useState<Record<number, { loading: boolean; id?: string; error?: string }>>({});
 
   // 마운트 시 저장된 변환 결과 불러오기
   useEffect(() => {
@@ -65,6 +66,25 @@ export default function ThreadsPanel({ title, body, tags, slug }: Props) {
       setCopied(idx);
       setTimeout(() => setCopied(null), 2000);
     } catch {}
+  };
+
+  const publishPost = async (text: string, idx: number) => {
+    setPublishState(prev => ({ ...prev, [idx]: { loading: true } }));
+    try {
+      const res = await fetch("/api/admin/threads-publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json() as { id?: string; error?: string };
+      if (!res.ok || data.error) {
+        setPublishState(prev => ({ ...prev, [idx]: { loading: false, error: data.error ?? "실패" } }));
+      } else {
+        setPublishState(prev => ({ ...prev, [idx]: { loading: false, id: data.id } }));
+      }
+    } catch {
+      setPublishState(prev => ({ ...prev, [idx]: { loading: false, error: "네트워크 오류" } }));
+    }
   };
 
   const copyAll = async () => {
@@ -138,8 +158,23 @@ export default function ThreadsPanel({ title, body, tags, slug }: Props) {
                   >
                     {copied === i ? "복사됨 ✓" : "복사"}
                   </button>
+                  <button
+                    style={{
+                      ...S.smallBtn,
+                      color: publishState[i]?.id ? COLORS.success : publishState[i]?.error ? "#f87171" : "#a0d8ef",
+                      borderColor: publishState[i]?.id ? COLORS.success : publishState[i]?.error ? "#f87171" : "#2a4a5a",
+                      opacity: publishState[i]?.loading ? 0.5 : 1,
+                    }}
+                    onClick={() => publishPost(post, i)}
+                    disabled={!!publishState[i]?.loading || !!publishState[i]?.id}
+                  >
+                    {publishState[i]?.loading ? "올리는 중..." : publishState[i]?.id ? "올라감 ✓" : publishState[i]?.error ? "실패" : "Threads 올리기"}
+                  </button>
                 </div>
               </div>
+              {publishState[i]?.error && (
+                <div style={{ fontSize: 11, color: "#f87171", marginBottom: 6 }}>{publishState[i].error}</div>
+              )}
               <textarea
                 value={post}
                 onChange={e => setPosts(prev => prev.map((p, j) => j === i ? e.target.value : p))}

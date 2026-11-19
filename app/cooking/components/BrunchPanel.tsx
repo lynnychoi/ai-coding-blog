@@ -7,7 +7,7 @@ const S = COMMON;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type FormatType = "bold" | "italic" | "strikethrough" | "underline" | "inlineCode" | "링크";
+type FormatType = "볼드" | "색상" | "색상+볼드" | "취소선+회색" | "밑줄" | "링크";
 type Suggestion = { text: string; format: FormatType };
 
 type BrunchBlock =
@@ -25,21 +25,22 @@ type BrunchBlock =
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const FORMAT_STYLES: Record<FormatType, { bg: string; color: string; label: string; textStyle?: React.CSSProperties }> = {
-  bold:          { bg: "#2e2800", color: "#ffd040", label: "볼드",       textStyle: { fontWeight: 700 } },
-  italic:        { bg: "#1a1a30", color: "#a090f8", label: "기울임",     textStyle: { fontStyle: "italic" } },
-  strikethrough: { bg: "#2e0f0f", color: "#ff7060", label: "취소선",     textStyle: { textDecoration: "line-through" } },
-  underline:     { bg: "#091826", color: "#70b8ff", label: "밑줄",       textStyle: { textDecoration: "underline" } },
-  inlineCode:    { bg: "#1e1a08", color: "#c8b040", label: "볼드(코드)", textStyle: { fontFamily: "monospace" } },
-  링크:          { bg: "#081e1e", color: "#40d0c8", label: "링크",       textStyle: { textDecoration: "underline" } },
+  "볼드":       { bg: "#2e2800", color: "#ffd040", label: "볼드",       textStyle: { fontWeight: 700 } },
+  "색상":       { bg: "#2e1200", color: "#ff8c40", label: "색상",       textStyle: { color: "#ff9050" } },
+  "색상+볼드":  { bg: "#2e1200", color: "#ff8c40", label: "색상+볼드",  textStyle: { color: "#ff9050", fontWeight: 700 } },
+  "취소선+회색": { bg: "#1a1a1a", color: "#909090", label: "취소선+회색", textStyle: { textDecoration: "line-through", color: "#909090" } },
+  "밑줄":       { bg: "#091826", color: "#70b8ff", label: "밑줄",       textStyle: { textDecoration: "underline" } },
+  "링크":       { bg: "#081e1e", color: "#40d0c8", label: "링크",       textStyle: { textDecoration: "underline" } },
 };
 
 const BLOCK_BADGE: Record<string, { color: string; bg: string; label: string }> = {
-  색상:    { color: "#60e090", bg: "#0d2010", label: "색상" },
-  핵심:    { color: "#ffb830", bg: "#1e1200", label: "핵심" },
-  불렛:    { color: "#90c8f0", bg: "#081822", label: "불렛" },
-  번호목록: { color: "#90c8f0", bg: "#081822", label: "번호목록" },
-  구분선:  { color: "#707080", bg: "#111118", label: "구분선" },
-  코드블록: { color: "#c8b040", bg: "#1e1a08", label: "코드블록" },
+  "색상":     { color: "#ff8c40", bg: "#2e1200",  label: "색상" },
+  "색상+볼드": { color: "#ff8c40", bg: "#2e1200",  label: "색상+볼드" },
+  "핵심":     { color: "#ffb830", bg: "#1e1200",  label: "핵심" },
+  "불렛":     { color: "#90c8f0", bg: "#081822",  label: "불렛" },
+  "번호목록":  { color: "#90c8f0", bg: "#081822",  label: "번호목록" },
+  "구분선":   { color: "#707080", bg: "#111118",  label: "구분선" },
+  "코드블록":  { color: "#c8b040", bg: "#1e1a08",  label: "코드블록" },
 };
 
 // ─── Markdown parsing ─────────────────────────────────────────────────────────
@@ -137,54 +138,72 @@ function mergeParas(blocks: BrunchBlock[]): BrunchBlock[] {
 }
 
 function blocksToPlainText(blocks: BrunchBlock[]): string {
-  const parts: string[] = [];
+  type Part = { text: string; kind: string };
+  const parts: Part[] = [];
+
   for (const b of blocks) {
     if (b.type === "image") continue;
-    if (b.type === "gif") { parts.push("."); continue; }
-    if (b.type === "divider") { parts.push(""); continue; }
-    if (b.type === "heading")  { parts.push(b.text); continue; }
-    if (b.type === "paragraph") { parts.push(b.text); continue; }
-    if (b.type === "quote")     { parts.push(b.text); continue; }
-    if (b.type === "defbox")    { parts.push(b.text); continue; }
-    if (b.type === "takeaway")  { parts.push(b.text); continue; }
-    if (b.type === "list")      { parts.push(b.items.map((it, idx) => b.ordered ? `${idx + 1}. ${it}` : `• ${it}`).join("\n")); continue; }
-    if (b.type === "codeblock") { parts.push(b.text); continue; }
+    if (b.type === "gif")       { parts.push({ text: ".", kind: "gif" }); continue; }
+    if (b.type === "divider")   { parts.push({ text: "", kind: "divider" }); continue; }
+    if (b.type === "heading")   { parts.push({ text: b.text, kind: "heading" }); continue; }
+    if (b.type === "paragraph") { parts.push({ text: b.text.replace(/\n\n+/g, "\n"), kind: "paragraph" }); continue; }
+    if (b.type === "quote")     { parts.push({ text: b.text, kind: "quote" }); continue; }
+    if (b.type === "defbox")    { parts.push({ text: b.text, kind: "defbox" }); continue; }
+    if (b.type === "takeaway")  { parts.push({ text: b.text, kind: "takeaway" }); continue; }
+    if (b.type === "list")      { parts.push({ text: b.items.map((it, idx) => b.ordered ? `${idx + 1}. ${it}` : `• ${it}`).join("\n"), kind: "list" }); continue; }
+    if (b.type === "codeblock") { parts.push({ text: b.text, kind: "codeblock" }); continue; }
   }
-  return parts.join("\n\n").trim();
+
+  if (parts.length === 0) return "";
+
+  let result = parts[0].text;
+  for (let i = 1; i < parts.length; i++) {
+    // 헤딩 앞에만 빈 줄(엔터 2개), 나머지는 줄바꿈 1개
+    const sep = parts[i].kind === "heading" ? "\n\n" : "\n";
+    result += sep + parts[i].text;
+  }
+
+  return result.trim();
 }
 
-// ─── Hint extraction (pure markdown, no AI) ───────────────────────────────────
+// ─── Hint extraction ──────────────────────────────────────────────────────────
 
 function extractInlineHints(md: string): Suggestion[] {
   const hints: Suggestion[] = [];
   let m: RegExpExecArray | null;
 
+  // **bold** → 볼드
   const boldRe = /\*\*(.+?)\*\*/g;
   while ((m = boldRe.exec(md)) !== null) {
-    if (m[1].trim()) hints.push({ text: m[1], format: "bold" });
+    if (m[1].trim()) hints.push({ text: m[1], format: "볼드" });
   }
 
+  // *italic* → 색상 (브런치에서 italic 역할 = 색상으로 강조)
   const noDouble = md.replace(/\*\*[^*\n]+?\*\*/g, s => " ".repeat(s.length));
   const italicRe = /\*([^*\n]+?)\*/g;
   while ((m = italicRe.exec(noDouble)) !== null) {
-    if (m[1].trim()) hints.push({ text: m[1], format: "italic" });
+    if (m[1].trim()) hints.push({ text: m[1], format: "색상" });
   }
 
+  // ~~strikethrough~~ → 취소선+회색
   const strikeRe = /~~(.+?)~~/g;
   while ((m = strikeRe.exec(md)) !== null) {
-    if (m[1].trim()) hints.push({ text: m[1], format: "strikethrough" });
+    if (m[1].trim()) hints.push({ text: m[1], format: "취소선+회색" });
   }
 
+  // <u>text</u> → 밑줄
   const ulRe = /<u>(.+?)<\/u>/g;
   while ((m = ulRe.exec(md)) !== null) {
-    if (m[1].trim()) hints.push({ text: m[1], format: "underline" });
+    if (m[1].trim()) hints.push({ text: m[1], format: "밑줄" });
   }
 
+  // `code` → 볼드 (브런치 코드 없음)
   const codeRe = /`([^`\n]+?)`/g;
   while ((m = codeRe.exec(md)) !== null) {
-    if (m[1].trim()) hints.push({ text: m[1], format: "inlineCode" });
+    if (m[1].trim()) hints.push({ text: m[1], format: "볼드" });
   }
 
+  // [link](url) → 링크
   const linkRe = /\[([^\]\n]+?)\]\([^)\n]+?\)/g;
   while ((m = linkRe.exec(md)) !== null) {
     if (m[1].trim()) hints.push({ text: m[1], format: "링크" });
@@ -256,9 +275,26 @@ type Props = { title?: string; body: string };
 
 export default function BrunchPanel({ title, body }: Props) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [subtitles, setSubtitles] = useState<string[]>([]);
+  const [subtitleLoading, setSubtitleLoading] = useState(false);
   const blocks = useMemo(() => mergeParas(parseBlocks(body)), [body]);
   const fullText = useMemo(() => blocksToPlainText(blocks), [blocks]);
   const hints = useMemo(() => extractInlineHints(body), [body]);
+
+  const fetchSubtitles = async () => {
+    if (!body.trim() || subtitleLoading) return;
+    setSubtitleLoading(true);
+    try {
+      const res = await fetch("/api/admin/brunch-subtitle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, body }),
+      });
+      const d = await res.json() as { subtitles?: string[] };
+      setSubtitles(d.subtitles ?? []);
+    } catch {}
+    setSubtitleLoading(false);
+  };
 
   const copy = async (text: string, key: string) => {
     try {
@@ -302,7 +338,7 @@ export default function BrunchPanel({ title, body }: Props) {
     <div style={{ padding: "14px 16px" }}>
       {/* 안내 */}
       <div style={{ fontSize: 12, color: "#a0a0b8", marginBottom: 16, lineHeight: 1.7 }}>
-        본문 전체 복사 → 브런치 붙여넣기 → 힌트 보고 서식 적용 → GIF 카드 위치에 삽입
+        본문 전체 복사 → 브런치 붙여넣기 → 힌트 보고 서식 적용 → GIF/이미지 위치에 삽입
       </div>
 
       {/* 인라인 힌트 범례 */}
@@ -332,6 +368,35 @@ export default function BrunchPanel({ title, body }: Props) {
         </div>
       )}
 
+      {/* 소제목 (브런치 대제목 바로 밑 한 줄) */}
+      <div style={{ background: "#0e0e18", border: "1px solid #2a2a3e", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: subtitles.length ? 10 : 0 }}>
+          <div style={{ fontSize: 10, color: "#555", letterSpacing: "0.07em", textTransform: "uppercase" }}>소제목 (대제목 바로 밑)</div>
+          <button
+            onClick={fetchSubtitles}
+            disabled={subtitleLoading}
+            style={{ fontSize: 11, color: "#7070a0", background: "none", border: "1px solid #2a2a4a", borderRadius: 6, padding: "3px 9px", cursor: "pointer", opacity: subtitleLoading ? 0.5 : 1 }}
+          >
+            {subtitleLoading ? "생성 중..." : subtitles.length ? "🔄 다시" : "✦ 제안 받기"}
+          </button>
+        </div>
+        {subtitles.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {subtitles.map((s, idx) => (
+              <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                <span style={{ fontSize: 13, color: "#c0c0d8" }}>{s}</span>
+                <button
+                  onClick={() => copy(s, `subtitle-${idx}`)}
+                  style={{ fontSize: 10, color: copiedKey === `subtitle-${idx}` ? COLORS.success : "#5a5a8a", background: "none", border: "none", cursor: "pointer", padding: "2px 6px", flexShrink: 0 }}
+                >
+                  {copiedKey === `subtitle-${idx}` ? "복사됨 ✓" : "복사"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* 본문 전체 복사 */}
       <div style={{ marginBottom: 16 }}>
         <CopyBtn text={fullText} id="__body__" label="본문 전체 복사" />
@@ -352,7 +417,7 @@ export default function BrunchPanel({ title, body }: Props) {
 
           if (block.type === "heading") {
             return (
-              <div key={i} style={{ background: "#111128", border: "1px solid #3a3a6a", borderRadius: 8, padding: "9px 12px", display: "flex", alignItems: "baseline", gap: 10 }}>
+              <div key={i} style={{ background: "#111128", border: "1px solid #3a3a6a", borderRadius: 8, padding: "9px 12px", display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{
                   fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 10, flexShrink: 0,
                   background: block.level === 2 ? "#2a2a5a" : "#1e1e3a",
@@ -361,9 +426,18 @@ export default function BrunchPanel({ title, body }: Props) {
                 }}>
                   {block.level === 2 ? "소제목" : "소소제목"}
                 </span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "#c0c0f0" }}>
+                <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "#c0c0f0" }}>
                   {applyHints(block.text, hints)}
                 </span>
+                <button
+                  onClick={() => copy(block.text, `heading-${i}`)}
+                  style={{
+                    fontSize: 10, color: copiedKey === `heading-${i}` ? COLORS.success : "#5a5a8a",
+                    background: "none", border: "none", cursor: "pointer", padding: "2px 6px", flexShrink: 0,
+                  }}
+                >
+                  {copiedKey === `heading-${i}` ? "복사됨 ✓" : "복사"}
+                </button>
               </div>
             );
           }
@@ -380,11 +454,11 @@ export default function BrunchPanel({ title, body }: Props) {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
                   <a href={downloadUrl} download
-                    style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", textAlign: "center", color: "#a8f0d8", borderColor: "#2a5a4a", flexShrink: 0 }}>
+                    style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", textAlign: "center", color: "#a8f0d8", borderColor: "#2a5a4a" }}>
                     ⬇ GIF 저장
                   </a>
                   <a href={block.url} target="_blank" rel="noopener noreferrer"
-                    style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", textAlign: "center", color: "#9090d0", borderColor: "#3a3a6a", flexShrink: 0 }}>
+                    style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", textAlign: "center", color: "#9090d0", borderColor: "#3a3a6a" }}>
                     Giphy 열기
                   </a>
                 </div>
@@ -393,10 +467,19 @@ export default function BrunchPanel({ title, body }: Props) {
           }
 
           if (block.type === "image") {
+            const downloadUrl = `/api/admin/image-download?url=${encodeURIComponent(block.url)}`;
             return (
-              <div key={i} style={{ background: "#0d0d1a", border: "1px dashed #3a3a4a", borderRadius: 8, padding: "9px 12px" }}>
-                <div style={{ fontSize: 10, color: "#888", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>여기 이미지 삽입</div>
-                <div style={{ fontSize: 12, color: "#7070a0" }}>{block.alt || block.url}</div>
+              <div key={i} style={{ background: "#0d0d1a", border: "1px dashed #3a3a4a", borderRadius: 8, padding: "10px 12px", display: "flex", alignItems: "center", gap: 12 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={block.url} alt={block.alt} style={{ width: 56, height: 40, objectFit: "cover", borderRadius: 4, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, color: "#555", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 3 }}>여기 이미지 삽입</div>
+                  <div style={{ fontSize: 12, color: "#7070a0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{block.alt || block.url}</div>
+                </div>
+                <a href={downloadUrl} download
+                  style={{ ...S.smallBtn, fontSize: 11, padding: "5px 10px", textDecoration: "none", textAlign: "center", color: "#a8f0d8", borderColor: "#2a5a4a", flexShrink: 0 }}>
+                  ⬇ 이미지 저장
+                </a>
               </div>
             );
           }
@@ -413,7 +496,7 @@ export default function BrunchPanel({ title, body }: Props) {
 
           if (block.type === "quote") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a7a", display: "flex", alignItems: "flex-start", gap: 8 }}>
+              <div key={i} style={{ padding: "6px 2px", display: "flex", alignItems: "flex-start", gap: 8 }}>
                 <div style={{ flex: 1, fontSize: 13, color: "#b0b0cc", fontStyle: "italic" }}>
                   {applyHints(block.text, hints)}
                 </div>
@@ -424,18 +507,18 @@ export default function BrunchPanel({ title, body }: Props) {
 
           if (block.type === "defbox") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #5a5a9a", display: "flex", alignItems: "flex-start", gap: 8 }}>
+              <div key={i} style={{ padding: "6px 2px", display: "flex", alignItems: "flex-start", gap: 8 }}>
                 <div style={{ flex: 1, fontSize: 13, color: "#b0b0cc" }}>
                   {applyHints(block.text, hints)}
                 </div>
-                <BBadge id="색상" />
+                <BBadge id="색상+볼드" />
               </div>
             );
           }
 
           if (block.type === "takeaway") {
             return (
-              <div key={i} style={{ padding: "6px 2px 6px 10px", borderLeft: "2px solid #c9a94a", display: "flex", alignItems: "flex-start", gap: 8 }}>
+              <div key={i} style={{ padding: "6px 2px", display: "flex", alignItems: "flex-start", gap: 8 }}>
                 <div style={{ flex: 1, fontSize: 13, color: "#d4b84a" }}>
                   {applyHints(block.text, hints)}
                 </div>
