@@ -81,7 +81,7 @@ ${currentMarkdown}
   try {
     const response = await anthropic.messages.create({
       model: "claude-opus-4-8",
-      max_tokens: 8192,
+      max_tokens: 16000,
       system: rules,
       messages: [{ role: "user", content: prompt }],
     });

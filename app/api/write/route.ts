@@ -89,7 +89,7 @@ ${prompt.trim() ? `\n## 추가 지시\n${prompt}` : ""}
 
   const response = await anthropic.messages.create({
     model: "claude-opus-4-8",
-    max_tokens: 8192,
+    max_tokens: 16000,
     system: rules,
     messages: [{ role: "user", content: promptText }],
   });

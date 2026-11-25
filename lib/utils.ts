@@ -7,18 +7,21 @@ export function todayDatetime(): string {
 }
 
 export function parseClaudeJson<T>(rawText: string): T {
-  // 1. 코드블록 벗기기
-  let clean = rawText
-    .replace(/^```json\s*/m, "")
-    .replace(/^```\s*/m, "")
-    .replace(/```\s*$/m, "")
-    .trim();
+  let clean: string;
 
-  // 2. 첫 { ~ 마지막 } 추출
-  const start = clean.indexOf("{");
-  const end = clean.lastIndexOf("}");
-  if (start !== -1 && end !== -1 && end > start) {
-    clean = clean.slice(start, end + 1);
+  // 1. ```json 코드블록이면 실제 개행(\n)으로 경계를 찾아 추출
+  //    (JSON 문자열 내 \n 이스케이프와 혼동 없음)
+  const fenceMatch = rawText.match(/```json\s*\n([\s\S]*?)\n\s*```/);
+  if (fenceMatch) {
+    clean = fenceMatch[1].trim();
+  } else {
+    // 2. 코드블록이 아니면 { ~ } 추출
+    clean = rawText.trim();
+    const start = clean.indexOf("{");
+    const end = clean.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end > start) {
+      clean = clean.slice(start, end + 1);
+    }
   }
 
   // 3. 직접 파싱 시도
