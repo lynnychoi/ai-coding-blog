@@ -100,6 +100,13 @@ export default function ComprehensiveEditPage() {
   const [saveError, setSaveError] = useState("");
   const [showSavePopup, setShowSavePopup] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // 맞춤법 검사
+  type SpellIssue = { original: string; suggestion: string; reason: string; offset: number };
+  const [spellIssues, setSpellIssues] = useState<SpellIssue[]>([]);
+  const [spellIdx, setSpellIdx] = useState(0);
+  const [spellLoading, setSpellLoading] = useState(false);
+  const [spellError, setSpellError] = useState("");
+  const [spellDone, setSpellDone] = useState(false);
 
   useEffect(() => {
     if (!loading) setMarkdown(buildMarkdown(fields, body));
@@ -326,6 +333,49 @@ export default function ComprehensiveEditPage() {
     }
   }, [fields, body, slug]);
 
+  const runSpellCheck = async () => {
+    setSpellLoading(true);
+    setSpellError("");
+    setSpellDone(false);
+    setSpellIssues([]);
+    setSpellIdx(0);
+    if (editorMode !== "edit") setEditorMode("edit");
+    try {
+      const res = await fetch("/api/admin/spellcheck", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body }),
+      });
+      const data = await res.json() as { issues?: SpellIssue[]; error?: string };
+      if (!res.ok || data.error) { setSpellError(data.error || "오류 발생"); return; }
+      const issues = data.issues ?? [];
+      setSpellIssues(issues);
+      if (issues.length === 0) setSpellDone(true);
+    } catch {
+      setSpellError("네트워크 오류");
+    } finally {
+      setSpellLoading(false);
+    }
+  };
+
+  const acceptSpell = () => {
+    const issue = spellIssues[spellIdx];
+    if (!issue) return;
+    const delta = issue.suggestion.length - issue.original.length;
+    const newBody = body.substring(0, issue.offset) + issue.suggestion + body.substring(issue.offset + issue.original.length);
+    setBody(newBody);
+    setSpellIssues(prev => prev.map((iss, i) => i > spellIdx ? { ...iss, offset: iss.offset + delta } : iss));
+    const nextIdx = spellIdx + 1;
+    if (nextIdx >= spellIssues.length) setSpellDone(true);
+    setSpellIdx(nextIdx);
+  };
+
+  const skipSpell = () => {
+    const nextIdx = spellIdx + 1;
+    if (nextIdx >= spellIssues.length) setSpellDone(true);
+    setSpellIdx(nextIdx);
+  };
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
@@ -339,6 +389,17 @@ export default function ComprehensiveEditPage() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [handleSave]);
+
+  useEffect(() => {
+    if (tab !== "spell" || spellDone || spellIssues.length === 0 || spellIdx >= spellIssues.length) return;
+    const issue = spellIssues[spellIdx];
+    const ta = textareaRef.current;
+    if (!ta) return;
+    requestAnimationFrame(() => {
+      ta.setSelectionRange(issue.offset, issue.offset + issue.original.length);
+      ta.focus();
+    });
+  }, [spellIdx, spellIssues, tab, spellDone]);
 
   const hasChanges = JSON.stringify(fields) !== JSON.stringify(originalFields) || body !== originalBody;
   const canSave = hasChanges || (isNew && !savedNew);
@@ -480,9 +541,9 @@ export default function ComprehensiveEditPage() {
       </div>
 
       <div style={DARK.tabBar}>
-        {(["ai", "giphy", "image"] as ActiveTab[]).map(t => (
+        {(["ai", "giphy", "image", "spell"] as ActiveTab[]).map(t => (
           <button key={t} style={DARK.tab(tab === t)} onClick={() => setTab(t)}>
-            {t === "ai" ? "AI 수정" : t === "giphy" ? "GIF" : "이미지"}
+            {t === "ai" ? "AI 수정" : t === "giphy" ? "GIF" : t === "image" ? "이미지" : "맞춤법"}
           </button>
         ))}
       </div>
@@ -559,6 +620,64 @@ export default function ComprehensiveEditPage() {
         </div>
       )}
 
+
+      {tab === "spell" && (
+        <div style={DARK.panel}>
+          {spellLoading ? (
+            <div style={{ color: "#a0a0b8", fontSize: 13, textAlign: "center", padding: "20px 0" }}>검사 중...</div>
+          ) : spellDone ? (
+            <div style={{ textAlign: "center", padding: "16px 0" }}>
+              <div style={{ fontSize: 15, color: COLORS.success, marginBottom: 6 }}>
+                {spellIssues.length === 0 ? "✓ 오류 없음!" : "✓ 맞춤법 검사 완료"}
+              </div>
+              <div style={{ fontSize: 12, color: "#555", marginBottom: 14 }}>
+                {spellIssues.length > 0 && `${spellIdx}개 처리 완료 — 저장하기를 눌러 최종 반영해줘.`}
+              </div>
+              <button style={DARK.smallBtn} onClick={runSpellCheck}>다시 검사</button>
+            </div>
+          ) : spellIssues.length > 0 && spellIdx < spellIssues.length ? (
+            <div>
+              <div style={{ fontSize: 11, color: "#555", marginBottom: 10 }}>
+                {spellIdx + 1} / {spellIssues.length}개 오류 — 위 텍스트에서 선택됨
+              </div>
+              <div style={{ background: "#0e0e18", border: "1px solid #2a2a4a", borderRadius: 8, padding: "12px 14px", marginBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" as const }}>
+                  <span style={{ fontSize: 14, color: "#f87171", textDecoration: "line-through" }}>
+                    {spellIssues[spellIdx].original}
+                  </span>
+                  <span style={{ color: "#555" }}>→</span>
+                  <span style={{ fontSize: 14, color: "#a8f0d8", fontWeight: 600 }}>
+                    {spellIssues[spellIdx].suggestion}
+                  </span>
+                </div>
+                <div style={{ fontSize: 11, color: "#6060a0" }}>{spellIssues[spellIdx].reason}</div>
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button style={{ ...DARK.primaryBtn, flex: 1, padding: "9px 0" }} onClick={acceptSpell}>
+                  ✓ 수락
+                </button>
+                <button style={DARK.smallBtn} onClick={skipSpell}>
+                  건너뛰기 →
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "10px 0" }}>
+              <div style={{ fontSize: 12, color: "#555", marginBottom: 14 }}>
+                본문의 맞춤법·띄어쓰기를 AI로 검사해
+              </div>
+              <button
+                style={{ ...DARK.primaryBtn, opacity: spellLoading ? 0.5 : 1 }}
+                onClick={runSpellCheck}
+                disabled={spellLoading}
+              >
+                맞춤법 검사 시작 →
+              </button>
+              {spellError && <div style={{ ...DARK.errorBox, marginTop: 10 }}>{spellError}</div>}
+            </div>
+          )}
+        </div>
+      )}
 
       <div style={{ display: "none" }}>{previewMarkdown}{markdown}{originalMarkdown}</div>
 
