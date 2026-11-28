@@ -531,7 +531,12 @@ export default function ComprehensiveEditPage() {
             </div>
           </>
         ) : (
-          <div style={DARK.preview}>
+          <div style={{
+            maxWidth: fields.type === "writing" ? 600 : 680,
+            margin: "0 auto",
+            minHeight: 320,
+            padding: "8px 0 24px",
+          }}>
             <MarkdownRenderer
               content={(fields.title ? `# ${fields.title}\n\n` : "") + body}
               isWriting={fields.type === "writing"}

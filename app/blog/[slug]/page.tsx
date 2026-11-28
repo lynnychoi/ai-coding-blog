@@ -1,7 +1,6 @@
 import { getPost, getPublishedPosts, getAdjacentPosts } from "../../../lib/posts";
 import { notFound } from "next/navigation";
 import { type Metadata } from "next";
-import "highlight.js/styles/github-dark.css";
 import Comments from "../../components/Comments";
 import ReadingProgress from "../../components/ReadingProgress";
 import AdminBar from "../../components/AdminBar";

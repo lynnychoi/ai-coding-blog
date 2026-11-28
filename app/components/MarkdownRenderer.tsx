@@ -2,8 +2,10 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
+import "highlight.js/styles/github-dark.css";
 import type { Components } from "react-markdown";
 
 const DEF_PATTERN = /^[^\s].*?(란[?:]|이란[?:])/;
@@ -70,7 +72,7 @@ export default function MarkdownRenderer({ content, isWriting }: Props) {
   return (
     <article className={isWriting ? "post-body writing-body" : "post-body"}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
         rehypePlugins={[rehypeRaw, rehypeHighlight]}
         components={markdownComponents}
       >
