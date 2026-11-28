@@ -50,6 +50,15 @@ const markdownComponents: Components = {
       </figure>
     );
   },
+  // 이미지만 있는 단락은 <p> 대신 fragment로 — <p> 안에 <figure> 금지(HTML 규칙)
+  p({ children, node }) {
+    const isImageOnly = node?.children?.every(
+      n => (n.type === "element" && (n as { tagName?: string }).tagName === "img") ||
+           (n.type === "text" && (n as { value?: string }).value?.trim() === "")
+    );
+    if (isImageOnly) return <>{children}</>;
+    return <p>{children}</p>;
+  },
 };
 
 interface Props {
